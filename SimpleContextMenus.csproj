@@ -16,8 +16,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="SharpShell" Version="2.2.0" />
-      <PackageReference Include="SharpShellTools" Version="2.2.0" />
+      <PackageReference Include="ServerRegistrationManager" Version="2.7.2" />
+      <PackageReference Include="SharpShell" Version="2.7.2" />
     </ItemGroup>
 
     <ItemGroup>

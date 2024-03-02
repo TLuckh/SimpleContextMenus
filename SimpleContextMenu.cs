@@ -9,15 +9,15 @@ using VLCShellExtension;
 
 namespace SimpleContextMenus
 {
-
+    
     /// <summary>
     /// The CountLinesExtensions is an example shell context menu extension,
     /// implemented with SharpShell. It adds the command 'Count Lines' to text
     /// files.
     /// </summary>
     [ComVisible(true)]
-    [COMServerAssociation(AssociationType.AllFiles)]
     [COMServerAssociation(AssociationType.Class, @"Directory\Background")]
+    [COMServerAssociation(AssociationType.AllFilesAndFolders)]
     public class SimpleContextMenu : SharpContextMenu
     {
         private List<string>? _selectedItemPaths;
@@ -62,6 +62,7 @@ namespace SimpleContextMenus
         /// </returns>
         protected override ContextMenuStrip CreateMenu()
         {
+            
             return CreateMenuFromFolderStructure();
 
 
@@ -76,7 +77,7 @@ namespace SimpleContextMenus
                                 throw new Exception("No directory found for the executing assembly.");
             //  Create the menu strip
             var menu = new ContextMenuStrip();
-            //  Create a 'count lines' item
+            //  Create the base menu item
             var extensionBaseItem = new ToolStripMenuItem
             {
                 Text = Resources.SimpleContextMenu_CreateMenu_Extensions,
@@ -130,7 +131,8 @@ namespace SimpleContextMenus
                         {
                             WindowStyle = ProcessWindowStyle.Normal,
                             FileName = filePathFull,
-                            Arguments = "Python " + stringBuilder
+                            WorkingDirectory = GetFolderPath(),
+                            Arguments = stringBuilder.ToString()
                         };
                         process.StartInfo = startInfo;
                         process.Start();
@@ -168,18 +170,19 @@ namespace SimpleContextMenus
             var x2 = Directory.GetFileSystemEntries(x1);
             var x3 = x2.ToList();
             var x4 = GetSelectedItemPaths();
-            if (GetSelectedItemPaths().Count == 0)
-                _selectedItemPaths = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
+            var ItemPathsToMatch = GetSelectedItemPaths();
+            if (ItemPathsToMatch.Count == 0)
+                ItemPathsToMatch = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
 
             List<string> mimeTypesOfSelection =
-                GetSelectedItemPaths()
+                ItemPathsToMatch
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
                     .Select(x =>
                         MIMEAssistant.GetMIMEType(x).Split('/')
                             [0]) // Maps the file path to the MIME type, of which we just want the coarse type.
                     .ToList();
             List<string> fileExtensionsOfSelection =
-                GetSelectedItemPaths()
+                ItemPathsToMatch
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
                     .Select(x => Path.GetExtension(x).Remove(0, 1))
                     .ToList();
@@ -203,7 +206,7 @@ namespace SimpleContextMenus
         /// <summary>
         /// Takes in a full file path and turns it, according to the naming convention, into a tuple:
         /// (displayName, MIMETypes, FileExtensions)
-        ///
+        /// 
         /// The naming convention is as follows:
         /// The file name is split by each dot. The first part is the display name,
         /// and each following part except the last is either a MIME type or a file extension.
@@ -217,7 +220,7 @@ namespace SimpleContextMenus
             string filePathFull)
         {
             var parts = filePathFull.Split('.');
-            string displayName = parts[0];
+            string displayName = Path.GetFileNameWithoutExtension(filePathFull).Split('.')[0];
             List<string> middleParts;
             if (parts.Length-2>=0)
                 middleParts = parts.ToList().GetRange(1,parts.Length-2);

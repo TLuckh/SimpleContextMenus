@@ -2,82 +2,69 @@
   "version": 3,
   "targets": {
     ".NETFramework,Version=v4.5": {
-      "SharpShell/2.2.0": {
+      "ServerRegistrationManager/2.7.2": {
         "type": "package",
         "frameworkAssemblies": [
           "System.Drawing",
           "System.Windows.Forms"
         ],
         "compile": {
-          "lib/net40/SharpShell.dll": {
-            "related": ".pdb;.xml"
-          }
+          "lib/net45/ServerRegistrationManager.exe": {}
         },
         "runtime": {
-          "lib/net40/SharpShell.dll": {
-            "related": ".pdb;.xml"
-          }
+          "lib/net45/ServerRegistrationManager.exe": {}
         }
       },
-      "SharpShellTools/2.2.0": {
+      "SharpShell/2.7.2": {
         "type": "package",
         "frameworkAssemblies": [
           "System.Drawing",
           "System.Windows.Forms"
         ],
         "compile": {
-          "lib/Apex.WinForms.dll": {},
-          "lib/ServerManager.exe": {},
-          "lib/SharpShell.dll": {},
-          "lib/srm.exe": {}
+          "lib/net40-client/SharpShell.dll": {
+            "related": ".xml"
+          }
         },
         "runtime": {
-          "lib/Apex.WinForms.dll": {},
-          "lib/ServerManager.exe": {},
-          "lib/SharpShell.dll": {},
-          "lib/srm.exe": {}
+          "lib/net40-client/SharpShell.dll": {
+            "related": ".xml"
+          }
         }
       }
     }
   },
   "libraries": {
-    "SharpShell/2.2.0": {
-      "sha512": "Au0IZuxMr/EsXUise8VqUCaVdKSALNVDpfcr+B24y6Oy/NbBzPNe08ASa226UD7ar+n5SN3E1V2x+JgLurVD6g==",
+    "ServerRegistrationManager/2.7.2": {
+      "sha512": "3J/3W+GIHeTHRPkHjmnQeD3qS2upIQ0LDC2jDY+vCaoS1DeElLuHA+Xfk4kCkgdFFl7EBU0ZFcULydy61Wkjzg==",
       "type": "package",
-      "path": "sharpshell/2.2.0",
+      "path": "serverregistrationmanager/2.7.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "lib/net40/SharpShell.dll",
-        "lib/net40/SharpShell.pdb",
-        "lib/net40/SharpShell.xml",
-        "sharpshell.2.2.0.nupkg.sha512",
-        "sharpshell.nuspec"
+        "lib/net45/ServerRegistrationManager.exe",
+        "serverregistrationmanager.2.7.2.nupkg.sha512",
+        "serverregistrationmanager.nuspec"
       ]
     },
-    "SharpShellTools/2.2.0": {
-      "sha512": "n8g9PuV0URm7ke1ANokCAd85YIfN8yt36qipdFB1n6/I+auZ6Xy3P7I090c8quvIbKQ5Cr+Bra7mTnZK+IDOYA==",
+    "SharpShell/2.7.2": {
+      "sha512": "2mExihaN8BBGG58xUrbdMwRjWlvcxCSFEZd30ChaO3rcTdlLQ9/aRaoqVJ/kIdz7pE+i+42wLQ83xOo7auTDFA==",
       "type": "package",
-      "path": "sharpshelltools/2.2.0",
+      "path": "sharpshell/2.7.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "lib/Apex.WinForms.dll",
-        "lib/ServerManager.exe",
-        "lib/ServerManager.pdb",
-        "lib/SharpShell.dll",
-        "lib/SharpShell.pdb",
-        "lib/SharpShell.xml",
-        "lib/srm.exe",
-        "sharpshelltools.2.2.0.nupkg.sha512",
-        "sharpshelltools.nuspec"
+        "lib/net40-client/SharpShell.dll",
+        "lib/net40-client/SharpShell.xml",
+        "sharpshell.2.7.2.nupkg.sha512",
+        "sharpshell.nuspec"
       ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.5": [
-      "SharpShell >= 2.2.0",
-      "SharpShellTools >= 2.2.0"
+      "ServerRegistrationManager >= 2.7.2",
+      "SharpShell >= 2.7.2"
     ]
   },
   "packageFolders": {
@@ -127,13 +114,13 @@
       "net45": {
         "targetAlias": "net45",
         "dependencies": {
+          "ServerRegistrationManager": {
+            "target": "Package",
+            "version": "[2.7.2, )"
+          },
           "SharpShell": {
             "target": "Package",
-            "version": "[2.2.0, )"
-          },
-          "SharpShellTools": {
-            "target": "Package",
-            "version": "[2.2.0, )"
+            "version": "[2.7.2, )"
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.201\\RuntimeIdentifierGraph.json"
