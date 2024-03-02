@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,12 +17,13 @@ namespace SimpleContextMenus
     /// </summary>
     [ComVisible(true)]
     [COMServerAssociation(AssociationType.AllFiles)]
+    [COMServerAssociation(AssociationType.Class, @"Directory\Background")]
     public class SimpleContextMenu : SharpContextMenu
     {
         private List<string>? _selectedItemPaths;
         public string GetFolderPath() => FolderPath;
 
-        public string GetExePath() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ??
+        public string GetExePath() => Assembly.GetExecutingAssembly().Location ??
                                       throw new Exception("Could not get the executing assembly location.");
 
         public List<string> GetSelectedItemPaths()
@@ -73,7 +73,7 @@ namespace SimpleContextMenus
         private ContextMenuStrip CreateMenuFromFolderStructure()
         {
             var exe_directory = System.IO.Path.GetDirectoryName(GetExePath()) ??
-                                throw new ArgumentNullException("System.IO.Path.GetDirectoryName(GetExePath())");
+                                throw new Exception("No directory found for the executing assembly.");
             //  Create the menu strip
             var menu = new ContextMenuStrip();
             //  Create a 'count lines' item
@@ -83,7 +83,9 @@ namespace SimpleContextMenus
                 Image = Resources.Extension_Menu
             };
 
+
             AddMenuItems(extensionBaseItem, exe_directory);
+            menu.Items.Add(extensionBaseItem);
 
             return menu;
         }
@@ -93,8 +95,11 @@ namespace SimpleContextMenus
             foreach (var filePathFull in Directory.GetFileSystemEntries(currentDirectory))
             {
                 // Check if we should show the file/directory by checking it against the selection (or all elements in the directory if nothing is selected)
-                (string displayName, List<string> mimeTypes, List<string> fileExtensions) =
+                DataClass1 dataPoint =
                     NamingConventionParser(filePathFull);
+                string displayName = dataPoint.DisplayName; 
+                List<string> mimeTypes = dataPoint.MimeTypes;
+                List<string> fileExtensions = dataPoint.FileExtensions;
                 bool applicable = IsAnyMimeTypeOrFileExtensionApplicableToSelectedItems(mimeTypes, fileExtensions);
                 if (!applicable)
                     continue;
@@ -153,8 +158,16 @@ namespace SimpleContextMenus
         private bool IsAnyMimeTypeOrFileExtensionApplicableToSelectedItems(List<string> mimeTypes,
             List<string> fileExtensions)
         {
+            // If neither mimeTypes nor fileExtensions are given, we assume that the item is applicable.
+            if (mimeTypes.Count == 0 && fileExtensions.Count == 0)
+                return true;
+            
             // Parsing the selected items to their MIME types and file extensions.
 
+            var x1 = GetFolderPath();
+            var x2 = Directory.GetFileSystemEntries(x1);
+            var x3 = x2.ToList();
+            var x4 = GetSelectedItemPaths();
             if (GetSelectedItemPaths().Count == 0)
                 _selectedItemPaths = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
 
@@ -162,7 +175,7 @@ namespace SimpleContextMenus
                 GetSelectedItemPaths()
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
                     .Select(x =>
-                        MIMEAssistant.GetMIMEType(x).Split("/")
+                        MIMEAssistant.GetMIMEType(x).Split('/')
                             [0]) // Maps the file path to the MIME type, of which we just want the coarse type.
                     .ToList();
             List<string> fileExtensionsOfSelection =
@@ -177,15 +190,11 @@ namespace SimpleContextMenus
             }
 
             // Comparing the MIME types and file extensions of the selection to the MIME types and file extensions passed into the method.
-            return mimeTypesOfSelection
-                       .ToFrozenSet()
-                       .Intersect(mimeTypes.ToFrozenSet())
-                       .Any()
-                   ||
-                   fileExtensionsOfSelection
-                       .ToFrozenSet()
-                       .Intersect(fileExtensions.ToFrozenSet())
-                       .Any();
+            
+            return 
+                mimeTypesOfSelection.Intersect(mimeTypes).Any() 
+                ||
+                fileExtensionsOfSelection.Intersect(fileExtensions).Any();
 
 
 
@@ -204,12 +213,17 @@ namespace SimpleContextMenus
         /// </summary>
         /// <param name="filePathFull"> A full path to the file.</param> 
         /// <exception cref="NotImplementedException"></exception>
-        private (string displayName, List<string> mimeTypes, List<string> fileExtensions) NamingConventionParser(
+        private DataClass1 NamingConventionParser(
             string filePathFull)
         {
-            var parts = filePathFull.Split(".");
+            var parts = filePathFull.Split('.');
             string displayName = parts[0];
-            var middleParts = parts.Skip(1).SkipLast(1).ToList();
+            List<string> middleParts;
+            if (parts.Length-2>=0)
+                middleParts = parts.ToList().GetRange(1,parts.Length-2);
+            else
+                middleParts = new List<string>();
+            
 
             List<string> mimeTypes = new List<string>();
             List<string> fileExtensions = new List<string>();
@@ -222,10 +236,16 @@ namespace SimpleContextMenus
                     fileExtensions.Add(part);
             }
 
-            return (displayName, mimeTypes, fileExtensions);
+            return new DataClass1(displayName, mimeTypes, fileExtensions);
         }
 
 
+        internal class DataClass1(string displayName, List<string> mimeTypes, List<string> fileExtensions)
+        {
+            public string DisplayName { get; set; } = displayName;
+            public List<string> MimeTypes { get; set; } = mimeTypes;
+            public List<string> FileExtensions { get; set; } = fileExtensions;
+        }
 
 
 

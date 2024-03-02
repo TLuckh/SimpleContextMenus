@@ -1,32 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "rhxFgtFREvI+V1mpadLL2b834ekRyfYuaR+hKhKjn927TbihPJVKIzf2qZ23wD2p4lGi5JqycRPL5ruNQ4PlZg==",
+  "dgSpecHash": "nOYvupqgFoyuX7w+V/qSwAX+g28WlkSzGVTa5E0lnIVE3ZxdS+wrP4zbCeNw5JFwJE89oeBgJtt6frluU5ozHQ==",
   "success": true,
   "projectFilePath": "I:\\!Coding\\SharpShell\\SimpleContextMenus\\SimpleContextMenus\\SimpleContextMenus.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Sanitiy\\.nuget\\packages\\sharpshell\\2.2.0\\sharpshell.2.2.0.nupkg.sha512",
     "C:\\Users\\Sanitiy\\.nuget\\packages\\sharpshelltools\\2.2.0\\sharpshelltools.2.2.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'SharpShell 2.2.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "libraryId": "SharpShell",
-      "targetGraphs": [
-        "net8.0-windows7.0"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'SharpShellTools 2.2.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
-      "libraryId": "SharpShellTools",
-      "targetGraphs": [
-        "net8.0-windows7.0"
-      ]
-    }
-  ]
+  "logs": []
 }

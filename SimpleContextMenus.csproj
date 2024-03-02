@@ -2,13 +2,17 @@
 
     <PropertyGroup>
         <UseWindowsForms>true</UseWindowsForms>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net45</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.0.1</Version>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <PlatformTarget>x86</PlatformTarget>
     </PropertyGroup>
 
     <ItemGroup>
