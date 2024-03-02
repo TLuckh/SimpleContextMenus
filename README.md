@@ -27,6 +27,8 @@ For each file, a simple context menu entry will be created.
 Each file has the following naming convention:
 See SimpleContextMenu.cs/NamingConventionParser documentation.
 
+Note that the file extension restrictions do not affect the passed selection,
+only whether or not the context menu is visible.
 
 So clicking the file in the context menu will execute cmd, which in turn calls Python 
 with the following arguments:
