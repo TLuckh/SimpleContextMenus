@@ -1,0 +1,45 @@
+#ignore thumbnails created by windows/mac
+Thumbs.db
+.DS_Store
+
+#Ignore files build by Visual Studio
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.bak
+*.cache
+*.ilk
+*.log
+.vs/
+[Bb]in
+[Dd]ebug*/
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+SharpShell/.nuget
+SharpShell/ipch/
+*.sdf
+*.opensdf
+Build/Tools/ServerManager.vshost.exe.manifest
+!Release/
+Release/2.*
+Release/nuspec/SharpShell/lib
+Release/nuspec/SharpShellTools/lib
+SharpShell/packages
+*.db
+*.opendb
+
+# Artifacts
+SharpShell/artifacts
+
+# Artifacts which are automatically copied into other asseblies.
+SharpShell/Tools/ServerRegistrationManager/EmbeddedReferences/SharpShell.dll
+
+# Test project user specific files.
+DllWithResources.vcxproj.filters

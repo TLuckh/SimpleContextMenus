@@ -1,0 +1,69 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "SimpleContextMenus/0.0.1": {
+        "dependencies": {
+          "SharpShell": "2.2.0",
+          "SharpShellTools": "2.2.0"
+        },
+        "runtime": {
+          "SimpleContextMenus.dll": {}
+        }
+      },
+      "SharpShell/2.2.0": {
+        "runtime": {
+          "lib/net40/SharpShell.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          }
+        }
+      },
+      "SharpShellTools/2.2.0": {
+        "runtime": {
+          "lib/Apex.WinForms.dll": {
+            "assemblyVersion": "1.6.0.0",
+            "fileVersion": "1.6.0.0"
+          },
+          "lib/ServerManager.exe": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          },
+          "lib/SharpShell.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          },
+          "lib/srm.exe": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SimpleContextMenus/0.0.1": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "SharpShell/2.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Au0IZuxMr/EsXUise8VqUCaVdKSALNVDpfcr+B24y6Oy/NbBzPNe08ASa226UD7ar+n5SN3E1V2x+JgLurVD6g==",
+      "path": "sharpshell/2.2.0",
+      "hashPath": "sharpshell.2.2.0.nupkg.sha512"
+    },
+    "SharpShellTools/2.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-n8g9PuV0URm7ke1ANokCAd85YIfN8yt36qipdFB1n6/I+auZ6Xy3P7I090c8quvIbKQ5Cr+Bra7mTnZK+IDOYA==",
+      "path": "sharpshelltools/2.2.0",
+      "hashPath": "sharpshelltools.2.2.0.nupkg.sha512"
+    }
+  }
+}

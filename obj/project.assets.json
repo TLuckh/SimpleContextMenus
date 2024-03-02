@@ -1,0 +1,176 @@
+{
+  "version": 3,
+  "targets": {
+    "net8.0-windows7.0": {
+      "SharpShell/2.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/net40/SharpShell.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net40/SharpShell.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
+      "SharpShellTools/2.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/Apex.WinForms.dll": {},
+          "lib/ServerManager.exe": {},
+          "lib/SharpShell.dll": {},
+          "lib/srm.exe": {}
+        },
+        "runtime": {
+          "lib/Apex.WinForms.dll": {},
+          "lib/ServerManager.exe": {},
+          "lib/SharpShell.dll": {},
+          "lib/srm.exe": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "SharpShell/2.2.0": {
+      "sha512": "Au0IZuxMr/EsXUise8VqUCaVdKSALNVDpfcr+B24y6Oy/NbBzPNe08ASa226UD7ar+n5SN3E1V2x+JgLurVD6g==",
+      "type": "package",
+      "path": "sharpshell/2.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net40/SharpShell.dll",
+        "lib/net40/SharpShell.pdb",
+        "lib/net40/SharpShell.xml",
+        "sharpshell.2.2.0.nupkg.sha512",
+        "sharpshell.nuspec"
+      ]
+    },
+    "SharpShellTools/2.2.0": {
+      "sha512": "n8g9PuV0URm7ke1ANokCAd85YIfN8yt36qipdFB1n6/I+auZ6Xy3P7I090c8quvIbKQ5Cr+Bra7mTnZK+IDOYA==",
+      "type": "package",
+      "path": "sharpshelltools/2.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/Apex.WinForms.dll",
+        "lib/ServerManager.exe",
+        "lib/ServerManager.pdb",
+        "lib/SharpShell.dll",
+        "lib/SharpShell.pdb",
+        "lib/SharpShell.xml",
+        "lib/srm.exe",
+        "sharpshelltools.2.2.0.nupkg.sha512",
+        "sharpshelltools.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net8.0-windows7.0": [
+      "SharpShell >= 2.2.0",
+      "SharpShellTools >= 2.2.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\Sanitiy\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+  },
+  "project": {
+    "version": "0.0.1",
+    "restore": {
+      "projectUniqueName": "I:\\!Coding\\SharpShell\\SimpleContextMenus\\SimpleContextMenus\\SimpleContextMenus.csproj",
+      "projectName": "SimpleContextMenus",
+      "projectPath": "I:\\!Coding\\SharpShell\\SimpleContextMenus\\SimpleContextMenus\\SimpleContextMenus.csproj",
+      "packagesPath": "C:\\Users\\Sanitiy\\.nuget\\packages\\",
+      "outputPath": "I:\\!Coding\\SharpShell\\SimpleContextMenus\\SimpleContextMenus\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\Sanitiy\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net8.0-windows"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
+        "dependencies": {
+          "SharpShell": {
+            "target": "Package",
+            "version": "[2.2.0, )"
+          },
+          "SharpShellTools": {
+            "target": "Package",
+            "version": "[2.2.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.201/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'SharpShell 2.2.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "libraryId": "SharpShell",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'SharpShellTools 2.2.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0-windows7.0'. This package may not be fully compatible with your project.",
+      "libraryId": "SharpShellTools",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}
