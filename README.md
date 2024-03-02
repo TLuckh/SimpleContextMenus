@@ -37,3 +37,14 @@ with the following arguments:
 
 Furthermore, os.getcwd() will return the directory in which you right clicked.
 
+## Odd Behavior
+Note that if you select items and right click, the items are passed as selected, but starting 
+from the item you right clicked on, and wrapping around.
+
+That is, if in the explorer you select items 1, 2, 3, 4, 5, which are shown in this order,
+and you right click on item 3, then the passed elements are 3,4,5,1,2,
+and the passed string is
+
+`"1" "2" "3" "4" "5" `
+
+In general, any passed parameter is wrapped in quotes, and separated by a space.

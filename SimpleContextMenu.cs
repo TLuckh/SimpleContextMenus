@@ -219,11 +219,15 @@ namespace SimpleContextMenus
         private DataClass1 NamingConventionParser(
             string filePathFull)
         {
-            var parts = filePathFull.Split('.');
+            var parts = filePathFull.Split('.').ToList();
+
+            if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
+                parts.GetRange(0, parts.Count - 1);
+
             string displayName = Path.GetFileNameWithoutExtension(filePathFull).Split('.')[0];
             List<string> middleParts;
-            if (parts.Length-2>=0)
-                middleParts = parts.ToList().GetRange(1,parts.Length-2);
+            if (parts.Count-1 >= 0)
+                middleParts = parts.ToList().GetRange(0,parts.Count);
             else
                 middleParts = new List<string>();
             
@@ -234,7 +238,7 @@ namespace SimpleContextMenus
             foreach (var part in middleParts)
             {
                 if (part == part.ToUpper())
-                    mimeTypes.Add(part);
+                    mimeTypes.Add(part.ToLower());
                 else
                     fileExtensions.Add(part);
             }
