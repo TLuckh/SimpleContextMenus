@@ -19,7 +19,9 @@ Thumbs.db
 [Bb]in
 [Dd]ebug*/
 *.sbr
-obj/
+bin
+obj
+
 [Rr]elease*/
 _ReSharper*/
 SharpShell/.nuget

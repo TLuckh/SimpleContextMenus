@@ -8,20 +8,21 @@ item of the context menu.
 
 ## Installation
 To install the server, take the build output of this project and
-place it into a directory of your choosing. Then, run the following command 
-in cmd as an administrator, in that directory:
+place it into a directory of your choosing. Then, run the '#Install.bat'.
 
-`ServerRegistrationManager.exe install SimpleContextMenus.dll -codebase`
+If the installation was successful, you should see a 
+new context menu called "Extensions" when right clicking in Windows Explorer.
 
 Possibly you need to restart your explorer.exe process.
 
 ## Deinstallation
-To uninstall the server, run the following command in cmd as an administrator, in the directory where you installed the server:
-`ServerRegistrationManager.exe uninstall SimpleContextMenus.dll -codebase`
+To uninstall the server, run the '#Uninstall.bat' which is located in
+the directory where you installed the server.
+
 
 ## Configuration
-In the directory where you installed the server, you 
-now can add any number of files and folders.
+In the directory where you installed the server, navigate to the subfolder 'Extensions'.
+Here, you can add any number of files and folders.
 
 For each folder, a drop down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
@@ -32,15 +33,16 @@ See SimpleContextMenu.cs/NamingConventionParser documentation.
 Note that the file extension restrictions do not affect the passed selection,
 only whether or not the context menu is visible.
 Furthermore, if a folder has many files (>=50), the context menus will
-not be filtered when doing a right click on the background, 
-but will be filtered when right clicking on a selection.
+not be filtered when doing a right click on the background 
+(this does not apply when right clicking on a selection).
 
-So clicking the file in the context menu will open the 
-corresponding file in the local file structure (using the standard association for the program), and passes the following arguments:
-1. The full path to the Python script.
-2. Each of the selected files, if any.
+Clicking on an entry in the context menu will open the 
+corresponding file in the local file structure 
+(using the standard association for the program), 
+and passes each of the selected files, if any as arguments (each wrapped in quotes).
 
-Furthermore, os.getcwd() will return the directory in which you right clicked.
+Furthermore, the current working directory (in Python e.g. os.getcwd()) 
+will be set to the directory in which you right clicked.
 
 ## Odd Behavior
 Note that if you select items and right click, the items are passed as selected, but starting 
