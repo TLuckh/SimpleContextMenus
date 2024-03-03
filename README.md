@@ -1,8 +1,11 @@
 ﻿# SimpleContextMenus
-Delivers a COM Server which is associated both with all files and the folder background.
+Delivers a COM Server which is associated both with all files, folders, and the folder background.
 
 This Server allows you to create context menu entries which
 mimic the local file structure (of wherever you placed and installed the server).
+
+Each file in the local file structure then gets run when you press the corresponding
+item of the context menu.
 
 ## Installation
 To install the server, take the build output of this project and
@@ -29,9 +32,12 @@ See SimpleContextMenu.cs/NamingConventionParser documentation.
 
 Note that the file extension restrictions do not affect the passed selection,
 only whether or not the context menu is visible.
+Furthermore, if a folder has many files (>=50), the context menus will
+not be filtered when doing a right click on the background, 
+but will be filtered when right clicking on a selection.
 
-So clicking the file in the context menu will execute cmd, which in turn calls Python 
-with the following arguments:
+So clicking the file in the context menu will open the 
+corresponding file in the local file structure (using the standard association for the program), and passes the following arguments:
 1. The full path to the Python script.
 2. Each of the selected files, if any.
 

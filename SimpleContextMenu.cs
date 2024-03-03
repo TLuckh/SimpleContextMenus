@@ -87,8 +87,15 @@ namespace SimpleContextMenus
             return menu;
         }
 
-        private void AddMenuItems(ToolStripMenuItem menu, string currentDirectory)
+        /// <summary>
+        /// Builds the recursive menu structure.
+        /// Returns whether any end-item in the menu structure is visible.
+        /// </summary>
+        /// <param name="menu"></param>
+        /// <param name="currentDirectory"></param>
+        private bool AddMenuItems(ToolStripMenuItem menu, string currentDirectory)
         {
+            bool anyEndItemApplicable = false;
             // Note:
             // Directory.GetFileSystemEntries() returns directories without a trailing backslash.
             foreach (var filePathFull in Directory.GetDirectories(currentDirectory).Union(Directory.GetFiles(currentDirectory))) // First directories, then files
@@ -109,11 +116,14 @@ namespace SimpleContextMenus
                 {
                     Text = displayName,
                 };
-                menu.DropDownItems.Add(menuItem);
+                // Whether or not we add menuItem as a drop down item to menu depends on whether it's an end item or at least contains one.
+                // I've tried doing this using visibility, but for some reason that teg gets ignored...
 
                 //  If it's a file, pressing it launches the corresponding (e.g. Python) script
                 if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
                 {
+                    menu.DropDownItems.Add(menuItem);
+                    anyEndItemApplicable = true;
                     menuItem.Click += (sender, args) =>
                     {
                         // Konversion in Argumentliste:
@@ -140,15 +150,25 @@ namespace SimpleContextMenus
                 // And if it's a directory, we recursively add the items in the directory to the menu
                 else
                 {
-                    AddMenuItems(menuItem, filePathFull);
-                    // Don't show empty submenu's
-                    if (!menuItem.HasDropDownItems)
-                        menuItem.Visible = false;
+                    bool subItemIsApplicable = AddMenuItems(menuItem, filePathFull);
+                    if (subItemIsApplicable)
+                        menu.DropDownItems.Add(menuItem);
+                    
+                    anyEndItemApplicable |= subItemIsApplicable;
+
+                    // // Leftover from when I tried to hide empty submenus instead of only adding them if they're not empty .
+                    // // Don't show empty submenus
+                    // if (!menuItem.HasDropDownItems || !subItemIsApplicable)
+                    //     menuItem.Visible = false;
+                    // // else if (!menuItem.DropDownItems.Cast<ToolStripItem>().Any(menuItemDropDownItem => menuItemDropDownItem.Visible))
+                    // //         menuItem.Visible = false;
                 }
-
             }
-
+            
+            return anyEndItemApplicable;
         }
+
+        
 
         /// <summary>
         ///  If we get no selection (GetSelectedItemPaths()), select all files & folders in the current directory.
@@ -174,7 +194,15 @@ namespace SimpleContextMenus
             // var x4 = GetSelectedItemPaths();
             var itemPathsToMatch = GetSelectedItemPaths();
             if (itemPathsToMatch.Count == 0)
+            {
                 itemPathsToMatch = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
+
+                // To not slow down the explorer or get timeout issues, we simply show everything if the selection is too big.
+                // If the selection was given by the user, then timeout issues hopefully aren't a concern.
+                if (itemPathsToMatch.Count >= 50)
+                    return true;
+            }
+
 
             List<string> mimeTypesOfSelection =
                 itemPathsToMatch
