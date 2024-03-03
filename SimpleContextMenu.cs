@@ -77,8 +77,10 @@ namespace SimpleContextMenus
             AddMenuItems(extensionBaseItem, exe_directory);
             menu.Items.Add(extensionBaseItem);
             // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
-            extensionBaseItem.Click += 
-                (sender, args) => Process.Start("explorer.exe" , $"{exe_directory}");
+            // Neither option works if it the menu has DropDownItems...
+            void OpenExplorer(object sender, EventArgs args) => Process.Start("explorer.exe" , $"{exe_directory}");
+            extensionBaseItem.DropDownItemClicked += OpenExplorer;
+            extensionBaseItem.Click += OpenExplorer;
              
 
             return menu;
@@ -86,7 +88,8 @@ namespace SimpleContextMenus
 
         private void AddMenuItems(ToolStripMenuItem menu, string currentDirectory)
         {
-            // Note: Directory.GetFileSystemEntries() returns directories without a trailing backslash.
+            // Note:
+            // Directory.GetFileSystemEntries() returns directories without a trailing backslash.
             foreach (var filePathFull in Directory.GetFileSystemEntries(currentDirectory))
             {
                 // Check if we should show the file/directory by checking it against the selection
@@ -137,6 +140,9 @@ namespace SimpleContextMenus
                 else
                 {
                     AddMenuItems(menuItem, filePathFull);
+                    // Don't show empty submenu's
+                    if (!menuItem.HasDropDownItems)
+                        menuItem.Visible = false;
                 }
 
             }
