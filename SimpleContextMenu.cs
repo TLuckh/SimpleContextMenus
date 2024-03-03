@@ -80,7 +80,8 @@ namespace SimpleContextMenus
             // Neither option works if it the menu has DropDownItems...
             void OpenExplorer(object sender, EventArgs args) => Process.Start("explorer.exe" , $"{exe_directory}");
             extensionBaseItem.DropDownItemClicked += OpenExplorer;
-            extensionBaseItem.Click += OpenExplorer;
+            // extensionBaseItem.Click += OpenExplorer;
+            extensionBaseItem.DoubleClick += OpenExplorer;
              
 
             return menu;
