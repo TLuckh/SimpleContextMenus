@@ -86,6 +86,7 @@ namespace SimpleContextMenus
 
         private void AddMenuItems(ToolStripMenuItem menu, string currentDirectory)
         {
+            // Note: Directory.GetFileSystemEntries() returns directories without a trailing backslash.
             foreach (var filePathFull in Directory.GetFileSystemEntries(currentDirectory))
             {
                 // Check if we should show the file/directory by checking it against the selection
@@ -94,7 +95,7 @@ namespace SimpleContextMenus
                     NamingConventionParser(filePathFull);
                 string displayName = dataPoint.DisplayName; 
                 List<string> mimeTypes = dataPoint.MimeTypes;
-                List<string> fileExtensions = dataPoint.FileExtensions;
+                List<string> fileExtensions = dataPoint.FileExtensions;     
                 bool applicable = IsAnyMimeTypeOrFileExtensionApplicableToSelectedItems(mimeTypes, fileExtensions);
                 if (!applicable)
                     continue;
@@ -202,27 +203,31 @@ namespace SimpleContextMenus
         /// 
         /// The naming convention is as follows:
         /// The file name is split by each dot. The first part is the display name,
-        /// and each following part except the last is either a MIME type or a file extension.
-        /// The last part should be .py if the script should run in foreground, or .pyw if the script should run in background.
+        /// and each following part (except the last for files, i.e. non-folders) is either a MIME type or a file extension.
+        /// The last part is ignored. Hint: If you want to call a Python script,
+        /// it should be .py if the script should run in foreground, or .pyw if the script should run in background.
         ///
         /// Each middle part should have all its letters in lower case if it's a file extension, and in upper case if it's a MIME type.
+        ///
+        /// The returned MIME types and file extensions are in lower case and without dot.
         /// </summary>
         /// <param name="filePathFull"> A full path to the file.</param> 
         /// <exception cref="NotImplementedException"></exception>
         private DataClass1 NamingConventionParser(
             string filePathFull)
         {
-            var parts = filePathFull.Split('.').ToList();
-
+            // Get rid of the file extension & directory prefixes
             if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
-                parts = parts.GetRange(0, parts.Count - 1);
-
-            string displayName = Path.GetFileNameWithoutExtension(filePathFull).Split('.')[0];
-            List<string> middleParts;
-            if (parts.Count-1 >= 0)
-                middleParts = parts.ToList().GetRange(0,parts.Count);
+                filePathFull = Path.GetFileNameWithoutExtension(filePathFull);
             else
-                middleParts = new List<string>();
+                filePathFull = Path.GetFileName(filePathFull);
+            
+            
+            
+            
+            var parts = filePathFull.Split('.').ToList();
+            string displayName = parts[0];
+            List<string> middleParts = parts.Skip(1).ToList();
             
 
             List<string> mimeTypes = new List<string>();
