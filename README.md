@@ -1,8 +1,7 @@
 ﻿# SimpleContextMenus
-Delivers a COM Server which is associated both with all files, folders, and the folder background.
+Delivers a COM Server which is associated with files, folders, and the folder background.
 
-This Server allows you to create context menu entries which
-mimic the local file structure (of wherever you placed and installed the server).
+This Server allows you to create a local file structure which will be mimicked within the context menu of Windows Explorer.
 
 Each file in the local file structure then gets run when you press the corresponding
 item of the context menu.
@@ -54,3 +53,4 @@ and the passed string is
 `"1" "2" "3" "4" "5" `
 
 In general, any passed parameter is wrapped in quotes, and separated by a space.
+

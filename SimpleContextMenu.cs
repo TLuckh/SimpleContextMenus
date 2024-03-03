@@ -23,8 +23,13 @@ namespace SimpleContextMenus
         private List<string>? _selectedItemPaths;
         public string GetFolderPath() => FolderPath;
 
-        public string GetExePath() => Assembly.GetExecutingAssembly().Location ??
-                                      throw new Exception("Could not get the executing assembly location.");
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>The path to the folder of the executing assembly, i.e. the folder containing the COM Server .dll'.</returns>
+        public string GetExeFolderPath() => 
+            Path.Combine(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Extensions");
 
         public List<string> GetSelectedItemPaths()
         {
@@ -62,7 +67,7 @@ namespace SimpleContextMenus
         /// </returns>
         protected override ContextMenuStrip CreateMenu()
         {
-            var exe_directory = System.IO.Path.GetDirectoryName(GetExePath()) ??
+            var exe_directory = (GetExeFolderPath()) ??
                                 throw new Exception("No directory found for the executing assembly.");
             //  Create the menu strip
             var menu = new ContextMenuStrip();
