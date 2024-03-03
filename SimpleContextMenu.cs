@@ -17,7 +17,7 @@ namespace SimpleContextMenus
     /// </summary>
     [ComVisible(true)]
     [COMServerAssociation(AssociationType.Class, @"Directory\Background")]
-    [COMServerAssociation(AssociationType.AllFiles)]
+    [COMServerAssociation(AssociationType.AllFilesAndFolders)]
     public class SimpleContextMenu : SharpContextMenu
     {
         private List<string>? _selectedItemPaths;
@@ -76,12 +76,12 @@ namespace SimpleContextMenus
 
             AddMenuItems(extensionBaseItem, exe_directory);
             menu.Items.Add(extensionBaseItem);
-            // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
-            // Neither option works if it the menu has DropDownItems...
-            void OpenExplorer(object sender, EventArgs args) => Process.Start("explorer.exe" , $"{exe_directory}");
-            extensionBaseItem.DropDownItemClicked += OpenExplorer;
+            // // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
+            // // Neither option works if it the menu has DropDownItems...
+            // void OpenExplorer(object sender, EventArgs args) => Process.Start("explorer.exe" , $"{exe_directory}");
+            // extensionBaseItem.DropDownItemClicked += OpenExplorer;
             // extensionBaseItem.Click += OpenExplorer;
-            extensionBaseItem.DoubleClick += OpenExplorer;
+            // extensionBaseItem.DoubleClick += OpenExplorer;
              
 
             return menu;
@@ -91,7 +91,7 @@ namespace SimpleContextMenus
         {
             // Note:
             // Directory.GetFileSystemEntries() returns directories without a trailing backslash.
-            foreach (var filePathFull in Directory.GetFileSystemEntries(currentDirectory))
+            foreach (var filePathFull in Directory.GetDirectories(currentDirectory).Union(Directory.GetFiles(currentDirectory))) // First directories, then files
             {
                 // Check if we should show the file/directory by checking it against the selection
                 // (or all elements in the directory if nothing is selected)
