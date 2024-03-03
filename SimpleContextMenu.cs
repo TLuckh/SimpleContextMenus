@@ -17,7 +17,7 @@ namespace SimpleContextMenus
     /// </summary>
     [ComVisible(true)]
     [COMServerAssociation(AssociationType.Class, @"Directory\Background")]
-    [COMServerAssociation(AssociationType.AllFilesAndFolders)]
+    [COMServerAssociation(AssociationType.AllFiles)]
     public class SimpleContextMenu : SharpContextMenu
     {
         private List<string>? _selectedItemPaths;
@@ -62,17 +62,6 @@ namespace SimpleContextMenus
         /// </returns>
         protected override ContextMenuStrip CreateMenu()
         {
-            
-            return CreateMenuFromFolderStructure();
-
-
-
-
-
-        }
-
-        private ContextMenuStrip CreateMenuFromFolderStructure()
-        {
             var exe_directory = System.IO.Path.GetDirectoryName(GetExePath()) ??
                                 throw new Exception("No directory found for the executing assembly.");
             //  Create the menu strip
@@ -87,6 +76,10 @@ namespace SimpleContextMenus
 
             AddMenuItems(extensionBaseItem, exe_directory);
             menu.Items.Add(extensionBaseItem);
+            // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
+            extensionBaseItem.Click += 
+                (sender, args) => Process.Start("explorer.exe" , $"{exe_directory}");
+             
 
             return menu;
         }
@@ -95,7 +88,8 @@ namespace SimpleContextMenus
         {
             foreach (var filePathFull in Directory.GetFileSystemEntries(currentDirectory))
             {
-                // Check if we should show the file/directory by checking it against the selection (or all elements in the directory if nothing is selected)
+                // Check if we should show the file/directory by checking it against the selection
+                // (or all elements in the directory if nothing is selected)
                 DataClass1 dataPoint =
                     NamingConventionParser(filePathFull);
                 string displayName = dataPoint.DisplayName; 
@@ -106,16 +100,16 @@ namespace SimpleContextMenus
                     continue;
 
 
-                var item = new ToolStripMenuItem
+                var menuItem = new ToolStripMenuItem
                 {
                     Text = displayName,
                 };
-                menu.DropDownItems.Add(item);
+                menu.DropDownItems.Add(menuItem);
 
-                //  If it's a file, pressing it launches the corresponding Python script
+                //  If it's a file, pressing it launches the corresponding (e.g. Python) script
                 if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
                 {
-                    item.Click += (sender, args) =>
+                    menuItem.Click += (sender, args) =>
                     {
                         // Konversion in Argumentliste:
                         StringBuilder stringBuilder = new StringBuilder();
@@ -141,7 +135,7 @@ namespace SimpleContextMenus
                 // And if it's a directory, we recursively add the items in the directory to the menu
                 else
                 {
-                    AddMenuItems(item, filePathFull);
+                    AddMenuItems(menuItem, filePathFull);
                 }
 
             }
@@ -166,23 +160,22 @@ namespace SimpleContextMenus
             
             // Parsing the selected items to their MIME types and file extensions.
 
-            var x1 = GetFolderPath();
-            var x2 = Directory.GetFileSystemEntries(x1);
-            var x3 = x2.ToList();
-            var x4 = GetSelectedItemPaths();
-            var ItemPathsToMatch = GetSelectedItemPaths();
-            if (ItemPathsToMatch.Count == 0)
-                ItemPathsToMatch = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
+            // var x1 = GetFolderPath();
+            // var x2 = Directory.GetFileSystemEntries(x1);
+            // var x3 = x2.ToList();
+            // var x4 = GetSelectedItemPaths();
+            var itemPathsToMatch = GetSelectedItemPaths();
+            if (itemPathsToMatch.Count == 0)
+                itemPathsToMatch = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
 
             List<string> mimeTypesOfSelection =
-                ItemPathsToMatch
+                itemPathsToMatch
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
-                    .Select(x =>
-                        MIMEAssistant.GetMIMEType(x).Split('/')
-                            [0]) // Maps the file path to the MIME type, of which we just want the coarse type.
+                    // Maps the file path to the MIME type, of which we just want the coarse type.
+                    .Select(x => MIMEAssistant.GetMIMEType(x).Split('/')[0]) 
                     .ToList();
             List<string> fileExtensionsOfSelection =
-                ItemPathsToMatch
+                itemPathsToMatch
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
                     .Select(x => Path.GetExtension(x).Remove(0, 1))
                     .ToList();
@@ -222,7 +215,7 @@ namespace SimpleContextMenus
             var parts = filePathFull.Split('.').ToList();
 
             if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
-                parts.GetRange(0, parts.Count - 1);
+                parts = parts.GetRange(0, parts.Count - 1);
 
             string displayName = Path.GetFileNameWithoutExtension(filePathFull).Split('.')[0];
             List<string> middleParts;
