@@ -84,21 +84,15 @@ namespace SimpleContextMenus
                 Image = Resources.Extension_Menu
             };
             // Add all submenus to "Extensions"
-            AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
-            // Show extensions in the context menu
-            menuStrip.Items.Add(extensionBaseItem);
-
+            bool subItemIsApplicable = AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
+            // Show extensions in the context menu if there's at least one applicable item in a submenu.
+            if (subItemIsApplicable)    
+                menuStrip.Items.Add(extensionBaseItem);
+            
             // Add all top-level items to the context menu
             AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
-            //
-            // foreach (var filePathFull in 
-            //          Directory.GetDirectories(GetTopLevelItemsFolderPath())
-            //              .Union(Directory.GetFiles(GetTopLevelItemsFolderPath())))
-            // {
-            //     AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
-            // }
-
-
+            menuStrip.Items.Add(new ToolStripSeparator());
+            return menuStrip;
 
             
             
@@ -110,8 +104,7 @@ namespace SimpleContextMenus
             // extensionBaseItem.DoubleClick += OpenExplorer;
              
 
-            menuStrip.Items.Add(new ToolStripSeparator());
-            return menuStrip;
+
         }
 
         /// <summary>
