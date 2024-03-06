@@ -11,9 +11,7 @@ namespace SimpleContextMenus
 {
     
     /// <summary>
-    /// The CountLinesExtensions is an example shell context menu extension,
-    /// implemented with SharpShell. It adds the command 'Count Lines' to text
-    /// files.
+    /// 
     /// </summary>
     [ComVisible(true)]
     [COMServerAssociation(AssociationType.Class, @"Directory\Background")]
@@ -24,12 +22,20 @@ namespace SimpleContextMenus
         public string GetFolderPath() => FolderPath;
 
         /// <summary>
-        ///
+        /// Returns the full path to the subfolder "Extensions", which lies in the same folder as the executing assembly.
         /// </summary>
         /// <returns>The path to the folder of the executing assembly, i.e. the folder containing the COM Server .dll'.</returns>
-        public string GetExeFolderPath() => 
+        public string GetExtensionsFolderPath() => 
             Path.Combine(
             Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Extensions");
+        
+        /// <summary>
+        /// Returns the full path to the subfolder "TopLevelItems", which lies in the same folder as the executing assembly.
+        /// </summary>
+        /// <returns>The path to the folder of the executing assembly, i.e. the folder containing the COM Server .dll'.</returns>
+        public string GetTopLevelItemsFolderPath() => 
+            Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TopLevelItems");
 
         public List<string> GetSelectedItemPaths()
         {
@@ -67,20 +73,35 @@ namespace SimpleContextMenus
         /// </returns>
         protected override ContextMenuStrip CreateMenu()
         {
-            var exe_directory = (GetExeFolderPath()) ??
-                                throw new Exception("No directory found for the executing assembly.");
             //  Create the menu strip
-            var menu = new ContextMenuStrip();
-            //  Create the base menu item
+            var menuStrip = new ContextMenuStrip();
+            menuStrip.Items.Add(new ToolStripSeparator());
+            
+            //  Create the base menu item "Extensions"
             var extensionBaseItem = new ToolStripMenuItem
             {
                 Text = Resources.SimpleContextMenu_CreateMenu_Extensions,
                 Image = Resources.Extension_Menu
             };
+            // Add all submenus to "Extensions"
+            AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
+            // Show extensions in the context menu
+            menuStrip.Items.Add(extensionBaseItem);
+
+            // Add all top-level items to the context menu
+            AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
+            //
+            // foreach (var filePathFull in 
+            //          Directory.GetDirectories(GetTopLevelItemsFolderPath())
+            //              .Union(Directory.GetFiles(GetTopLevelItemsFolderPath())))
+            // {
+            //     AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
+            // }
 
 
-            AddMenuItems(extensionBaseItem, exe_directory);
-            menu.Items.Add(extensionBaseItem);
+
+            
+            
             // // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
             // // Neither option works if it the menu has DropDownItems...
             // void OpenExplorer(object sender, EventArgs args) => Process.Start("explorer.exe" , $"{exe_directory}");
@@ -89,21 +110,33 @@ namespace SimpleContextMenus
             // extensionBaseItem.DoubleClick += OpenExplorer;
              
 
-            return menu;
+            menuStrip.Items.Add(new ToolStripSeparator());
+            return menuStrip;
         }
 
         /// <summary>
-        /// Builds the recursive menu structure.
-        /// Returns whether any end-item in the menu structure is visible.
+        /// Builds the recursive menu structure
+        /// by mirroring the file &amp; folder structure in currentDirectory.
+        /// Each folder is turned into a dropdown menu, and each file into a menu end item.
         /// </summary>
-        /// <param name="menu"></param>
+        /// <param name="menuStrip"> The context menu itself</param>
+        /// <param name="menu"> The current menu item in the context menu, or null if we're in no menu item (i.e. in the top level)</param>
         /// <param name="currentDirectory"></param>
-        private bool AddMenuItems(ToolStripMenuItem menu, string currentDirectory)
+        /// <returns>Returns whether any end-item in the menu structure is visible.
+        /// This is mostly used by the calling element to decide whether its menu item should be visible.</returns>
+        private bool AddMenuItems(
+            ContextMenuStrip menuStrip, 
+            ToolStripMenuItem? menu, 
+            string currentDirectory)
         {
             bool anyEndItemApplicable = false;
             // Note:
             // Directory.GetFileSystemEntries() returns directories without a trailing backslash.
-            foreach (var filePathFull in Directory.GetDirectories(currentDirectory).Union(Directory.GetFiles(currentDirectory))) // First directories, then files
+            foreach (var filePathFull in 
+                     Directory.GetDirectories(currentDirectory).
+                         Union(Directory.GetFiles(currentDirectory))
+                         .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Hidden) )) 
+                // First directories, then files. Only list stuff that's visible in Windows Explorer
             {
                 // Check if we should show the file/directory by checking it against the selection
                 // (or all elements in the directory if nothing is selected)
@@ -127,38 +160,32 @@ namespace SimpleContextMenus
                 //  If it's a file, pressing it launches the corresponding (e.g. Python) script
                 if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
                 {
-                    menu.DropDownItems.Add(menuItem);
+                    // If we're in TopLevelFolder, then we need to add directly the menuStrip.
+                    // Otherwise we add to the menu as submenu.
+                    if (menu != null)
+                        menu.DropDownItems.Add(menuItem);
+                    else
+                        menuStrip.Items.Add(menuItem);
+                    
                     anyEndItemApplicable = true;
-                    menuItem.Click += (sender, args) =>
-                    {
-                        // Konversion in Argumentliste:
-                        StringBuilder stringBuilder = new StringBuilder();
-
-                        foreach (string fileToAdd in GetSelectedItemPaths())
-                        {
-                            stringBuilder.Append($"\"{fileToAdd}\" ");
-
-                        }
-
-                        System.Diagnostics.Process process = new System.Diagnostics.Process();
-                        System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            WindowStyle = ProcessWindowStyle.Normal,
-                            FileName = filePathFull,
-                            WorkingDirectory = GetFolderPath(),
-                            Arguments = stringBuilder.ToString()
-                        };
-                        process.StartInfo = startInfo;
-                        process.Start();
-                    };
+                    menuItem.Click += launchScriptOnMenuItemOnClick(filePathFull);
                 }
                 // And if it's a directory, we recursively add the items in the directory to the menu
                 else
                 {
-                    bool subItemIsApplicable = AddMenuItems(menuItem, filePathFull);
+                    // We build the submenus of menuItem corresponding to filePathFull, but only 
+                    // show it, if at least one end item somewhere in the submenu is applicable.
+                    bool subItemIsApplicable = AddMenuItems(menuStrip,menuItem, filePathFull);
                     if (subItemIsApplicable)
-                        menu.DropDownItems.Add(menuItem);
-                    
+                    {
+                        // If we're in TopLevelFolder, then we need to add directly the menuStrip.
+                        // Otherwise we add to the menu as submenu.
+                        if (menu != null)
+                            menu.DropDownItems.Add(menuItem);
+                        else
+                            menuStrip.Items.Add(menuItem);
+                    }
+
                     anyEndItemApplicable |= subItemIsApplicable;
 
                     // // Leftover from when I tried to hide empty submenus instead of only adding them if they're not empty .
@@ -173,7 +200,41 @@ namespace SimpleContextMenus
             return anyEndItemApplicable;
         }
 
-        
+        /// <summary>
+        /// To be called when a menu item is clicked.
+        /// Launches the script in the location corresponding to the menu item.
+        ///
+        /// Passes the selection as arguments to the script (a background click has no selected items).
+        /// Sets the working directory of the script to be the folder in which the right click occured.
+        /// </summary>
+        /// <param name="filePathFull"> The full path to the working directory in which the script should be launched</param>
+        /// <returns></returns>
+        private EventHandler launchScriptOnMenuItemOnClick(string filePathFull)
+        {
+            return (sender, args) =>
+            {
+                // Konversion in Argumentliste:
+                StringBuilder stringBuilder = new StringBuilder();
+
+                foreach (string fileToAdd in GetSelectedItemPaths())
+                {
+                    stringBuilder.Append($"\"{fileToAdd}\" ");
+
+                }
+
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    WindowStyle = ProcessWindowStyle.Normal,
+                    FileName = filePathFull,
+                    WorkingDirectory = GetFolderPath(),
+                    Arguments = stringBuilder.ToString()
+                };
+                process.StartInfo = startInfo;
+                process.Start();
+            };
+        }
+
 
         /// <summary>
         ///  If we get no selection (GetSelectedItemPaths()), select all files & folders in the current directory.
@@ -242,16 +303,19 @@ namespace SimpleContextMenus
         /// (displayName, MIMETypes, FileExtensions)
         /// 
         /// The naming convention is as follows:
+        /// Starting with a file name with extension, but without path to it in its name:
         /// The file name is split by each dot. The first part is the display name,
-        /// and each following part (except the last for files, i.e. non-folders) is either a MIME type or a file extension.
-        /// The last part is ignored. Hint: If you want to call a Python script,
+        /// and each following part (except the last for files, i.e. non-folders) is either a MIME type (if it's uppercase)
+        /// or a file extension (if it's lowercase).
+        /// The last part (if it is a file extension) is ignored.
+        /// Hint: If you want to call a Python script,
         /// it should be .py if the script should run in foreground, or .pyw if the script should run in background.
         ///
         /// Each middle part should have all its letters in lower case if it's a file extension, and in upper case if it's a MIME type.
         ///
         /// The returned MIME types and file extensions are in lower case and without dot.
         /// </summary>
-        /// <param name="filePathFull"> A full path to the file.</param> 
+        /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param> 
         /// <exception cref="NotImplementedException"></exception>
         private DataClass1 NamingConventionParser(
             string filePathFull)

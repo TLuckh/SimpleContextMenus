@@ -21,8 +21,11 @@ the directory where you installed the server.
 
 
 ## Configuration
-In the directory where you installed the server, navigate to the subfolder 'Extensions'.
+In the directory where you installed the server, there are two subfolders: 'Extensions' and 'TopLevelItems'.
 Here, you can add any number of files and folders.
+<br>
+(Elements in 'TopLevelItems' each get an item in the context menu, while elements in
+'Extensions' get an item in the submenu named 'Extensions')
 
 For each folder, a drop down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
@@ -32,7 +35,7 @@ See SimpleContextMenu.cs/NamingConventionParser documentation.
 
 Note that the file extension restrictions do not affect the passed selection,
 only whether or not the context menu is visible.
-Furthermore, if a folder has many files (>=50), the context menus will
+Furthermore, if a folder has many files (&ge; 50), the context menus will
 not be filtered when doing a right click on the background 
 (this does not apply when right clicking on a selection).
 
@@ -45,11 +48,12 @@ Furthermore, the current working directory (in Python e.g. os.getcwd())
 will be set to the directory in which you right clicked.
 
 ## Odd Behavior
-Note that if you select items and right click, the items are passed as selected, but starting 
+Note that if you select items and right click, the items are passed in the order in which they are
+shown in Windows Explorer, but starting 
 from the item you right clicked on, and wrapping around.
 
 That is, if in the explorer you select items 1, 2, 3, 4, 5, which are shown in this order,
-and you right click on item 3, then the passed elements are 3,4,5,1,2,
+and you right click on item 3, then order in which the elements are passed is 3,4,5,1,2,
 and the passed string is
 
 `"1" "2" "3" "4" "5" `

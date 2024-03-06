@@ -197,6 +197,8 @@ public static class MIMEAssistant
     {"zip", "application/zip"}
   };
 
+
+
   public static string GetMIMEType(string fileName)
   {
     //get file extension
