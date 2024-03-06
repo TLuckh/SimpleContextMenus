@@ -1,6 +1,6 @@
 ﻿Implement lazy loading of context menus in "Extensions" folder.
 
-(by only calling
+(by System.Lazy (see SharpContextMenu.cs Lazy<...>) or by only calling
 
 // Add all submenus to "Extensions"
 bool subItemIsApplicable = AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
