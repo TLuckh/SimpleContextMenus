@@ -26,11 +26,18 @@ namespace SimpleContextMenus
             get
             {
                 List<string> selectedItems = GetSelectedItemPaths();
-                if (selectedItems.Count == 0)
+                if (selectedItems.Count == 0)       // Case: No selection. Here FolderPath works as intended in the base-class
                     return base.FolderPath;
-                else
+                else                                // Case: Selection. Here, FolderPath from base-class is bugged and returns the path of system32.
+                                                    //If all the files are in the same folder, we return its path.
+                                                    //Otherwise, nothing is returned as we might not be in a folder at all (e.g. 'Recently Used', or 'My Computer'),
+                                                    //which is detected in CanShowMenu(). 
                 {
-                    return Path.GetDirectoryName(selectedItems[0]) ?? base.FolderPath;    // ToDo: Not really as intended. Only problematic if we're in "My Computer", no clue to which path that corresponds
+                    List<string> pathsOfSelectedItems = selectedItems.Select( Path.GetDirectoryName).Distinct().ToList();
+                    if (pathsOfSelectedItems.Count == 1)
+                        return pathsOfSelectedItems[0];
+                    else return "";                          
+
                 }
             } 
              
@@ -76,8 +83,7 @@ namespace SimpleContextMenus
         /// </returns>
         protected override bool CanShowMenu()
         {
-            //  We always show the menu
-            return true;
+            return FolderPath.Length > 0;   // See FolderPath for explanation.
         }
 
         /// <summary>

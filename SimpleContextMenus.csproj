@@ -5,7 +5,7 @@
         <TargetFramework>net45</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.0.1</Version>
+        <Version>0.0.3</Version>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
