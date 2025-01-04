@@ -1,0 +1,3 @@
+This item is a simple .txt in TopLevelItems, and as such is shown in the highest menu level of the context menu.
+
+Since the item's corresponding file path is a .txt file, clicking it will open the file, that is, this very file you're reading.

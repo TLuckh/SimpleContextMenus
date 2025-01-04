@@ -18,8 +18,35 @@ namespace SimpleContextMenus
     [COMServerAssociation(AssociationType.AllFilesAndFolders)]
     public class SimpleContextMenu : SharpContextMenu
     {
-        private List<string>? _selectedItemPaths;
+        private readonly ContextMenuStrip _createMenuInternal;
+        private List<string> _selectedItemPaths;
         public string GetFolderPath() => FolderPath;
+        
+         public string FolderPath { get; private set; }
+        
+        public SimpleContextMenu(): base()
+        {
+            // Prepare the menu and its items as early as possible to avoid visible lag, and fix FolderPath to show the correct FolderPath if files are selected.
+            // As far as I can tell, each opening of the Windows Explorer Dialogue creates a new instance of this class.
+            
+            if (SelectedItemPaths == null)
+                _selectedItemPaths = new List<string>();
+            else
+                _selectedItemPaths = SelectedItemPaths.ToList();
+            
+            _createMenuInternal = _CreateMenuInternal();
+
+            List<string> selectedItems = GetSelectedItemPaths();
+            if (GetSelectedItemPaths().Count == 0)
+                FolderPath = base.FolderPath;
+            else
+            {
+                FolderPath = Path.GetDirectoryName(selectedItems[0]) ?? base.FolderPath;    // ToDo: Not really as intended. Only problematic if we're in "My Computer", no clue to which path that corresponds
+            }
+        }
+
+
+
 
         /// <summary>
         /// Returns the full path to the subfolder "Extensions", which lies in the same folder as the executing assembly.
@@ -37,16 +64,9 @@ namespace SimpleContextMenus
             Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TopLevelItems");
 
-        public List<string> GetSelectedItemPaths()
-        {
-            if (_selectedItemPaths == null)
-            {
-                if (SelectedItemPaths == null)
-                    _selectedItemPaths = new List<string>();
-                else
-                    _selectedItemPaths = SelectedItemPaths.ToList();
-            }
 
+        public  List<string> GetSelectedItemPaths()
+        {
             return _selectedItemPaths;
         }
 
@@ -73,6 +93,14 @@ namespace SimpleContextMenus
         /// </returns>
         protected override ContextMenuStrip CreateMenu()
         {
+            return _CreateMenuInternal();
+        }
+        private ContextMenuStrip _CreateMenuInternal()
+        {
+            // If cached, return cached menu
+            if (_createMenuInternal != null)
+                return _createMenuInternal;
+            
             //  Create the menu strip
             var menuStrip = new ContextMenuStrip();
             menuStrip.Items.Add(new ToolStripSeparator());

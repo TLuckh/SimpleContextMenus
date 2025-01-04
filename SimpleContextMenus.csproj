@@ -15,7 +15,14 @@
       <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+        <ContentWithTargetPath Include="CopyToOutputDebug\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'Release'">
         <ContentWithTargetPath Include="CopyToOutput\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
