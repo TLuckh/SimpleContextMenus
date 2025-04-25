@@ -227,6 +227,7 @@ namespace SimpleContextMenus
         {
             return (sender, args) =>
             {
+                Directory.SetCurrentDirectory(GetFolderPath());
                 // Konversion in Argumentliste:
                 StringBuilder stringBuilder = new StringBuilder();
 
