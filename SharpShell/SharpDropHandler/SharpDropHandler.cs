@@ -1,7 +1,5 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SharpShell.Attributes;
 using SharpShell.Extensions;
@@ -12,23 +10,55 @@ using IDropTarget = SharpShell.Interop.IDropTarget;
 namespace SharpShell.SharpDropHandler
 {
     /// <summary>
-    /// The SharpDropHandler is the base class for SharpShell servers that provide
-    /// custom Drop Handlers.
+    ///     The SharpDropHandler is the base class for SharpShell servers that provide
+    ///     custom Drop Handlers.
     /// </summary>
     [ServerType(ServerType.ShellDropHandler)]
     public abstract class SharpDropHandler : PersistFileServer, IDropTarget
     {
+        /// <summary>
+        ///     The set of items being dragged.
+        /// </summary>
+        private List<string> dragItems = new List<string>();
+
+        /// <summary>
+        ///     Gets the drag items.
+        /// </summary>
+        public IEnumerable<string> DragItems => dragItems;
+
+        /// <summary>
+        ///     Checks what operations are available for dragging onto the target with the drag files.
+        /// </summary>
+        /// <param name="dragEventArgs">The <see cref="System.Windows.Forms.DragEventArgs" /> instance containing the event data.</param>
+        protected abstract void DragEnter(DragEventArgs dragEventArgs);
+
+        /// <summary>
+        ///     Performs the drop.
+        /// </summary>
+        /// <param name="dragEventArgs">The <see cref="System.Windows.Forms.DragEventArgs" /> instance containing the event data.</param>
+        protected abstract void Drop(DragEventArgs dragEventArgs);
+
         #region Implementation of IDropTarget
 
         /// <summary>
-        /// Indicates whether a drop can be accepted, and, if so, the effect of the drop.
+        ///     Indicates whether a drop can be accepted, and, if so, the effect of the drop.
         /// </summary>
-        /// <param name="pDataObj">A pointer to the IDataObject interface on the data object. This data object contains the data being transferred in the drag-and-drop operation. If the drop occurs, this data object will be incorporated into the target.</param>
-        /// <param name="grfKeyState">The current state of the keyboard modifier keys on the keyboard. Possible values can be a combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.</param>
+        /// <param name="pDataObj">
+        ///     A pointer to the IDataObject interface on the data object. This data object contains the data
+        ///     being transferred in the drag-and-drop operation. If the drop occurs, this data object will be incorporated into
+        ///     the target.
+        /// </param>
+        /// <param name="grfKeyState">
+        ///     The current state of the keyboard modifier keys on the keyboard. Possible values can be a
+        ///     combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.
+        /// </param>
         /// <param name="pt">A POINTL structure containing the current cursor coordinates in screen coordinates.</param>
-        /// <param name="pdwEffect">On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.</param>
+        /// <param name="pdwEffect">
+        ///     On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On
+        ///     return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.
+        /// </param>
         /// <returns>
-        /// This method returns S_OK on success.
+        ///     This method returns S_OK on success.
         /// </returns>
         int IDropTarget.DragEnter(IDataObject pDataObj, uint grfKeyState, POINT pt, ref uint pdwEffect)
         {
@@ -48,7 +78,8 @@ namespace SharpShell.SharpDropHandler
             }
 
             //  Create drag event args, which store the provided parameters.
-            var dragEventArgs = new DragEventArgs(null, (int) grfKeyState, pt.X, pt.Y, (DragDropEffects) pdwEffect, DragDropEffects.None);
+            DragEventArgs dragEventArgs = new DragEventArgs(null, (int)grfKeyState, pt.X, pt.Y,
+                (DragDropEffects)pdwEffect, DragDropEffects.None);
 
             try
             {
@@ -72,13 +103,20 @@ namespace SharpShell.SharpDropHandler
         }
 
         /// <summary>
-        /// Provides target feedback to the user and communicates the drop's effect to the DoDragDrop function so it can communicate the effect of the drop back to the source.
+        ///     Provides target feedback to the user and communicates the drop's effect to the DoDragDrop function so it can
+        ///     communicate the effect of the drop back to the source.
         /// </summary>
-        /// <param name="grfKeyState">The current state of the keyboard modifier keys on the keyboard. Valid values can be a combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.</param>
+        /// <param name="grfKeyState">
+        ///     The current state of the keyboard modifier keys on the keyboard. Valid values can be a
+        ///     combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.
+        /// </param>
         /// <param name="pt">A POINTL structure containing the current cursor coordinates in screen coordinates.</param>
-        /// <param name="pdwEffect">On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.</param>
+        /// <param name="pdwEffect">
+        ///     On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On
+        ///     return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.
+        /// </param>
         /// <returns>
-        /// This method returns S_OK on success.
+        ///     This method returns S_OK on success.
         /// </returns>
         int IDropTarget.DragOver(uint grfKeyState, POINT pt, ref uint pdwEffect)
         {
@@ -87,10 +125,10 @@ namespace SharpShell.SharpDropHandler
         }
 
         /// <summary>
-        /// Removes target feedback and releases the data object.
+        ///     Removes target feedback and releases the data object.
         /// </summary>
         /// <returns>
-        /// This method returns S_OK on success.
+        ///     This method returns S_OK on success.
         /// </returns>
         int IDropTarget.DragLeave()
         {
@@ -99,14 +137,23 @@ namespace SharpShell.SharpDropHandler
         }
 
         /// <summary>
-        /// Incorporates the source data into the target window, removes target feedback, and releases the data object.
+        ///     Incorporates the source data into the target window, removes target feedback, and releases the data object.
         /// </summary>
-        /// <param name="pDataObj">A pointer to the IDataObject interface on the data object being transferred in the drag-and-drop operation.</param>
-        /// <param name="grfKeyState">The current state of the keyboard modifier keys on the keyboard. Possible values can be a combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.</param>
+        /// <param name="pDataObj">
+        ///     A pointer to the IDataObject interface on the data object being transferred in the drag-and-drop
+        ///     operation.
+        /// </param>
+        /// <param name="grfKeyState">
+        ///     The current state of the keyboard modifier keys on the keyboard. Possible values can be a
+        ///     combination of any of the flags MK_CONTROL, MK_SHIFT, MK_ALT, MK_BUTTON, MK_LBUTTON, MK_MBUTTON, and MK_RBUTTON.
+        /// </param>
         /// <param name="pt">A POINTL structure containing the current cursor coordinates in screen coordinates.</param>
-        /// <param name="pdwEffect">On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.</param>
+        /// <param name="pdwEffect">
+        ///     On input, pointer to the value of the pdwEffect parameter of the DoDragDrop function. On
+        ///     return, must contain one of the DROPEFFECT flags, which indicates what the result of the drop operation would be.
+        /// </param>
         /// <returns>
-        /// This method returns S_OK on success.
+        ///     This method returns S_OK on success.
         /// </returns>
         int IDropTarget.Drop(IDataObject pDataObj, uint grfKeyState, POINT pt, ref uint pdwEffect)
         {
@@ -114,7 +161,8 @@ namespace SharpShell.SharpDropHandler
             Log(string.Format("Drop for item {0}", SelectedItemPath));
 
             //  Create drag event args, which store the provided parameters.
-            var dragEventArgs = new DragEventArgs(null, (int)grfKeyState, pt.X, pt.Y, (DragDropEffects)pdwEffect, DragDropEffects.None);
+            DragEventArgs dragEventArgs = new DragEventArgs(null, (int)grfKeyState, pt.X, pt.Y,
+                (DragDropEffects)pdwEffect, DragDropEffects.None);
 
             try
             {
@@ -132,27 +180,5 @@ namespace SharpShell.SharpDropHandler
         }
 
         #endregion
-
-        /// <summary>
-        /// Checks what operations are available for dragging onto the target with the drag files.
-        /// </summary>
-        /// <param name="dragEventArgs">The <see cref="System.Windows.Forms.DragEventArgs"/> instance containing the event data.</param>
-        protected abstract void DragEnter(DragEventArgs dragEventArgs);
-
-        /// <summary>
-        /// Performs the drop.
-        /// </summary>
-        /// <param name="dragEventArgs">The <see cref="System.Windows.Forms.DragEventArgs"/> instance containing the event data.</param>
-        protected abstract void Drop(DragEventArgs dragEventArgs);
-
-        /// <summary>
-        /// The set of items being dragged.
-        /// </summary>
-        private List<string> dragItems = new List<string>();
-
-        /// <summary>
-        /// Gets the drag items.
-        /// </summary>
-        public IEnumerable<string> DragItems { get { return dragItems; } } 
     }
 }

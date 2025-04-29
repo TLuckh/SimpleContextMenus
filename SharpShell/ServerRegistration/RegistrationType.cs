@@ -1,23 +1,17 @@
-﻿using NUnit.Framework.Legacy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SharpShell.ServerRegistration
+﻿namespace SharpShell.ServerRegistration
 {
     /// <summary>
-    /// The registation type.
+    ///     The registation type.
     /// </summary>
     public enum RegistrationType
     {
         /// <summary>
-        /// 32 Bit operating system registration.
+        ///     32 Bit operating system registration.
         /// </summary>
         OS32Bit,
 
         /// <summary>
-        /// 64 Bit operating system registration.
+        ///     64 Bit operating system registration.
         /// </summary>
         OS64Bit
     }

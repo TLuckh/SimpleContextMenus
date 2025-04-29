@@ -1,21 +1,30 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Diagnostics;
 
 namespace SharpShell.Diagnostics.Loggers
 {
     /// <summary>
-    /// A logger which logs to the Windows Event Log.
+    ///     A logger which logs to the Windows Event Log.
     /// </summary>
     internal class EventLogLogger : ILogger
     {
         /// <summary>
-        /// The source created flag. If true, we have a source.
+        ///     The event log log.
+        /// </summary>
+        private const string EventLog_Log = @"Application";
+
+        /// <summary>
+        ///     The EventLog Source for SharpShell.
+        /// </summary>
+        public const string EventLog_Source = @"SharpShell";
+
+        /// <summary>
+        ///     The source created flag. If true, we have a source.
         /// </summary>
         private readonly bool sourceCreated;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EventLogLogger" /> class.
+        ///     Initializes a new instance of the <see cref="EventLogLogger" /> class.
         /// </summary>
         public EventLogLogger()
         {
@@ -33,7 +42,7 @@ namespace SharpShell.Diagnostics.Loggers
         }
 
         /// <summary>
-        /// Logs an error.
+        ///     Logs an error.
         /// </summary>
         /// <param name="error">The error.</param>
         public void LogError(string error)
@@ -43,7 +52,7 @@ namespace SharpShell.Diagnostics.Loggers
         }
 
         /// <summary>
-        /// Logs a warning.
+        ///     Logs a warning.
         /// </summary>
         /// <param name="warning">The warning.</param>
         public void LogWarning(string warning)
@@ -53,7 +62,7 @@ namespace SharpShell.Diagnostics.Loggers
         }
 
         /// <summary>
-        /// Logs a message.
+        ///     Logs a message.
         /// </summary>
         /// <param name="message">The message.</param>
         public void LogMessage(string message)
@@ -61,16 +70,5 @@ namespace SharpShell.Diagnostics.Loggers
             if (sourceCreated == false) return;
             EventLog.WriteEntry(EventLog_Source, message, EventLogEntryType.Information);
         }
-
-
-        /// <summary>
-        /// The event log log.
-        /// </summary>
-        private const string EventLog_Log = @"Application";
-
-        /// <summary>
-        /// The EventLog Source for SharpShell.
-        /// </summary>
-        public const string EventLog_Source = @"SharpShell";
     }
 }

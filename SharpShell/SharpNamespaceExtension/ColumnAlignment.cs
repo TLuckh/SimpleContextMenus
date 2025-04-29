@@ -1,23 +1,22 @@
-﻿using NUnit.Framework.Legacy;
-namespace SharpShell.SharpNamespaceExtension
+﻿namespace SharpShell.SharpNamespaceExtension
 {
     /// <summary>
-    /// Specifies column alignment.
+    ///     Specifies column alignment.
     /// </summary>
     public enum ColumnAlignment
     {
         /// <summary>
-        /// Left aligned.
+        ///     Left aligned.
         /// </summary>
         Left = 0,
 
         /// <summary>
-        /// Centre aligned.
+        ///     Centre aligned.
         /// </summary>
         Centre = 1,
 
         /// <summary>
-        /// Right aligned.
+        ///     Right aligned.
         /// </summary>
         Right = 2
     }

@@ -28,8 +28,7 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
-    
-    
+
 
     <ItemGroup>
         <PackageReference Include="StrongNamer" Version="0.2.5"/>
@@ -64,7 +63,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="SharpShell\SharpShell.csproj" />
+        <ProjectReference Include="SharpShell\SharpShell.csproj"/>
     </ItemGroup>
 
 </Project>

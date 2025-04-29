@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Linq;
 using System.Security.AccessControl;
 using Microsoft.Win32;
@@ -12,7 +11,7 @@ using SharpShell.ServerRegistration;
 namespace SharpShell.SharpPreviewHandler
 {
     /// <summary>
-    /// A logic only class which can register a Preview Handler.
+    ///     A logic only class which can register a Preview Handler.
     /// </summary>
     internal static class PreviewHandlerRegistrar
     {
@@ -21,26 +20,25 @@ namespace SharpShell.SharpPreviewHandler
         public static void Register(Type serverType, RegistrationType registrationType)
         {
             //  Get the preview handler attribute. If it is missing, throw a registration exception.
-            var previewHandlerAttribute = PreviewHandlerAttribute.GetPreviewHandlerAttribute(serverType);
+            PreviewHandlerAttribute previewHandlerAttribute =
+                PreviewHandlerAttribute.GetPreviewHandlerAttribute(serverType);
             if (previewHandlerAttribute == null)
-            {
                 throw new ServerRegistrationException("The server does not have a [PreviewHandler] attribute set.");
-            }
 
             //  We will use the display name a few times.
-            var displayName = DisplayNameAttribute.GetDisplayNameOrTypeName(serverType);
+            string displayName = DisplayNameAttribute.GetDisplayNameOrTypeName(serverType);
 
             //  Open the local machine.
-            using (var localMachineBaseKey = registrationType == RegistrationType.OS64Bit
-                                                 ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
-                                                                           RegistryView.Registry64)
-                                                 : RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
-                                                                           RegistryView.Registry32))
+            using (RegistryKey localMachineBaseKey = registrationType == RegistrationType.OS64Bit
+                       ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                           RegistryView.Registry64)
+                       : RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                           RegistryView.Registry32))
             {
                 //  Open the Preview Handlers.
-                using (var previewHandlersKey = localMachineBaseKey
-                    .OpenSubKey(PreviewHandlersKey,
-                                RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.WriteKey))
+                using (RegistryKey previewHandlersKey = localMachineBaseKey
+                           .OpenSubKey(PreviewHandlersKey,
+                               RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.WriteKey))
                 {
                     //  If we don't have the key, we've got a problem.
                     if (previewHandlersKey == null)
@@ -53,17 +51,17 @@ namespace SharpShell.SharpPreviewHandler
             }
 
             //  Open the classes root.
-            using (var classesBaseKey = registrationType == RegistrationType.OS64Bit
-                                            ? RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry64)
-                                            : RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry32))
+            using (RegistryKey classesBaseKey = registrationType == RegistrationType.OS64Bit
+                       ? RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry64)
+                       : RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry32))
             {
                 //  Our server guid.
-                var serverGuid = serverType.GUID.ToRegistryString();
+                string serverGuid = serverType.GUID.ToRegistryString();
 
                 //  Open the Class Key.
-                using (var classKey = classesBaseKey
-                    .OpenSubKey(string.Format(@"CLSID\{0}", serverGuid),
-                                RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.WriteKey))
+                using (RegistryKey classKey = classesBaseKey
+                           .OpenSubKey(string.Format(@"CLSID\{0}", serverGuid),
+                               RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.WriteKey))
                 {
                     //  If we don't have the key, we've got a problem.
                     if (classKey == null)
@@ -77,7 +75,7 @@ namespace SharpShell.SharpPreviewHandler
                     {
                         case SurrogateHostType.DedicatedPrevhost:
                             //  Get the appid.
-                            var appId = GetAppIdForServerClsid(serverType.GUID).ToRegistryString();
+                            string appId = GetAppIdForServerClsid(serverType.GUID).ToRegistryString();
                             classKey.SetValue("AppID", appId);
                             CreatePrevhostApp(appId);
                             break;
@@ -92,7 +90,7 @@ namespace SharpShell.SharpPreviewHandler
                         default:
                             throw new ServerRegistrationException(
                                 string.Format("{0} is not a valid value for the surrogate host type.",
-                                              previewHandlerAttribute.SurrogateHostType));
+                                    previewHandlerAttribute.SurrogateHostType));
                     }
 
                     //  Set the display name and TODO icon.
@@ -107,73 +105,75 @@ namespace SharpShell.SharpPreviewHandler
         }
 
         /// <summary>
-        /// Unregisters the SharpShell Preview Handler with the given type.
+        ///     Unregisters the SharpShell Preview Handler with the given type.
         /// </summary>
         /// <param name="serverType">Type of the server.</param>
         /// <param name="registrationType">Type of the registration.</param>
         public static void Unregister(Type serverType, RegistrationType registrationType)
         {
             //  Open the local machine.
-            using (var localMachineBaseKey = registrationType == RegistrationType.OS64Bit
-                ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64) :
-                  RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
+            using (RegistryKey localMachineBaseKey = registrationType == RegistrationType.OS64Bit
+                       ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64)
+                       : RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32))
             {
                 //  Open the Preview Handlers.
-                using (var previewHandlersKey = localMachineBaseKey
-                    .OpenSubKey(PreviewHandlersKey,
-                    RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.WriteKey | RegistryRights.ReadKey))
+                using (RegistryKey previewHandlersKey = localMachineBaseKey
+                           .OpenSubKey(PreviewHandlersKey,
+                               RegistryKeyPermissionCheck.ReadWriteSubTree,
+                               RegistryRights.WriteKey | RegistryRights.ReadKey))
                 {
                     //  If we don't have the key, we've got a problem.
                     if (previewHandlersKey == null)
                         throw new InvalidOperationException("Cannot open the PreviewHandlers key.");
 
                     //  If there's a value for the server, delete it.
-                    var serverGuid = serverType.GUID.ToRegistryString();
+                    string serverGuid = serverType.GUID.ToRegistryString();
                     if (previewHandlersKey.GetValueNames().Any(vm => vm == serverGuid))
                         previewHandlersKey.DeleteValue(serverGuid);
 
                     //  If the server has an AppID registered for it's surrogate host, clean it up.
-                    var appId = GetAppIdForServerClsid(serverType.GUID).ToRegistryString();
+                    string appId = GetAppIdForServerClsid(serverType.GUID).ToRegistryString();
                     DeletePrevhostApp(appId);
                 }
             }
         }
 
         /// <summary>
-        /// Registers a new AppID pointing to prevhost.exe.
+        ///     Registers a new AppID pointing to prevhost.exe.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
         private static void CreatePrevhostApp(string appId)
         {
             //  Get the registry service.
-            var registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
+            IRegistry registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
 
-            using (var classesRoot = registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
-            using (var appIdsKey = classesRoot.OpenSubKey("AppID", true))
+            using (IRegistryKey classesRoot = registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
+            using (IRegistryKey appIdsKey = classesRoot.OpenSubKey("AppID", true))
             {
                 if (appIdsKey == null)
                     throw new InvalidOperationException("An exception occured trying to open the App IDs.");
 
-                using (var appIdKey = appIdsKey.CreateSubKey(appId))
+                using (IRegistryKey appIdKey = appIdsKey.CreateSubKey(appId))
                 {
                     if (appIdKey == null)
                         throw new InvalidOperationException("An exception occured trying to create an App ID.");
-                    appIdKey.SetValue("DllSurrogate", @"%SystemRoot%\system32\prevhost.exe", RegistryValueKind.ExpandString);
+                    appIdKey.SetValue("DllSurrogate", @"%SystemRoot%\system32\prevhost.exe",
+                        RegistryValueKind.ExpandString);
                 }
             }
         }
 
         /// <summary>
-        /// Deletes a prevhost application registered for <paramref name="appId"/>, if it exixsts.
+        ///     Deletes a prevhost application registered for <paramref name="appId" />, if it exixsts.
         /// </summary>
         /// <param name="appId">The application identifier.</param>
         private static void DeletePrevhostApp(string appId)
         {
             //  Get the registry service.
-            var registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
+            IRegistry registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
 
-            using (var classesRoot = registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
-            using (var appIdsKey = classesRoot.OpenSubKey("AppID", true))
+            using (IRegistryKey classesRoot = registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default))
+            using (IRegistryKey appIdsKey = classesRoot.OpenSubKey("AppID", true))
             {
                 if (appIdsKey == null)
                     throw new InvalidOperationException("An exception occured trying to open the App IDs.");
@@ -183,16 +183,16 @@ namespace SharpShell.SharpPreviewHandler
         }
 
         /// <summary>
-        /// Gets the application identifier for server CLSID.
-        /// This is used when creating a new AppID registration for 
-        /// a dedicate preview handler host.
+        ///     Gets the application identifier for server CLSID.
+        ///     This is used when creating a new AppID registration for
+        ///     a dedicate preview handler host.
         /// </summary>
         /// <param name="serverClsid">The server CLSID.</param>
         /// <returns>An AppID for the CLSID.</returns>
         private static Guid GetAppIdForServerClsid(Guid serverClsid)
         {
             //  Just add one to the guid.
-            var bytes = serverClsid.ToByteArray();
+            byte[] bytes = serverClsid.ToByteArray();
             bytes[15] = unchecked((byte)(bytes[15] + 1));
             return new Guid(bytes);
         }

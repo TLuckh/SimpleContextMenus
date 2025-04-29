@@ -1,11 +1,11 @@
-using NUnit.Framework.Legacy;
 using System;
 using System.Runtime.InteropServices;
 
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// The IOleWindow interface provides methods that allow an application to obtain the handle to the various windows that participate in in-place activation, and also to enter and exit context-sensitive help mode.
+    ///     The IOleWindow interface provides methods that allow an application to obtain the handle to the various windows
+    ///     that participate in in-place activation, and also to enter and exit context-sensitive help mode.
     /// </summary>
     [ComImport]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -13,7 +13,8 @@ namespace SharpShell.Interop
     public interface IOleWindow
     {
         /// <summary>
-        /// Retrieves a handle to one of the windows participating in in-place activation (frame, document, parent, or in-place object window).
+        ///     Retrieves a handle to one of the windows participating in in-place activation (frame, document, parent, or in-place
+        ///     object window).
         /// </summary>
         /// <param name="phwnd">A pointer to a variable that receives the window handle.</param>
         /// <returns>This method returns S_OK on success. </returns>
@@ -21,11 +22,14 @@ namespace SharpShell.Interop
         int GetWindow(out IntPtr phwnd);
 
         /// <summary>
-        /// Determines whether context-sensitive help mode should be entered during an in-place activation session.
+        ///     Determines whether context-sensitive help mode should be entered during an in-place activation session.
         /// </summary>
         /// <param name="fEnterMode">TRUE if help mode should be entered; FALSE if it should be exited.</param>
-        /// <returns>This method returns S_OK if the help mode was entered or exited successfully, depending on the value passed in fEnterMode.</returns>
+        /// <returns>
+        ///     This method returns S_OK if the help mode was entered or exited successfully, depending on the value passed in
+        ///     fEnterMode.
+        /// </returns>
         [PreserveSig]
         int ContextSensitiveHelp(bool fEnterMode);
-    };
+    }
 }

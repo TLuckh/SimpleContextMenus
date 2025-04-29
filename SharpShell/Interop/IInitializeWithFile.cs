@@ -1,10 +1,10 @@
-using NUnit.Framework.Legacy;
 using System.Runtime.InteropServices;
 
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// Exposes a method to initialize a handler, such as a property handler, thumbnail handler, or preview handler, with a file path.
+    ///     Exposes a method to initialize a handler, such as a property handler, thumbnail handler, or preview handler, with a
+    ///     file path.
     /// </summary>
     [ComImport]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -12,10 +12,13 @@ namespace SharpShell.Interop
     public interface IInitializeWithFile
     {
         /// <summary>
-        /// Initializes a handler with a file path.
+        ///     Initializes a handler with a file path.
         /// </summary>
         /// <param name="pszFilePath">A pointer to a buffer that contains the file path as a null-terminated Unicode string.</param>
-        /// <param name="grfMode">One of the following STGM values that indicates the access mode for pszFilePath. STGM_READ or STGM_READWRITE.</param>
+        /// <param name="grfMode">
+        ///     One of the following STGM values that indicates the access mode for pszFilePath. STGM_READ or
+        ///     STGM_READWRITE.
+        /// </param>
         [PreserveSig]
         int Initialize([MarshalAs(UnmanagedType.LPWStr)] string pszFilePath, STGM grfMode);
     }

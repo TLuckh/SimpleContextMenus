@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using ServerRegistrationManager.Actions;
@@ -11,17 +10,28 @@ using SharpShell.ServerRegistration;
 namespace ServerRegistrationManager
 {
     /// <summary>
-    /// The main Server Registration Manager application.
+    ///     The main Server Registration Manager application.
     /// </summary>
     public class Application
     {
+        private const string VerbHelp = @"help";
+        private const string VerbInstall = @"install";
+        private const string VerbUninstall = @"uninstall";
+        private const string VerbConfig = @"config";
+        private const string VerbEnableEventLog = @"enableeventlog";
+
+        private const string ParameterCodebase = @"-codebase";
+
+        private const string ParameterOS32 = @"-os32";
+        private const string ParameterOS64 = @"-os64";
+
         /// <summary>
-        /// The output service.
+        ///     The output service.
         /// </summary>
         private readonly IOutputService outputService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Application"/> class.
+        ///     Initializes a new instance of the <see cref="Application" /> class.
         /// </summary>
         /// <param name="outputService">The output service.</param>
         public Application(IOutputService outputService)
@@ -30,7 +40,7 @@ namespace ServerRegistrationManager
         }
 
         /// <summary>
-        /// Runs the specified application using the specified arguments.
+        ///     Runs the specified application using the specified arguments.
         /// </summary>
         /// <param name="args">The arguments.</param>
         public void Run(string[] args)
@@ -48,22 +58,19 @@ namespace ServerRegistrationManager
             }
 
             //  Get the architecture.
-            var registrationType = Environment.Is64BitOperatingSystem ? RegistrationType.OS64Bit : RegistrationType.OS32Bit;
+            RegistrationType registrationType =
+                Environment.Is64BitOperatingSystem ? RegistrationType.OS64Bit : RegistrationType.OS32Bit;
 
             //  Get the verb, target and parameters.
-            var verb = args[0];
-            var target = args.Length > 1 ? args[1] : null; // TODO tidy this up.
-            var parameters = args.Skip(1).ToArray();
+            string verb = args[0];
+            string target = args.Length > 1 ? args[1] : null; // TODO tidy this up.
+            string[] parameters = args.Skip(1).ToArray();
 
             //Allow user to override registrationType with -os32 or -os64
             if (parameters.Any(p => p.Equals(ParameterOS32, StringComparison.InvariantCultureIgnoreCase)))
-            {
                 registrationType = RegistrationType.OS32Bit;
-            }
             else if (parameters.Any(p => p.Equals(ParameterOS64, StringComparison.InvariantCultureIgnoreCase)))
-            {
                 registrationType = RegistrationType.OS64Bit;
-            }
 
             //  Based on the verb, perform the action.
             if (verb == VerbInstall)
@@ -79,7 +86,7 @@ namespace ServerRegistrationManager
         }
 
         /// <summary>
-        /// Installs a SharpShell server at the specified path.
+        ///     Installs a SharpShell server at the specified path.
         /// </summary>
         /// <param name="path">The path to the SharpShell server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -93,8 +100,10 @@ namespace ServerRegistrationManager
                 return;
             }
 
-            var regasm = new RegAsm();
-            var success = registrationType == RegistrationType.OS32Bit ? regasm.Register32(path, codeBase) : regasm.Register64(path, codeBase);
+            RegAsm regasm = new RegAsm();
+            bool success = registrationType == RegistrationType.OS32Bit
+                ? regasm.Register32(path, codeBase)
+                : regasm.Register64(path, codeBase);
 
             if (success)
             {
@@ -109,14 +118,16 @@ namespace ServerRegistrationManager
         }
 
         /// <summary>
-        /// Uninstalls a SharpShell server located at 'path'.
+        ///     Uninstalls a SharpShell server located at 'path'.
         /// </summary>
         /// <param name="path">The path to the SharpShell server.</param>
         /// <param name="registrationType">Type of the registration.</param>
         private void UninstallServer(string path, RegistrationType registrationType)
         {
-            var regasm = new RegAsm();
-            var success = registrationType == RegistrationType.OS32Bit ? regasm.Unregister32(path) : regasm.Unregister64(path);
+            RegAsm regasm = new RegAsm();
+            bool success = registrationType == RegistrationType.OS32Bit
+                ? regasm.Unregister32(path)
+                : regasm.Unregister64(path);
 
             if (success)
             {
@@ -131,7 +142,7 @@ namespace ServerRegistrationManager
         }
 
         /// <summary>
-        /// Shows the welcome message.
+        ///     Shows the welcome message.
         /// </summary>
         private void ShowWelcome()
         {
@@ -141,16 +152,5 @@ namespace ServerRegistrationManager
             outputService.WriteMessage("========================================");
             outputService.WriteMessage("");
         }
-        
-        private const string VerbHelp = @"help";
-        private const string VerbInstall = @"install";
-        private const string VerbUninstall = @"uninstall";
-        private const string VerbConfig = @"config";
-        private const string VerbEnableEventLog = @"enableeventlog";
-
-        private const string ParameterCodebase = @"-codebase";
-
-        private const string ParameterOS32 = @"-os32";
-        private const string ParameterOS64 = @"-os64";
     }
 }

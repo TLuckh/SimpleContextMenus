@@ -1,11 +1,11 @@
-using NUnit.Framework.Legacy;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// Exposes a method that initializes a handler, such as a property handler, thumbnail handler, or preview handler, with a stream.
+    ///     Exposes a method that initializes a handler, such as a property handler, thumbnail handler, or preview handler,
+    ///     with a stream.
     /// </summary>
     [ComImport]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -13,10 +13,13 @@ namespace SharpShell.Interop
     public interface IInitializeWithStream
     {
         /// <summary>
-        /// Initializes a handler with a stream.
+        ///     Initializes a handler with a stream.
         /// </summary>
         /// <param name="pstream">A pointer to an IStream interface that represents the stream source.</param>
-        /// <param name="grfMode">One of the following STGM values that indicates the access mode for pstream. STGM_READ or STGM_READWRITE.</param>
+        /// <param name="grfMode">
+        ///     One of the following STGM values that indicates the access mode for pstream. STGM_READ or
+        ///     STGM_READWRITE.
+        /// </param>
         [PreserveSig]
         int Initialize(IStream pstream, uint grfMode);
     }

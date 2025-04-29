@@ -1,19 +1,15 @@
-﻿using NUnit.Framework.Legacy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 
 namespace SharpShell.Attributes
 {
     /// <summary>
-    /// Allows the special class key to be defined.
+    ///     Allows the special class key to be defined.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
     public class SpecialClassKeyAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SpecialClassKeyAttribute"/> class.
+        ///     Initializes a new instance of the <see cref="SpecialClassKeyAttribute" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
         public SpecialClassKeyAttribute(string key)
@@ -22,10 +18,10 @@ namespace SharpShell.Attributes
         }
 
         /// <summary>
-        /// Gets the special class key.
+        ///     Gets the special class key.
         /// </summary>
         /// <value>
-        /// The special class key.
+        ///     The special class key.
         /// </value>
         public string SpecialClassKey { get; private set; }
     }

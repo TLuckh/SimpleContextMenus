@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using SharpShell.Configuration;
@@ -8,31 +7,31 @@ using SharpShell.Diagnostics.Loggers;
 namespace SharpShell.Diagnostics
 {
     /// <summary>
-    /// The logging class is used for SharpShell logging.
+    ///     The logging class is used for SharpShell logging.
     /// </summary>
     public static class Logging
     {
         /// <summary>
-        /// The loggers used.
+        ///     The loggers used.
         /// </summary>
         private static readonly List<ILogger> loggers = new List<ILogger>();
 
         /// <summary>
-        /// Initializes the <see cref="Logging"/> class.
+        ///     Initializes the <see cref="Logging" /> class.
         /// </summary>
         static Logging()
         {
             //  Get the system config (if present).
-            var config = SystemConfigurationProvider.Configuration;
+            SystemConfiguration config = SystemConfigurationProvider.Configuration;
 
             //  Add configured loggers.
             try
             {
-                if(config.LoggingMode.HasFlag(LoggingMode.Debug))
+                if (config.LoggingMode.HasFlag(LoggingMode.Debug))
                     loggers.Add(new DebugLogger());
-                if(config.LoggingMode.HasFlag(LoggingMode.EventLog))
+                if (config.LoggingMode.HasFlag(LoggingMode.EventLog))
                     loggers.Add(new EventLogLogger());
-                if(config.LoggingMode.HasFlag(LoggingMode.File))
+                if (config.LoggingMode.HasFlag(LoggingMode.File))
                     loggers.Add(new FileLogger(config.LogPath));
             }
             catch (Exception exception)
@@ -43,14 +42,16 @@ namespace SharpShell.Diagnostics
             }
 
             //  Always log our host process.
-            Log(string.Format("SharpShell Diagnostics Initialised. Process {0}.", Process.GetCurrentProcess().ProcessName));
+            Log(string.Format("SharpShell Diagnostics Initialised. Process {0}.",
+                Process.GetCurrentProcess().ProcessName));
 
             //  We will log unhandled exceptions.
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) => Error("SharpShell - Unhandled Exception in the AppDomain", args.ExceptionObject as Exception);
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+                Error("SharpShell - Unhandled Exception in the AppDomain", args.ExceptionObject as Exception);
         }
 
         /// <summary>
-        /// Logs the specified message.
+        ///     Logs the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
         public static void Log(string message)
@@ -61,13 +62,13 @@ namespace SharpShell.Diagnostics
             }
             catch (Exception exception)
             {
-                Debug.WriteLine("An unhandled exception occured logging the message {0}. Exception details: {1}", 
+                Debug.WriteLine("An unhandled exception occured logging the message {0}. Exception details: {1}",
                     message, exception);
             }
         }
 
         /// <summary>
-        /// Errors the specified message as an error.
+        ///     Errors the specified message as an error.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="exception">The exception.</param>
@@ -76,11 +77,11 @@ namespace SharpShell.Diagnostics
             try
             {
                 loggers.ForEach(l =>
-                    {
-                        l.LogError(message);
-                        if (exception != null) l.LogError(exception.ToString());
-                    });
-                }
+                {
+                    l.LogError(message);
+                    if (exception != null) l.LogError(exception.ToString());
+                });
+            }
             catch (Exception e)
             {
                 Debug.WriteLine("An unhandled exception occured logging the error {0}. Exception details: {1}",

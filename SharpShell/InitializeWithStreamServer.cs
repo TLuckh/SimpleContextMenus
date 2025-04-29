@@ -1,23 +1,33 @@
-﻿using NUnit.Framework.Legacy;
-using System.Runtime.InteropServices.ComTypes;
+﻿using System.Runtime.InteropServices.ComTypes;
 using SharpShell.Helpers;
 using SharpShell.Interop;
 
 namespace SharpShell
 {
     /// <summary>
-    /// InitializeWithStreamServer provides a base for SharpShell Servers that must implement
-    /// IInitializeWithStream (thumbnail handlers, etc).
+    ///     InitializeWithStreamServer provides a base for SharpShell Servers that must implement
+    ///     IInitializeWithStream (thumbnail handlers, etc).
     /// </summary>
     public abstract class InitializeWithStreamServer : SharpShellServer, IInitializeWithStream
     {
+        /// <summary>
+        ///     Gets the selected item stream.
+        /// </summary>
+        /// <value>
+        ///     The selected item stream.
+        /// </value>
+        public ComStream SelectedItemStream { get; private set; }
+
         #region Implementation of IInitializeWithStream
 
         /// <summary>
-        /// Initializes a handler with a stream.
+        ///     Initializes a handler with a stream.
         /// </summary>
         /// <param name="pstream">A pointer to an IStream interface that represents the stream source.</param>
-        /// <param name="grfMode">One of the following STGM values that indicates the access mode for pstream. STGM_READ or STGM_READWRITE.</param>
+        /// <param name="grfMode">
+        ///     One of the following STGM values that indicates the access mode for pstream. STGM_READ or
+        ///     STGM_READWRITE.
+        /// </param>
         public int Initialize(IStream pstream, uint grfMode)
         {
             Log("Intiailising a stream based server.");
@@ -30,13 +40,5 @@ namespace SharpShell
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the selected item stream.
-        /// </summary>
-        /// <value>
-        /// The selected item stream.
-        /// </value>
-        public ComStream SelectedItemStream { get; private set; }
     }
 }

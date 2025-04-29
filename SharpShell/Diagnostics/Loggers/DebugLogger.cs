@@ -1,15 +1,14 @@
-﻿using NUnit.Framework.Legacy;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace SharpShell.Diagnostics.Loggers
 {
     /// <summary>
-    /// A logger which logs to standard debug output.
+    ///     A logger which logs to standard debug output.
     /// </summary>
     internal class DebugLogger : ILogger
     {
         /// <summary>
-        /// Logs an error.
+        ///     Logs an error.
         /// </summary>
         /// <param name="error">The error.</param>
         public void LogError(string error)
@@ -18,7 +17,7 @@ namespace SharpShell.Diagnostics.Loggers
         }
 
         /// <summary>
-        /// Logs a warning.
+        ///     Logs a warning.
         /// </summary>
         /// <param name="warning">The warning.</param>
         public void LogWarning(string warning)
@@ -27,7 +26,7 @@ namespace SharpShell.Diagnostics.Loggers
         }
 
         /// <summary>
-        /// Logs a message.
+        ///     Logs a message.
         /// </summary>
         /// <param name="message">The message.</param>
         public void LogMessage(string message)

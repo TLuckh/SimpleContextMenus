@@ -1,51 +1,44 @@
-using NUnit.Framework.Legacy;
 namespace SharpShell.SharpNamespaceExtension
 {
     /// <summary>
-    /// A VirtualFolder is a location that a Shell Namespace Extension can be hosted.
+    ///     A VirtualFolder is a location that a Shell Namespace Extension can be hosted.
     /// </summary>
     public enum VirtualFolder
     {
         /// <summary>
-        /// The control panel
+        ///     The control panel
         /// </summary>
-        [RegistryKey(@"ControlPanel")]
-        ControlPanel,
+        [RegistryKey(@"ControlPanel")] ControlPanel,
 
         /// <summary>
-        /// The desktop
+        ///     The desktop
         /// </summary>
-        [RegistryKey(@"Desktop")]
-        Desktop,
-        
+        [RegistryKey(@"Desktop")] Desktop,
+
         /// <summary>
-        /// The entire network
+        ///     The entire network
         /// </summary>
         [RegistryKey(@"NetworkNeighborhood\EntireNetwork")]
         EntireNetwork,
-        
+
         /// <summary>
-        /// My computer
+        ///     My computer
         /// </summary>
-        [RegistryKey(@"MyComputer")]
-        MyComputer,
-        
+        [RegistryKey(@"MyComputer")] MyComputer,
+
         /// <summary>
-        /// My network places
+        ///     My network places
         /// </summary>
-        [RegistryKey(@"NetworkNeighborhood")]
-        MyNetworkPlaces,
-        
+        [RegistryKey(@"NetworkNeighborhood")] MyNetworkPlaces,
+
         /// <summary>
-        /// The remote computer
+        ///     The remote computer
         /// </summary>
-        [RegistryKey(@"RemoteComputer")]
-        RemoteComputer,
-        
+        [RegistryKey(@"RemoteComputer")] RemoteComputer,
+
         /// <summary>
-        /// The users files
+        ///     The users files
         /// </summary>
-        [RegistryKey(@"UsersFiles")]
-        UsersFiles
+        [RegistryKey(@"UsersFiles")] UsersFiles
     }
 }

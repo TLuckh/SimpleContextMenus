@@ -1,16 +1,16 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
+
 #pragma warning disable 1591
 
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// KnownFolders contain the known folder ids for windows.
+    ///     KnownFolders contain the known folder ids for windows.
     /// </summary>
     /// <remarks>
-    /// See:
+    ///     See:
     ///     http://msdn.microsoft.com/en-us/library/windows/desktop/dd378457.aspx
-    /// For details on known folders.
+    ///     For details on known folders.
     /// </remarks>
     public static class KnownFolders
     {
@@ -110,7 +110,8 @@ namespace SharpShell.Interop
 
         public static readonly Guid FOLDERID_UserProgramFiles = new Guid("{5cd7aee2-2219-4a67-b85d-6c9ce15660cb}");
 
-        public static readonly Guid FOLDERID_UserProgramFilesCommon = new Guid("{bcbd3057-ca5c-4622-b42d-bc56db0ae516}");
+        public static readonly Guid FOLDERID_UserProgramFilesCommon =
+            new Guid("{bcbd3057-ca5c-4622-b42d-bc56db0ae516}");
 
         public static readonly Guid FOLDERID_AdminTools = new Guid("{724EF170-A42D-4FEF-9F26-B60E846FBA4F}");
 

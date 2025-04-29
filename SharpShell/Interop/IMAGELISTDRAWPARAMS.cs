@@ -1,6 +1,6 @@
-using NUnit.Framework.Legacy;
 using System;
 using System.Runtime.InteropServices;
+
 #pragma warning disable 1591
 
 namespace SharpShell.Interop
@@ -16,8 +16,8 @@ namespace SharpShell.Interop
         public int y;
         public int cx;
         public int cy;
-        public int xBitmap;    // x offest from the upperleft of bitmap
-        public int yBitmap;    // y offset from the upperleft of bitmap
+        public int xBitmap; // x offest from the upperleft of bitmap
+        public int yBitmap; // y offset from the upperleft of bitmap
         public int rgbBk;
         public int rgbFg;
         public int fStyle;

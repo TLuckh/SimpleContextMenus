@@ -1,15 +1,14 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 
 namespace SharpShell.Extensions
 {
     /// <summary>
-    /// Extensions for the Guid type.
+    ///     Extensions for the Guid type.
     /// </summary>
     public static class GuidExtensions
     {
         /// <summary>
-        /// Returns the GUID as a string suitable for the registry.
+        ///     Returns the GUID as a string suitable for the registry.
         /// </summary>
         /// <param name="this">The Guid.</param>
         /// <returns>The GUID as a string suitable for the registry</returns>

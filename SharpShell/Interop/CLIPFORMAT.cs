@@ -1,4 +1,3 @@
-using NUnit.Framework.Legacy;
 using System.Runtime.InteropServices;
 
 namespace SharpShell.Interop
@@ -27,6 +26,6 @@ namespace SharpShell.Interop
         CF_DSPTEXT = 0x81,
         CF_DSPBITMAP = 0x82,
         CF_DSPMETAFILEPICT = 0x83,
-        CF_DSPENHMETAFILE = 0x8E,
+        CF_DSPENHMETAFILE = 0x8E
     }
 }

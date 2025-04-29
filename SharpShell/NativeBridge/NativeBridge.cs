@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -10,55 +9,35 @@ using SharpShell.Interop;
 namespace SharpShell.NativeBridge
 {
     /// <summary>
-    /// The NativeBridge is an object that wraps the functionality of the SharpShellNativeBridge
-    /// library. It also automatically extracts the DLL from the manifest resources.
+    ///     The NativeBridge is an object that wraps the functionality of the SharpShellNativeBridge
+    ///     library. It also automatically extracts the DLL from the manifest resources.
     /// </summary>
     public class NativeBridge
     {
-        #region Logging Helper Functions
+        private IntPtr libraryHandle;
 
         /// <summary>
-        /// Logs the specified message. Will include the Shell Extension name and page name if available.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        protected void Log(string message)
-        {
-            Logging.Log($"NativeBridge: {message}");
-        }
-
-        /// <summary>
-        /// Logs the specified message as an error.  Will include the Shell Extension name and page name if available.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="exception">Optional exception details.</param>
-        protected void LogError(string message, Exception exception = null)
-        {
-            Logging.Error($"NativeBridge: {message}", exception);
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Initialises the Native Bridge.
+        ///     Initialises the Native Bridge.
         /// </summary>
         /// <returns>True if the initialisation succeeded, otherwise false.</returns>
         public bool Initialise()
         {
             //  Get the manifest resource name, build a temporary path.
-            var resourceName = GetBridgeManifestResourceName();
-            var bridgeLibraryPath = Path.GetTempPath() + Guid.NewGuid() + ".dll";
+            string resourceName = GetBridgeManifestResourceName();
+            string bridgeLibraryPath = Path.GetTempPath() + Guid.NewGuid() + ".dll";
             Log($"Preparing to load '{resourceName}' into '{bridgeLibraryPath}'...");
 
             try
             {
                 //  Get the manifest resource stream.
-                using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+                using (Stream resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
                 {
                     //  Set the temporary path..
-                    using (var tempStream = File.Create(bridgeLibraryPath))
+                    using (FileStream tempStream = File.Create(bridgeLibraryPath))
                     {
                         if (resourceStream == null)
-                            throw new InvalidOperationException($"Failed to create new empty file at '{bridgeLibraryPath}'");
+                            throw new InvalidOperationException(
+                                $"Failed to create new empty file at '{bridgeLibraryPath}'");
                         resourceStream.CopyTo(tempStream);
                     }
                 }
@@ -96,7 +75,7 @@ namespace SharpShell.NativeBridge
         }
 
         /// <summary>
-        /// Calls the add prop sheet page.
+        ///     Calls the add prop sheet page.
         /// </summary>
         /// <param name="pAddPropSheet">The p add prop sheet.</param>
         /// <param name="hProp">The h prop.</param>
@@ -105,13 +84,14 @@ namespace SharpShell.NativeBridge
         public int CallAddPropSheetPage(IntPtr pAddPropSheet, IntPtr hProp, IntPtr lParam)
         {
             //  Get the proc address.
-            var procAddress = Kernel32.GetProcAddress(libraryHandle, "CallAddPropSheetPage");
+            IntPtr procAddress = Kernel32.GetProcAddress(libraryHandle, "CallAddPropSheetPage");
 
             //  Try and cast the proc, then call it.
             try
             {
-                var callAddPropSheet = (CallAddPropSheetPageDelegate) Marshal.GetDelegateForFunctionPointer(
-                    procAddress, typeof (CallAddPropSheetPageDelegate));
+                CallAddPropSheetPageDelegate callAddPropSheet =
+                    (CallAddPropSheetPageDelegate)Marshal.GetDelegateForFunctionPointer(
+                        procAddress, typeof(CallAddPropSheetPageDelegate));
                 return callAddPropSheet(pAddPropSheet, hProp, lParam);
             }
             catch (Exception exception)
@@ -125,18 +105,18 @@ namespace SharpShell.NativeBridge
         }
 
         /// <summary>
-        /// Gets the proxy host template.
+        ///     Gets the proxy host template.
         /// </summary>
         /// <returns>The pointer to the proxy host template.</returns>
         public IntPtr GetProxyHostTemplate()
         {
             //  Get the proc address.
-            var procAddress = Kernel32.GetProcAddress(libraryHandle, "GetProxyHostTemplate");
+            IntPtr procAddress = Kernel32.GetProcAddress(libraryHandle, "GetProxyHostTemplate");
 
             //  Try and cast the proc, then call it.
             try
             {
-                var proc = (GetProxyHostTemplateDelegate)Marshal.GetDelegateForFunctionPointer(
+                GetProxyHostTemplateDelegate proc = (GetProxyHostTemplateDelegate)Marshal.GetDelegateForFunctionPointer(
                     procAddress, typeof(GetProxyHostTemplateDelegate));
                 return proc();
             }
@@ -152,7 +132,7 @@ namespace SharpShell.NativeBridge
 
 
         /// <summary>
-        /// Deinitialises this instance.
+        ///     Deinitialises this instance.
         /// </summary>
         public void Deinitialise()
         {
@@ -161,44 +141,33 @@ namespace SharpShell.NativeBridge
         }
 
         /// <summary>
-        /// Gets the name of the bridge manifest resource.
+        ///     Gets the name of the bridge manifest resource.
         /// </summary>
         /// <returns>The name of the bridge manifest resource.</returns>
         private static string GetBridgeManifestResourceName()
         {
             //  Create the name of the bridge manifest.
-            var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
-            var bitness = Environment.Is64BitProcess ? "64" : "32";
+            string assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+            string bitness = Environment.Is64BitProcess ? "64" : "32";
             return $"{assemblyName}.NativeBridge.SharpShellNativeBridge{bitness}.dll";
         }
 
         /// <summary>
-        /// Gets the instance handle.
+        ///     Gets the instance handle.
         /// </summary>
         /// <returns>The Instance Handle.</returns>
         public IntPtr GetInstanceHandle()
         {
             return libraryHandle;
         }
-        
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate int CallAddPropSheetPageDelegate(IntPtr lpfnAddPage, IntPtr hProp, IntPtr lParam);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate IntPtr GetProxyHostTemplateDelegate();
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        private delegate void CreatePropertySheetDelegate(ref PROPSHEETHEADER header);
-
-        private IntPtr libraryHandle;
 
         internal void CreatePropertySheet(ref PROPSHEETHEADER psh)
-        { 
+        {
             //  Try and cast the proc, then call it.
-            var procAddress = Kernel32.GetProcAddress(libraryHandle, "CreatePropertySheet");
+            IntPtr procAddress = Kernel32.GetProcAddress(libraryHandle, "CreatePropertySheet");
             try
             {
-                var proc = (CreatePropertySheetDelegate)Marshal.GetDelegateForFunctionPointer(
+                CreatePropertySheetDelegate proc = (CreatePropertySheetDelegate)Marshal.GetDelegateForFunctionPointer(
                     procAddress, typeof(CreatePropertySheetDelegate));
                 proc(ref psh);
             }
@@ -210,5 +179,37 @@ namespace SharpShell.NativeBridge
                     "'), marshal it or call it.", exception);
             }
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate int CallAddPropSheetPageDelegate(IntPtr lpfnAddPage, IntPtr hProp, IntPtr lParam);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate IntPtr GetProxyHostTemplateDelegate();
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void CreatePropertySheetDelegate(ref PROPSHEETHEADER header);
+
+        #region Logging Helper Functions
+
+        /// <summary>
+        ///     Logs the specified message. Will include the Shell Extension name and page name if available.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        protected void Log(string message)
+        {
+            Logging.Log($"NativeBridge: {message}");
+        }
+
+        /// <summary>
+        ///     Logs the specified message as an error.  Will include the Shell Extension name and page name if available.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="exception">Optional exception details.</param>
+        protected void LogError(string message, Exception exception = null)
+        {
+            Logging.Error($"NativeBridge: {message}", exception);
+        }
+
+        #endregion
     }
 }

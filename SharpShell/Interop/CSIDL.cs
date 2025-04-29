@@ -1,9 +1,11 @@
-using NUnit.Framework.Legacy;
 #pragma warning disable 1591
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// CSIDL (constant special item ID list) values provide a unique system-independent way to identify special folders used frequently by applications, but which may not have the same name or location on any given system. For example, the system folder may be "C:\Windows" on one system and "C:\Winnt" on another. These constants are defined in Shlobj.h.
+    ///     CSIDL (constant special item ID list) values provide a unique system-independent way to identify special folders
+    ///     used frequently by applications, but which may not have the same name or location on any given system. For example,
+    ///     the system folder may be "C:\Windows" on one system and "C:\Winnt" on another. These constants are defined in
+    ///     Shlobj.h.
     /// </summary>
     public enum CSIDL
     {

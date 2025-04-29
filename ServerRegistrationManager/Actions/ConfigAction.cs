@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using ServerRegistrationManager.OutputService;
@@ -8,32 +7,31 @@ using SharpShell.Configuration;
 namespace ServerRegistrationManager.Actions
 {
     /// <summary>
-    /// Action to show/edit SharpShell config.
+    ///     Action to show/edit SharpShell config.
     /// </summary>
     public static class ConfigAction
     {
         /// <summary>
-        /// Executes the action.
+        ///     Executes the action.
         /// </summary>
         /// <param name="outputService">The output service.</param>
         /// <param name="parameters">The parameters.</param>
         public static void Execute(IOutputService outputService, IEnumerable<string> parameters)
         {
             //  Enumerate the parameters.
-            var parametersList = parameters.ToList();
+            List<string> parametersList = parameters.ToList();
 
             //  If we have no parameters, we show config.
             if (parametersList.Any() == false)
                 ShowConfig(outputService);
             else
                 SetConfig(outputService, parametersList);
-
         }
 
         private static void ShowConfig(IOutputService outputService)
         {
             //  Get the config.
-            var config = SystemConfigurationProvider.Configuration;
+            SystemConfiguration config = SystemConfigurationProvider.Configuration;
 
             //  If config is not present, let the user know and we're done.
             if (config.IsConfigurationPresent == false)
@@ -57,11 +55,11 @@ namespace ServerRegistrationManager.Actions
             }
 
             //  Get the setting and value.
-            var setting = parameters[0];
-            var value = parameters[1];
+            string setting = parameters[0];
+            string value = parameters[1];
 
             //  Get the config.
-            var config = SystemConfigurationProvider.Configuration;
+            SystemConfiguration config = SystemConfigurationProvider.Configuration;
 
             //  Set the setting.
             if (string.Compare("LoggingMode", setting, StringComparison.OrdinalIgnoreCase) == 0)
@@ -69,7 +67,8 @@ namespace ServerRegistrationManager.Actions
                 //  Try and parse the setting. If we fail, show an error.
                 if (Enum.TryParse(value, true, out LoggingMode mode) == false)
                 {
-                    const LoggingMode allFlags = LoggingMode.Disabled | LoggingMode.Debug | LoggingMode.EventLog | LoggingMode.File;
+                    const LoggingMode allFlags = LoggingMode.Disabled | LoggingMode.Debug | LoggingMode.EventLog |
+                                                 LoggingMode.File;
                     outputService.WriteError($"Invalid value '{value}'. Acceptable values are: {allFlags}");
                     return;
                 }
@@ -97,7 +96,8 @@ namespace ServerRegistrationManager.Actions
             else
             {
                 //  Show an error.
-                outputService.WriteError($"{value} is not a valid config setting. Valid settings are LoggingMode and LogPath.");
+                outputService.WriteError(
+                    $"{value} is not a valid config setting. Valid settings are LoggingMode and LogPath.");
             }
         }
     }

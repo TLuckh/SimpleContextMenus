@@ -1,16 +1,15 @@
-using NUnit.Framework.Legacy;
 using System.Runtime.InteropServices;
 
 namespace SharpShell.Interop
 {
     /// <summary>
-    /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
+    ///     The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RECT"/> struct.
+        ///     Initializes a new instance of the <see cref="RECT" /> struct.
         /// </summary>
         /// <param name="left">The left.</param>
         /// <param name="top">The top.</param>
@@ -25,27 +24,27 @@ namespace SharpShell.Interop
         }
 
         /// <summary>
-        /// The x-coordinate of the upper-left corner of the rectangle.
+        ///     The x-coordinate of the upper-left corner of the rectangle.
         /// </summary>
         public int left;
 
         /// <summary>
-        /// The y-coordinate of the upper-left corner of the rectangle.
+        ///     The y-coordinate of the upper-left corner of the rectangle.
         /// </summary>
         public int top;
 
         /// <summary>
-        /// The x-coordinate of the lower-right corner of the rectangle.
+        ///     The x-coordinate of the lower-right corner of the rectangle.
         /// </summary>
         public int right;
 
         /// <summary>
-        /// The y-coordinate of the lower-right corner of the rectangle.
+        ///     The y-coordinate of the lower-right corner of the rectangle.
         /// </summary>
         public int bottom;
 
         /// <summary>
-        /// Gets the width.
+        ///     Gets the width.
         /// </summary>
         /// <returns>The width.</returns>
         public int Width()
@@ -54,7 +53,7 @@ namespace SharpShell.Interop
         }
 
         /// <summary>
-        /// Gets the height.
+        ///     Gets the height.
         /// </summary>
         /// <returns>The height.</returns>
         public int Height()
@@ -63,7 +62,7 @@ namespace SharpShell.Interop
         }
 
         /// <summary>
-        /// Offsets the rectangle.
+        ///     Offsets the rectangle.
         /// </summary>
         /// <param name="x">The x offset.</param>
         /// <param name="y">The y offset.</param>
@@ -76,7 +75,7 @@ namespace SharpShell.Interop
         }
 
         /// <summary>
-        /// Sets the rectangle coordinates.
+        ///     Sets the rectangle coordinates.
         /// </summary>
         /// <param name="left">The left.</param>
         /// <param name="top">The top.</param>
@@ -91,10 +90,10 @@ namespace SharpShell.Interop
         }
 
         /// <summary>
-        /// Determines whether this rectangle is empty.
+        ///     Determines whether this rectangle is empty.
         /// </summary>
         /// <returns>
-        ///   <c>true</c> if this rectangle is empty; otherwise, <c>false</c>.
+        ///     <c>true</c> if this rectangle is empty; otherwise, <c>false</c>.
         /// </returns>
         public bool IsEmpty()
         {

@@ -1,30 +1,29 @@
-using NUnit.Framework.Legacy;
 namespace SharpShell.Interop
 {
 // ReSharper disable InconsistentNaming
 
-    /// <summary>
-    /// Specifies column format flags.
-    /// </summary>
-    public enum LVCFMT
+/// <summary>
+///     Specifies column format flags.
+/// </summary>
+public enum LVCFMT
     {
         /// <summary>
-        /// Left aligned.
+        ///     Left aligned.
         /// </summary>
         LVCFMT_LEFT = 0x0000,
 
         /// <summary>
-        /// Right aligned.
+        ///     Right aligned.
         /// </summary>
         LVCFMT_RIGHT = 0x0001,
 
         /// <summary>
-        /// Centered
+        ///     Centered
         /// </summary>
         LVCFMT_CENTER = 0x0002,
 
         /// <summary>
-        /// The column has an icon.
+        ///     The column has an icon.
         /// </summary>
         LVCFMT_COL_HAS_IMAGES = 0x8000
     }

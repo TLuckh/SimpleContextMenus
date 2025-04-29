@@ -1,8 +1,5 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using SharpShell.Interop;
@@ -10,19 +7,21 @@ using SharpShell.Interop;
 namespace SharpShell.Extensions
 {
     /// <summary>
-    /// Extensions for the IDataObject interface.
+    ///     Extensions for the IDataObject interface.
     /// </summary>
     public static class IDataObjectExtensions
     {
+        private const int MaxPath = 260;
+
         /// <summary>
-        /// Gets the file list.
+        ///     Gets the file list.
         /// </summary>
         /// <param name="this">The IDataObject instance.</param>
         /// <returns>The file list in the data object.</returns>
         public static List<string> GetFileList(this IDataObject @this)
         {
             //  Create the format object.
-            var formatEtc = new FORMATETC();
+            FORMATETC formatEtc = new FORMATETC();
 
             //  Set up the format object, based on CF_HDROP.
             formatEtc.cfFormat = (short)CLIPFORMAT.CF_HDROP;
@@ -33,37 +32,36 @@ namespace SharpShell.Extensions
 
             //  Get the data.
             // ReSharper disable RedundantAssignment
-            var storageMedium = new STGMEDIUM();
+            STGMEDIUM storageMedium = new STGMEDIUM();
             // ReSharper restore RedundantAssignment
             @this.GetData(ref formatEtc, out storageMedium);
 
-            var fileList = new List<string>();
+            List<string> fileList = new List<string>();
 
             //  Things can get risky now.
             try
             {
                 //  Get the handle to the HDROP.
-                var hDrop = storageMedium.unionmember;
+                IntPtr hDrop = storageMedium.unionmember;
                 if (hDrop == IntPtr.Zero)
                     throw new ArgumentException("Failed to get the handle to the drop data.");
 
                 //  Get the count of the files in the operation.
-                var fileCount = Shell32.DragQueryFile(hDrop, UInt32.MaxValue, null, 0);
+                uint fileCount = Shell32.DragQueryFile(hDrop, uint.MaxValue, null, 0);
 
                 //  Go through each file.
                 for (uint i = 0; i < fileCount; i++)
                 {
                     //  Storage for the file name.
-                    var fileNameBuilder = new StringBuilder(MaxPath);
+                    StringBuilder fileNameBuilder = new StringBuilder(MaxPath);
 
                     //  Get the file name.
-                    var result = Shell32.DragQueryFile(hDrop, i, fileNameBuilder, (uint)fileNameBuilder.Capacity);
+                    uint result = Shell32.DragQueryFile(hDrop, i, fileNameBuilder, (uint)fileNameBuilder.Capacity);
 
                     //  If we have a valid result, add the file name to the list of files.
                     if (result != 0)
                         fileList.Add(fileNameBuilder.ToString());
                 }
-
             }
             finally
             {
@@ -72,7 +70,5 @@ namespace SharpShell.Extensions
 
             return fileList;
         }
-
-        private const int MaxPath = 260;
     }
 }

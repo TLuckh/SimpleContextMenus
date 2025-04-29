@@ -168,7 +168,7 @@ public class SimpleContextMenu : SharpContextMenu
                 Text = displayName
             };
             // Whether or not we add menuItem as a drop down item to menu depends on whether it's an end item or at least contains one.
-            // I've tried doing this using visibility, but for some reason that teg gets ignored...
+            // I've tried doing this using visibility, but for some reason that tag gets ignored...
 
             //  If it's a file, pressing it launches the corresponding (e.g. Python) script
             if (!File.GetAttributes(filePathFull).HasFlag(FileAttributes.Directory))
@@ -281,31 +281,32 @@ public class SimpleContextMenu : SharpContextMenu
         }
 
         // Get the MIME types and file extension for each of the selected items:
+
         #region GetMimeTypesAndFileExtensions
-        
+
         List<string> mimeTypesOfSelection = [];
         List<string> fileExtensionsOfSelection = [];
-        foreach (string itemPath in itemPathsToMatch)
-        {
-            if (File.GetAttributes(itemPath).HasFlag(FileAttributes.Directory))
-            {
-                fileExtensionsOfSelection.Add("folder");
-                continue;
-            }
-            
-            var mimeTypeFull = MimeTypeMap.GetMimeType(itemPath).ToLower();
-            var mimeTypeRoughType = MimeTypeMap.GetMimeType(itemPath).Split('/')[0].ToLower();
-            mimeTypesOfSelection.Add(mimeTypeFull);
-            mimeTypesOfSelection.Add(mimeTypeRoughType);
-            
-            var fileExtension = Path.GetExtension(itemPath).Remove(0, 1);
-            fileExtensionsOfSelection.Add(fileExtension);
-
-        }
         
         if (GetSelectedItemPaths().Any(x => File.GetAttributes(x).HasFlag(FileAttributes.Directory)))
             fileExtensionsOfSelection.Add("folder");
         
+        itemPathsToMatch = itemPathsToMatch.Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory)).ToList();
+        foreach (string itemPath in itemPathsToMatch)
+        {
+            if (File.GetAttributes(itemPath).HasFlag(FileAttributes.Directory))
+            {
+                continue;
+            }
+
+            string mimeTypeFull = MimeTypeMap.GetMimeType(itemPath).ToLower();
+            string mimeTypeRoughType = MimeTypeMap.GetMimeType(itemPath).Split('/')[0].ToLower();
+            mimeTypesOfSelection.Add(mimeTypeFull);
+            mimeTypesOfSelection.Add(mimeTypeRoughType);
+
+            string fileExtension = Path.GetExtension(itemPath).Remove(0, 1);
+            fileExtensionsOfSelection.Add(fileExtension);
+        }
+
         #endregion
 
         // Comparing the MIME types and file extensions of the selection to the MIME types and file extensions passed into the method.
@@ -320,7 +321,6 @@ public class SimpleContextMenu : SharpContextMenu
     ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
     ///     (displayName, MIMETypes, FileExtensions) <br></br>
     ///     For the naming convention applied, see NamingConvention.md.
-    /// 
     ///     The returned MIME types and file extensions are in lower case and without dot.
     /// </summary>
     /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param>
@@ -335,7 +335,7 @@ public class SimpleContextMenu : SharpContextMenu
             filePathFull = Path.GetFileName(filePathFull);
 
 
-        List<string> parts = filePathFull.Replace("..","/").Split('.').ToList();
+        List<string> parts = filePathFull.Replace("..", "/").Split('.').ToList();
         string displayName = parts[0];
         List<string> middleParts = parts.Skip(1).ToList();
 

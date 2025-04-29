@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -9,13 +8,25 @@ using SharpShell.Interop;
 namespace SharpShell.SharpContextMenu
 {
     /// <summary>
-    /// The Native Context Menu Wrapper builds a native context menu from a WinForms context
-    /// menu. It also allows command indexes and verbs back to the original menu items.
+    ///     The Native Context Menu Wrapper builds a native context menu from a WinForms context
+    ///     menu. It also allows command indexes and verbs back to the original menu items.
     /// </summary>
     internal class NativeContextMenuWrapper
     {
+        private readonly Dictionary<uint, ToolStripItem> idsToItems = new Dictionary<uint, ToolStripItem>();
+
         /// <summary>
-        /// Resets the native context menu.
+        ///     Map of indexes to commands.
+        /// </summary>
+        private readonly List<ToolStripItem> indexedCommands = new List<ToolStripItem>();
+
+        /// <summary>
+        ///     Map of verbs to commands.
+        /// </summary>
+        private readonly Dictionary<string, ToolStripItem> verbsToCommands = new Dictionary<string, ToolStripItem>();
+
+        /// <summary>
+        ///     Resets the native context menu.
         /// </summary>
         public void ResetNativeContextMenu()
         {
@@ -25,20 +36,21 @@ namespace SharpShell.SharpContextMenu
         }
 
         /// <summary>
-        /// Builds a native context menu, on to the provided HMENU.
+        ///     Builds a native context menu, on to the provided HMENU.
         /// </summary>
         /// <param name="hMenu">The handle to the menu.</param>
         /// <param name="firstItemPosition">The first item index.</param>
         /// <param name="firstItemId">The first item id.</param>
         /// <param name="toolStripItems">The tool strip menu items.</param>
         /// <returns>The index of the last item created.</returns>
-        public uint BuildNativeContextMenu(IntPtr hMenu, uint firstItemPosition, uint firstItemId, ToolStripItemCollection toolStripItems)
+        public uint BuildNativeContextMenu(IntPtr hMenu, uint firstItemPosition, uint firstItemId,
+            ToolStripItemCollection toolStripItems)
         {
             //  Create an ID counter and position counter. The position is provided by the caller. If this is a top level menu item (i.e.
             //  top level in the shell context menu) then 'position' will be provided by the Shell via an earlier call to IContextMenu::QueryContextMenu.
             //  When we create submenus, we simply start at position '0'.
-            var idCounter = firstItemId;
-            var positionCounter = firstItemPosition;
+            uint idCounter = firstItemId;
+            uint positionCounter = firstItemPosition;
 
             //  Go through every tool strip item.
             foreach (ToolStripItem item in toolStripItems)
@@ -53,14 +65,12 @@ namespace SharpShell.SharpContextMenu
                 idsToItems[idCounter] = item;
 
                 //  Create the native menu item info.
-                var menuItemInfo = CreateNativeMenuItem(item, idCounter);
+                MENUITEMINFO menuItemInfo = CreateNativeMenuItem(item, idCounter);
 
                 //  Insert the native menu item.
                 if (User32.InsertMenuItem(hMenu, positionCounter, true, ref menuItemInfo) == false)
-                {
                     //  We failed to build the item, so don't try and do anything more with it.
                     continue;
-                }
 
                 //  We successfully created the menu item, so increment the position and ID counters.
                 indexedCommands.Add(item);
@@ -69,10 +79,9 @@ namespace SharpShell.SharpContextMenu
 
                 //  Have we just built a menu item? If so, does it have child items?
                 if (item is ToolStripMenuItem toolStripMenuItem && toolStripMenuItem.HasDropDownItems)
-                {
                     //  Create the drop down menu. As this is a submenu, we start at position zero and go from there.
-                    idCounter = BuildNativeContextMenu(menuItemInfo.hSubMenu, 0, idCounter, toolStripMenuItem.DropDownItems);
-                }
+                    idCounter = BuildNativeContextMenu(menuItemInfo.hSubMenu, 0, idCounter,
+                        toolStripMenuItem.DropDownItems);
             }
 
             //  Return the counter.
@@ -80,7 +89,7 @@ namespace SharpShell.SharpContextMenu
         }
 
         /// <summary>
-        /// Creates the native menu item.
+        ///     Creates the native menu item.
         /// </summary>
         /// <param name="toolStripItem">The tool strip item.</param>
         /// <param name="id">The id.</param>
@@ -88,23 +97,22 @@ namespace SharpShell.SharpContextMenu
         private static MENUITEMINFO CreateNativeMenuItem(ToolStripItem toolStripItem, uint id)
         {
             //  Create a menu item info, set its size.
-            var menuItemInfo = new MENUITEMINFO();
+            MENUITEMINFO menuItemInfo = new MENUITEMINFO();
             menuItemInfo.cbSize = (uint)Marshal.SizeOf(menuItemInfo);
             menuItemInfo.wID = id;
-            
+
             //  Depending on the type of the item, we'll call the appropriate building function.
-            if(toolStripItem is ToolStripMenuItem)
+            if (toolStripItem is ToolStripMenuItem)
                 BuildMenuItemInfo(ref menuItemInfo, (ToolStripMenuItem)toolStripItem);
-            else if(toolStripItem is ToolStripSeparator)
+            else if (toolStripItem is ToolStripSeparator)
                 BuildSeparatorMenuItemInfo(ref menuItemInfo);
 
             //  Return the menu item info.
             return menuItemInfo;
-
         }
 
         /// <summary>
-        /// Builds the menu item info.
+        ///     Builds the menu item info.
         /// </summary>
         /// <param name="menuItemInfo">The menu item info.</param>
         /// <param name="menuItem">The menu item.</param>
@@ -112,15 +120,15 @@ namespace SharpShell.SharpContextMenu
         {
             //  Set the mask - we're interested in essentially everything.
             menuItemInfo.fMask = (uint)(MIIM.MIIM_BITMAP | MIIM.MIIM_STRING | MIIM.MIIM_FTYPE |
-                                         MIIM.MIIM_ID | MIIM.MIIM_STATE);
+                                        MIIM.MIIM_ID | MIIM.MIIM_STATE);
 
             //  If the menu item has children, we'll also create the submenu.
             if (menuItem.HasDropDownItems)
             {
-                menuItemInfo.fMask += (uint) MIIM.MIIM_SUBMENU;
+                menuItemInfo.fMask += (uint)MIIM.MIIM_SUBMENU;
                 menuItemInfo.hSubMenu = User32.CreatePopupMenu();
             }
-            
+
             //  The type is the string.
             menuItemInfo.fType = (uint)MFT.MFT_STRING;
 
@@ -131,20 +139,17 @@ namespace SharpShell.SharpContextMenu
             menuItemInfo.fState = menuItem.Enabled ? (uint)MFS.MFS_ENABLED : (uint)(MFS.MFS_DISABLED | MFS.MFS_GRAYED);
 
             //  If the menu item is checked, add the check state.
-            if (menuItem.Checked)
-            {
-                menuItemInfo.fState += (uint) MFS.MFS_CHECKED;
-            }
+            if (menuItem.Checked) menuItemInfo.fState += (uint)MFS.MFS_CHECKED;
 
             //  Is there an icon?
-            var bitmap = menuItem.Image as Bitmap;
+            Bitmap bitmap = menuItem.Image as Bitmap;
             if (bitmap != null)
                 menuItemInfo.hbmpItem = PARGB32.CreatePARGB32HBitmap(bitmap.GetHicon(), bitmap.Size);
         }
 
 
         /// <summary>
-        /// Builds the menu item info.
+        ///     Builds the menu item info.
         /// </summary>
         /// <param name="menuItemInfo">The menu item info.</param>
         private static void BuildSeparatorMenuItemInfo(ref MENUITEMINFO menuItemInfo)
@@ -155,7 +160,7 @@ namespace SharpShell.SharpContextMenu
         }
 
         /// <summary>
-        /// Tries to invoke the command.
+        ///     Tries to invoke the command.
         /// </summary>
         /// <param name="index">The index.</param>
         /// <returns>True if the command is invoked.</returns>
@@ -173,7 +178,7 @@ namespace SharpShell.SharpContextMenu
         }
 
         /// <summary>
-        /// Tries to invoke the command.
+        ///     Tries to invoke the command.
         /// </summary>
         /// <param name="verb">The verb.</param>
         /// <returns>True if the command is invoked.</returns>
@@ -190,17 +195,5 @@ namespace SharpShell.SharpContextMenu
             //  The command was invoked, return true,
             return true;
         }
-
-        private readonly Dictionary<uint, ToolStripItem> idsToItems = new Dictionary<uint, ToolStripItem>();
-        
-        /// <summary>
-        /// Map of indexes to commands.
-        /// </summary>
-        private readonly List<ToolStripItem> indexedCommands = new List<ToolStripItem>();
-
-        /// <summary>
-        /// Map of verbs to commands.
-        /// </summary>
-        private readonly Dictionary<string, ToolStripItem> verbsToCommands = new Dictionary<string, ToolStripItem>();
     }
 }

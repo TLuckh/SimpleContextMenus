@@ -1,89 +1,82 @@
-using NUnit.Framework.Legacy;
 using System.ComponentModel;
 
 namespace SharpShell
 {
     /// <summary>
-    /// The Server Type.
+    ///     The Server Type.
     /// </summary>
     public enum ServerType
     {
         /// <summary>
-        /// No Server Type.
+        ///     No Server Type.
         /// </summary>
         [Description("Not a SharpShell Server")]
         None,
 
         /// <summary>
-        /// A Shell Context Menu.
+        ///     A Shell Context Menu.
         /// </summary>
-        [Description("Shell Context Menu")]
-        ShellContextMenu,
+        [Description("Shell Context Menu")] ShellContextMenu,
 
         /// <summary>
-        /// A Shell Property Sheet.
+        ///     A Shell Property Sheet.
         /// </summary>
-        [Description("Shell Property Sheet")]
-        ShellPropertySheet,
+        [Description("Shell Property Sheet")] ShellPropertySheet,
 
         /// <summary>
-        /// A Shell Icon Handler.
+        ///     A Shell Icon Handler.
         /// </summary>
-        [Description("Shell Icon Handler")]
-        ShellIconHandler,
+        [Description("Shell Icon Handler")] ShellIconHandler,
 
         /// <summary>
-        /// A Shell Info Tip Handler.
+        ///     A Shell Info Tip Handler.
         /// </summary>
         [Description("Shell Info Tip Handler")]
         ShellInfoTipHandler,
 
         /// <summary>
-        /// A Shell Drop Handler
+        ///     A Shell Drop Handler
         /// </summary>
-        [Description("Shell Drop Handler")]
-        ShellDropHandler,
+        [Description("Shell Drop Handler")] ShellDropHandler,
 
         /// <summary>
-        /// A Shell Icon Overlay Handler.
+        ///     A Shell Icon Overlay Handler.
         /// </summary>
         [Description("Shell Icon Overlay Handler")]
         ShellIconOverlayHandler,
 
         /// <summary>
-        /// A Shell Preview Handler
+        ///     A Shell Preview Handler
         /// </summary>
-        [Description("Shell Preview Handler")]
-        ShellPreviewHander,
+        [Description("Shell Preview Handler")] ShellPreviewHander,
 
         /// <summary>
-        /// A Shell Data Handler
+        ///     A Shell Data Handler
         /// </summary>
-        [Description("Shell Data Handler")]
-        ShellDataHandler,
+        [Description("Shell Data Handler")] ShellDataHandler,
 
         /// <summary>
-        /// A Shell Thumbnail Handler
+        ///     A Shell Thumbnail Handler
         /// </summary>
         [Description("Shell Thumbnail Handler")]
         ShellThumbnailHandler,
-        
+
         /// <summary>
-        /// A Shell Item Thumbnail Handler (as opposed to the standard stream handler).
+        ///     A Shell Item Thumbnail Handler (as opposed to the standard stream handler).
         /// </summary>
         [Description("Shell Item Thumbnail Handler")]
         ShellItemThumbnailHandler,
 
         /// <summary>
-        /// A Shell Namespace Extension
+        ///     A Shell Namespace Extension
         /// </summary>
         [Description("Shell Namespace Extension")]
         ShellNamespaceExtension,
 
         /// <summary>
-        /// A Shell Desk Band Extension
+        ///     A Shell Desk Band Extension
         /// </summary>
         [Description("Shell Desk Band Extension")]
-        ShellDeskBand,
+        ShellDeskBand
     }
 }

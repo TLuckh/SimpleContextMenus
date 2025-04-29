@@ -1,21 +1,16 @@
-﻿using NUnit.Framework.Legacy;
+﻿using System;
 using SharpShell.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServerRegistrationManager.OutputService
 {
     /// <summary>
-    /// Implements the <see cref="IOutputService"/> contract and writes
-    /// output to the Console.
+    ///     Implements the <see cref="IOutputService" /> contract and writes
+    ///     output to the Console.
     /// </summary>
     public class ConsoleOutputService : IOutputService
     {
         /// <summary>
-        /// Writes a message.
+        ///     Writes a message.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="log">if set to <c>true</c> the message is also logged.</param>
@@ -23,7 +18,7 @@ namespace ServerRegistrationManager.OutputService
         {
             //  Set the colour.
             Console.ForegroundColor = ConsoleColor.Gray;
-            
+
             //  Write the message.
             Console.WriteLine(message);
 
@@ -33,7 +28,7 @@ namespace ServerRegistrationManager.OutputService
         }
 
         /// <summary>
-        /// Writes the success.
+        ///     Writes the success.
         /// </summary>
         /// <param name="messabe">The message.</param>
         /// <param name="log">if set to <c>true</c> [log].</param>
@@ -52,7 +47,7 @@ namespace ServerRegistrationManager.OutputService
         }
 
         /// <summary>
-        /// Writes an error.
+        ///     Writes an error.
         /// </summary>
         /// <param name="error">The error.</param>
         /// <param name="log">if set to <c>true</c> the message is also logged.</param>

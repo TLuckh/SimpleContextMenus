@@ -1,20 +1,19 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Windows.Forms;
 using SharpShell.Interop;
 
 namespace SharpShell.SharpNamespaceExtension
 {
     /// <summary>
-    /// The ShellViewHost is the window created in the to host custom shell views.
+    ///     The ShellViewHost is the window created in the to host custom shell views.
     /// </summary>
     internal class ShellViewHost : IShellView
     {
-        private Control customView;
+        private readonly Control customView;
+
+        private IShellBrowser shellBrowser;
 
         public ShellViewHost(Control customView)
         {
@@ -58,8 +57,9 @@ namespace SharpShell.SharpNamespaceExtension
             return WinError.S_OK;
         }
 
-        int IShellView.CreateViewWindow([In, MarshalAs(UnmanagedType.Interface)] IShellView psvPrevious,
-             [In] ref FOLDERSETTINGS pfs, [In, MarshalAs(UnmanagedType.Interface)] IShellBrowser psb, [In]  ref RECT prcView, [In, Out] ref IntPtr phWnd)
+        int IShellView.CreateViewWindow([In] [MarshalAs(UnmanagedType.Interface)] IShellView psvPrevious,
+            [In] ref FOLDERSETTINGS pfs, [In] [MarshalAs(UnmanagedType.Interface)] IShellBrowser psb,
+            [In] ref RECT prcView, [In] [Out] ref IntPtr phWnd)
         {
             //  Store the shell browser.
             shellBrowser = psb;
@@ -67,7 +67,7 @@ namespace SharpShell.SharpNamespaceExtension
             //  Resize the custom view.
             customView.Bounds = new Rectangle(prcView.left, prcView.top, prcView.Width(), prcView.Height());
             customView.Visible = true;
-            
+
             //  Set the handle to the handle of the custom view.
             phWnd = customView.Handle;
 
@@ -81,10 +81,10 @@ namespace SharpShell.SharpNamespaceExtension
         }
 
         /// <summary>
-        /// Destroys the view window.
+        ///     Destroys the view window.
         /// </summary>
         /// <returns>
-        /// Returns a success code if successful, or a COM error code otherwise.
+        ///     Returns a success code if successful, or a COM error code otherwise.
         /// </returns>
         int IShellView.DestroyViewWindow()
         {
@@ -101,7 +101,7 @@ namespace SharpShell.SharpNamespaceExtension
 
         int IShellView.GetCurrentInfo(ref FOLDERSETTINGS pfs)
         {
-            pfs = new FOLDERSETTINGS {fFlags = 0, ViewMode = FOLDERVIEWMODE.FVM_AUTO};
+            pfs = new FOLDERSETTINGS { fFlags = 0, ViewMode = FOLDERVIEWMODE.FVM_AUTO };
             return WinError.S_OK;
         }
 
@@ -141,7 +141,5 @@ namespace SharpShell.SharpNamespaceExtension
             //  TODO
             return WinError.S_OK;
         }
-
-        private IShellBrowser shellBrowser;
     }
 }

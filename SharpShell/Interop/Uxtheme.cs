@@ -1,4 +1,3 @@
-using NUnit.Framework.Legacy;
 using System;
 using System.Runtime.InteropServices;
 
@@ -6,59 +5,7 @@ namespace SharpShell.Interop
 {
     internal static class Uxtheme
     {
-        [DllImport("uxtheme.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public static extern IntPtr OpenThemeData(IntPtr hWnd, String classList);
-        
-        [DllImport("uxtheme.dll", ExactSpelling = true)]
-        public extern static Int32 CloseThemeData(IntPtr hTheme);
-        
-        [DllImport("uxtheme", ExactSpelling=true)]
-        public extern static Int32 GetThemePartSize(IntPtr hTheme, IntPtr hdc, int part, WindowPartState state, ref RECT pRect, int eSize, out SIZE size);
-        
-        [DllImport("uxtheme", ExactSpelling=true)]
-        public extern static Int32 GetThemePartSize(IntPtr hTheme, IntPtr hdc, int part, WindowPartState state, IntPtr pRect, int eSize, out SIZE size);
-
-        [DllImport("uxtheme", ExactSpelling = true)]
-        public extern static Int32 GetThemeInt(IntPtr hTheme, int iPartId, int iStateId, int iPropId, out int piVal);
-
-        [DllImport("uxtheme", ExactSpelling = true)]
-        public extern static Int32 GetThemeMargins(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, int iPropId, IntPtr prc, out MARGINS pMargins);
-
-        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public extern static Int32 GetThemeTextExtent(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, String text, int textLength, UInt32 textFlags, ref RECT boundingRect, out RECT extentRect);
-
-        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public extern static Int32 GetThemeTextExtent(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, String text, int textLength, UInt32 textFlags, IntPtr boundingRect, out RECT extentRect);
-        
-        [DllImport("uxtheme", ExactSpelling = true)]
-        public extern static Int32 DrawThemeBackground(IntPtr hTheme, IntPtr hdc, int iPartId,
-           int iStateId, ref RECT pRect, IntPtr pClipRect);
-
-        [DllImport("uxtheme", ExactSpelling = true)]
-        public extern static int IsThemeBackgroundPartiallyTransparent(IntPtr hTheme, int iPartId, int iStateId);
-
-        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public extern static Int32 DrawThemeText(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, String text, int textLength, UInt32 textFlags, UInt32 textFlags2, ref RECT pRect);
-
-        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
-        public static extern Int32 GetBufferedPaintBits(IntPtr hBufferedPaint, out IntPtr ppbBuffer, out int pcxRow);
-
-        [DllImport("uxtheme.dll", SetLastError = true)]
-        public static extern IntPtr BeginBufferedPaint(IntPtr hdc, ref RECT prcTarget, BP_BUFFERFORMAT dwFormat,
-                                                       ref BP_PAINTPARAMS pPaintParams, out IntPtr phdc);
-
-        [DllImport("uxtheme.dll")]
-        public static extern IntPtr EndBufferedPaint(IntPtr hBufferedPaint, bool fUpdateTarget);
-
-        [DllImport("uxtheme.dll", SetLastError = true)]
-        [PreserveSig]
-        public static extern IntPtr BufferedPaintInit();
-
-        [DllImport("uxtheme.dll", SetLastError = true)]
-        [PreserveSig]
-        public static extern IntPtr BufferedPaintUnInit();
-
-        public enum WindowPartState : int
+        public enum WindowPartState
         {
             // Frame States
             FS_ACTIVE = 1,
@@ -139,6 +86,64 @@ namespace SharpShell.Interop
             CBS_PUSHED = 3,
             CBS_DISABLED = 4
         }
+
+        [DllImport("uxtheme.dll", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern IntPtr OpenThemeData(IntPtr hWnd, string classList);
+
+        [DllImport("uxtheme.dll", ExactSpelling = true)]
+        public static extern int CloseThemeData(IntPtr hTheme);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int GetThemePartSize(IntPtr hTheme, IntPtr hdc, int part, WindowPartState state,
+            ref RECT pRect, int eSize, out SIZE size);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int GetThemePartSize(IntPtr hTheme, IntPtr hdc, int part, WindowPartState state,
+            IntPtr pRect, int eSize, out SIZE size);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int GetThemeInt(IntPtr hTheme, int iPartId, int iStateId, int iPropId, out int piVal);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int GetThemeMargins(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, int iPropId,
+            IntPtr prc, out MARGINS pMargins);
+
+        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int GetThemeTextExtent(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, string text,
+            int textLength, uint textFlags, ref RECT boundingRect, out RECT extentRect);
+
+        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int GetThemeTextExtent(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, string text,
+            int textLength, uint textFlags, IntPtr boundingRect, out RECT extentRect);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int DrawThemeBackground(IntPtr hTheme, IntPtr hdc, int iPartId,
+            int iStateId, ref RECT pRect, IntPtr pClipRect);
+
+        [DllImport("uxtheme", ExactSpelling = true)]
+        public static extern int IsThemeBackgroundPartiallyTransparent(IntPtr hTheme, int iPartId, int iStateId);
+
+        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int DrawThemeText(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, string text,
+            int textLength, uint textFlags, uint textFlags2, ref RECT pRect);
+
+        [DllImport("uxtheme", ExactSpelling = true, CharSet = CharSet.Unicode)]
+        public static extern int GetBufferedPaintBits(IntPtr hBufferedPaint, out IntPtr ppbBuffer, out int pcxRow);
+
+        [DllImport("uxtheme.dll", SetLastError = true)]
+        public static extern IntPtr BeginBufferedPaint(IntPtr hdc, ref RECT prcTarget, BP_BUFFERFORMAT dwFormat,
+            ref BP_PAINTPARAMS pPaintParams, out IntPtr phdc);
+
+        [DllImport("uxtheme.dll")]
+        public static extern IntPtr EndBufferedPaint(IntPtr hBufferedPaint, bool fUpdateTarget);
+
+        [DllImport("uxtheme.dll", SetLastError = true)]
+        [PreserveSig]
+        public static extern IntPtr BufferedPaintInit();
+
+        [DllImport("uxtheme.dll", SetLastError = true)]
+        [PreserveSig]
+        public static extern IntPtr BufferedPaintUnInit();
     }
 
     internal enum POPUPITEMSTATES
@@ -146,14 +151,14 @@ namespace SharpShell.Interop
         MPI_NORMAL = 1,
         MPI_HOT = 2,
         MPI_DISABLED = 3,
-        MPI_DISABLEDHOT = 4,
+        MPI_DISABLEDHOT = 4
     }
 
     internal enum POPUPCHECKBACKGROUNDSTATES
     {
         MCB_DISABLED = 1,
         MCB_NORMAL = 2,
-        MCB_BITMAP = 3,
+        MCB_BITMAP = 3
     }
 
 
@@ -162,7 +167,7 @@ namespace SharpShell.Interop
         MC_CHECKMARKNORMAL = 1,
         MC_CHECKMARKDISABLED = 2,
         MC_BULLETNORMAL = 3,
-        MC_BULLETDISABLED = 4,
+        MC_BULLETDISABLED = 4
     }
 
     //todo tidy up and name properly.

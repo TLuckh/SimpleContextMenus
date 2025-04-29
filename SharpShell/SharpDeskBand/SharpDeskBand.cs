@@ -1,18 +1,17 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using SharpShell.Attributes;
 using SharpShell.Components;
-using SharpShell.Interop;
-using System.Windows.Forms;
 using SharpShell.Diagnostics;
+using SharpShell.Interop;
 using SharpShell.ServerRegistration;
 
 namespace SharpShell.SharpDeskBand
 {
     /// <summary>
-    /// The SharpDeskBand class is the base class for any DeskBand shell extension.
+    ///     The SharpDeskBand class is the base class for any DeskBand shell extension.
     /// </summary>
     /// <seealso cref="SharpShell.SharpShellServer" />
     /// <seealso cref="SharpShell.Interop.IDeskBand2" />
@@ -22,8 +21,26 @@ namespace SharpShell.SharpDeskBand
     [ServerType(ServerType.ShellDeskBand)]
     public abstract class SharpDeskBand : SharpShellServer, IDeskBand2, IPersistStream, IObjectWithSite, IInputObject
     {
+        //  TODO: Optionally Implement IContextMenu to support a context menu for the band.
+        //  TODO: Optionally Implement IInputObject to allow input
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="SharpDeskBand"/> class.
+        ///     The COM site (see IObjectWithSite implementation).
+        /// </summary>
+        private IInputObjectSite inputObjectSite;
+
+        /// <summary>
+        ///     The lazy desk band provider.
+        /// </summary>
+        private Lazy<UserControl> lazyDeskBand;
+
+        /// <summary>
+        ///     The handle to the parent window site.
+        /// </summary>
+        private IntPtr parentWindowHandle;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SharpDeskBand" /> class.
         /// </summary>
         protected SharpDeskBand()
         {
@@ -34,18 +51,60 @@ namespace SharpShell.SharpDeskBand
             lazyDeskBand = new Lazy<UserControl>(CreateDeskBand);
         }
 
-        //  TODO: Optionally Implement IContextMenu to support a context menu for the band.
-        //  TODO: Optionally Implement IInputObject to allow input
+        /// <summary>
+        ///     Gets the minimum size of the Band UI. This uses the <see cref="Control.MinimumSize" /> value or
+        ///     <see cref="Control.Size" /> if no minimum size is defined. This can be overriden to customise this
+        ///     behaviour.
+        /// </summary>
+        /// <returns>The minimum size of the Band UI.</returns>
+        protected virtual Size GetMinimumSize()
+        {
+            Log("GetMinimumSize");
+            //  Get the band.
+            UserControl band = lazyDeskBand.Value;
+
+            //  Return the minimum size if none zero, otherwise the actual size.
+            return new Size(band.MinimumSize.Width > 0 ? band.MinimumSize.Width : band.Width,
+                band.MinimumSize.Height > 0 ? band.MinimumSize.Height : band.Height);
+        }
 
         /// <summary>
-        /// The COM site (see IObjectWithSite implementation).
+        ///     Gets the maximum size of the Band UI. This uses the <see cref="Control.MaximumSize" /> value or
+        ///     <see cref="Control.Size" /> if no maximum size is defined. This can be overriden to customise this
+        ///     behaviour.
         /// </summary>
-        private IInputObjectSite inputObjectSite;
+        /// <returns>The minimum size of the Band UI.</returns>
+        protected virtual Size GetMaximumSize()
+        {
+            Log("GetMaximumSize");
+            //  Get the band.
+            UserControl band = lazyDeskBand.Value;
+
+            //  Return the minimum size if none zero, otherwise the actual size.
+            return new Size(band.MaximumSize.Width > 0 ? band.MaximumSize.Width : band.Width,
+                band.MaximumSize.Height > 0 ? band.MaximumSize.Height : band.Height);
+        }
 
         /// <summary>
-        /// The handle to the parent window site.
+        ///     Called when the band is being removed from explorer.
         /// </summary>
-        private IntPtr parentWindowHandle;
+        protected virtual void OnBandRemoved()
+        {
+            Log("OnBandRemoved");
+        }
+
+        /// <summary>
+        ///     This function should return a new instance of the desk band's user interface,
+        ///     which will simply be a usercontrol.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract UserControl CreateDeskBand();
+
+        /// <summary>
+        ///     Gets the band options.
+        /// </summary>
+        /// <returns>The band options. See <see cref="BandOptions" /> for more details.</returns>
+        protected abstract BandOptions GetBandOptions();
 
         #region Implmentation of the IObjectWithSite interface
 
@@ -61,8 +120,8 @@ namespace SharpShell.SharpDeskBand
             }
 
             //  Get the IUnknown, query for the interface and return the result.
-            var pUnknown = Marshal.GetIUnknownForObject(inputObjectSite);
-            var result = Marshal.QueryInterface(pUnknown, ref riid, out ppvSite);
+            IntPtr pUnknown = Marshal.GetIUnknownForObject(inputObjectSite);
+            int result = Marshal.QueryInterface(pUnknown, ref riid, out ppvSite);
             Marshal.Release(pUnknown);
 
             //  Got the site successfully.
@@ -90,6 +149,7 @@ namespace SharpShell.SharpDeskBand
                     lazyDeskBand.Value.Dispose();
                     lazyDeskBand = new Lazy<UserControl>(CreateDeskBand);
                 }
+
                 return WinError.S_OK;
             }
 
@@ -98,7 +158,7 @@ namespace SharpShell.SharpDeskBand
             {
                 Log("IObjectWithSite.SetSite try");
                 //  Get the OLE window.
-                var oleWindow = (IOleWindow)pUnkSite;
+                IOleWindow oleWindow = (IOleWindow)pUnkSite;
 
                 //  Get the parent window handle.
                 if (oleWindow.GetWindow(out parentWindowHandle) != WinError.S_OK)
@@ -108,13 +168,13 @@ namespace SharpShell.SharpDeskBand
                 }
 
                 //  Create the desk band user interface by getting the lazy band.
-                var band = lazyDeskBand.Value;
+                UserControl band = lazyDeskBand.Value;
 
                 //  Set the parent.
                 User32.SetParent(band.Handle, parentWindowHandle);
                 Log("IObjectWithSite.SetSite try end");
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 LogError("Failed to cast the provided site to an IOleWindow.", exception);
                 return WinError.E_FAIL;
@@ -181,7 +241,7 @@ namespace SharpShell.SharpDeskBand
             pcbSize = 0;
             return WinError.S_OK;
         }
-        
+
         int IPersist.GetClassID(out Guid pClassID)
         {
             //  Log key events.
@@ -211,10 +271,11 @@ namespace SharpShell.SharpDeskBand
             //  Return success.
             return WinError.S_OK;
         }
+
         int IDeskBand2.GetWindow(out IntPtr phwnd)
         {
             Log("IDeskBand2.GetWindow called.");
-            return ((IOleWindow) this).GetWindow(out phwnd);
+            return ((IOleWindow)this).GetWindow(out phwnd);
         }
 
         int IDeskBand.GetWindow(out IntPtr phwnd)
@@ -229,13 +290,13 @@ namespace SharpShell.SharpDeskBand
             Log("IDeskBand.GetBandInfo called.");
 
             //  Depending on what we've been asked for, we'll return various band properties.
-            var bandOptions = GetBandOptions();
-            var bandUi = lazyDeskBand.Value;
+            BandOptions bandOptions = GetBandOptions();
+            UserControl bandUi = lazyDeskBand.Value;
 
             //  Return the min size if needed.
             if (pdbi.dwMask.HasFlag(DESKBANDINFO.DBIM.DBIM_MINSIZE))
             {
-                var minSize = GetMinimumSize();
+                Size minSize = GetMinimumSize();
                 pdbi.ptMinSize.X = minSize.Width;
                 pdbi.ptMinSize.Y = minSize.Height;
             }
@@ -243,21 +304,19 @@ namespace SharpShell.SharpDeskBand
             //  Return the max size if needed.
             if (pdbi.dwMask.HasFlag(DESKBANDINFO.DBIM.DBIM_MAXSIZE))
             {
-                var maxSize = GetMinimumSize();
+                Size maxSize = GetMinimumSize();
                 pdbi.ptMaxSize.X = maxSize.Width;
                 pdbi.ptMaxSize.Y = maxSize.Height;
             }
 
             if (pdbi.dwMask.HasFlag(DESKBANDINFO.DBIM.DBIM_INTEGRAL))
-            {
                 //  Set the integral.
                 pdbi.ptIntegral.Y = (int)bandOptions.VerticalSizingIncrement;
-            }
 
             if (pdbi.dwMask.HasFlag(DESKBANDINFO.DBIM.DBIM_ACTUAL))
             {
                 //  Return the ideal size.
-                var idealSize = bandUi.Size;
+                Size idealSize = bandUi.Size;
                 pdbi.ptActual.X = idealSize.Width;
                 pdbi.ptActual.Y = idealSize.Height;
             }
@@ -266,13 +325,9 @@ namespace SharpShell.SharpDeskBand
             {
                 //  Set the title.
                 if (bandOptions.ShowTitle)
-                {
                     pdbi.wszTitle = bandUi.Text;
-                }
                 else
-                {
                     pdbi.dwMask &= ~DESKBANDINFO.DBIM.DBIM_TITLE;
-                }
             }
 
             if (pdbi.dwMask.HasFlag(DESKBANDINFO.DBIM.DBIM_BKCOLOR))
@@ -302,10 +357,11 @@ namespace SharpShell.SharpDeskBand
                 if (bandOptions.AlwaysShowGripper) pdbi.dwModeFlags |= DESKBANDINFO.DBIMF.DBIMF_ALWAYSGRIPPER;
                 if (bandOptions.HasNoMargins) pdbi.dwModeFlags |= DESKBANDINFO.DBIMF.DBIMF_NOMARGINS;
             }
-                        
+
             //  Return success.
             return WinError.S_OK;
         }
+
         int IDeskBand2.GetBandInfo(uint dwBandID, DESKBANDINFO.DBIF dwViewMode, ref DESKBANDINFO pdbi)
         {
             Log("IDeskBand2.GetBandInfo called.");
@@ -317,11 +373,13 @@ namespace SharpShell.SharpDeskBand
             Log("IOleWindow.ContextSensitiveHelp");
             return WinError.E_NOTIMPL;
         }
+
         int IDeskBand.ContextSensitiveHelp(bool fEnterMode)
         {
             Log("IDeskBand.ContextSensitiveHelp");
-            return ((IOleWindow) this).ContextSensitiveHelp(fEnterMode);
+            return ((IOleWindow)this).ContextSensitiveHelp(fEnterMode);
         }
+
         int IDeskBand2.ContextSensitiveHelp(bool fEnterMode)
         {
             Log("IDeskBand2.ContextSensitiveHelp");
@@ -334,9 +392,9 @@ namespace SharpShell.SharpDeskBand
             Log("IDockingWindow.ShowDW called.");
 
             //  If we've got a content window, show it or hide it.
-            if(bShow)
+            if (bShow)
                 lazyDeskBand.Value.Show();
-            else 
+            else
                 lazyDeskBand.Value.Hide();
 
             //  Return success.
@@ -388,10 +446,11 @@ namespace SharpShell.SharpDeskBand
             //  should always return E_NOTIMPL.
             return WinError.E_NOTIMPL;
         }
+
         int IDeskBand.ResizeBorderDW(RECT rcBorder, IntPtr punkToolbarSite, bool fReserved)
         {
             Log("IDeskBand.ResizeBorderDW");
-            return ((IDockingWindow) this).ResizeBorderDW(rcBorder, punkToolbarSite, fReserved);
+            return ((IDockingWindow)this).ResizeBorderDW(rcBorder, punkToolbarSite, fReserved);
         }
 
         int IDeskBand2.ResizeBorderDW(RECT rcBorder, IntPtr punkToolbarSite, bool fReserved)
@@ -428,12 +487,18 @@ namespace SharpShell.SharpDeskBand
         #region Implementation of IInputObject
 
         /// <summary>
-        /// UI-activates or deactivates the object.
+        ///     UI-activates or deactivates the object.
         /// </summary>
-        /// <param name="fActivate">Indicates if the object is being activated or deactivated. If this value is nonzero, the object is being activated. If this value is zero, the object is being deactivated.</param>
-        /// <param name="msg">A pointer to an MSG structure that contains the message that caused the activation change. This value may be NULL.</param>
+        /// <param name="fActivate">
+        ///     Indicates if the object is being activated or deactivated. If this value is nonzero, the object
+        ///     is being activated. If this value is zero, the object is being deactivated.
+        /// </param>
+        /// <param name="msg">
+        ///     A pointer to an MSG structure that contains the message that caused the activation change. This value
+        ///     may be NULL.
+        /// </param>
         /// <returns>
-        /// If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.
+        ///     If this method succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.
         /// </returns>
         int IInputObject.UIActivateIO(bool fActivate, ref MSG msg)
         {
@@ -447,10 +512,10 @@ namespace SharpShell.SharpDeskBand
         }
 
         /// <summary>
-        /// Determines if one of the object's windows has the keyboard focus.
+        ///     Determines if one of the object's windows has the keyboard focus.
         /// </summary>
         /// <returns>
-        /// Returns S_OK if one of the object's windows has the keyboard focus, or S_FALSE otherwise.
+        ///     Returns S_OK if one of the object's windows has the keyboard focus, or S_FALSE otherwise.
         /// </returns>
         int IInputObject.HasFocusIO()
         {
@@ -459,11 +524,11 @@ namespace SharpShell.SharpDeskBand
         }
 
         /// <summary>
-        /// Enables the object to process keyboard accelerators.
+        ///     Enables the object to process keyboard accelerators.
         /// </summary>
         /// <param name="msg">The address of an MSG structure that contains the keyboard message that is being translated.</param>
         /// <returns>
-        /// Returns S_OK if the accelerator was translated, or S_FALSE otherwise.
+        ///     Returns S_OK if the accelerator was translated, or S_FALSE otherwise.
         /// </returns>
         int IInputObject.TranslateAcceleratorIO(ref MSG msg)
         {
@@ -476,25 +541,26 @@ namespace SharpShell.SharpDeskBand
         #region Custom Registration and Unregistration
 
         /// <summary>
-        /// The custom registration function.
+        ///     The custom registration function.
         /// </summary>
         /// <param name="serverType">Type of the server.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <exception cref="System.InvalidOperationException">
-        /// Unable to register a SharpNamespaceExtension as it is missing it's junction point definition.
-        /// or
-        /// Cannot open the Virtual Folder NameSpace key.
-        /// or
-        /// Failed to create the Virtual Folder NameSpace extension.
-        /// or
-        /// Cannot open the class key.
-        /// or
-        /// An exception occured creating the ShellFolder key.
+        ///     Unable to register a SharpNamespaceExtension as it is missing it's junction point definition.
+        ///     or
+        ///     Cannot open the Virtual Folder NameSpace key.
+        ///     or
+        ///     Failed to create the Virtual Folder NameSpace extension.
+        ///     or
+        ///     Cannot open the class key.
+        ///     or
+        ///     An exception occured creating the ShellFolder key.
         /// </exception>
         [CustomRegisterFunction]
         internal static void CustomRegisterFunction(Type serverType, RegistrationType registrationType)
         {
-            Logging.Log($"DeskBand: Preparing to register {registrationType} COM categories for type {serverType.Name}");
+            Logging.Log(
+                $"DeskBand: Preparing to register {registrationType} COM categories for type {serverType.Name}");
 
             //   Use the category manager to register this server as a Desk Band.
             try
@@ -503,19 +569,22 @@ namespace SharpShell.SharpDeskBand
             }
             catch (Exception exception)
             {
-                Logging.Error($"An exception occurred to registering {registrationType} COM categories for type {serverType.Name}", exception);
+                Logging.Error(
+                    $"An exception occurred to registering {registrationType} COM categories for type {serverType.Name}",
+                    exception);
             }
         }
 
         /// <summary>
-        /// Customs the unregister function.
+        ///     Customs the unregister function.
         /// </summary>
         /// <param name="serverType">Type of the server.</param>
         /// <param name="registrationType">Type of the registration.</param>
         [CustomUnregisterFunction]
         internal static void CustomUnregisterFunction(Type serverType, RegistrationType registrationType)
         {
-            Logging.Log($"DeskBand: Preparing to unregister {registrationType} COM categories for type {serverType.Name}");
+            Logging.Log(
+                $"DeskBand: Preparing to unregister {registrationType} COM categories for type {serverType.Name}");
 
             //   Use the category manager to register this server as a Desk Band.
             try
@@ -524,70 +593,12 @@ namespace SharpShell.SharpDeskBand
             }
             catch (Exception exception)
             {
-                Logging.Error($"An exception occurred to registering {registrationType} COM categories for type {serverType.Name}", exception);
+                Logging.Error(
+                    $"An exception occurred to registering {registrationType} COM categories for type {serverType.Name}",
+                    exception);
             }
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the minimum size of the Band UI. This uses the <see cref="Control.MinimumSize"/> value or
-        /// <see cref="Control.Size"/> if no minimum size is defined. This can be overriden to customise this
-        /// behaviour.
-        /// </summary>
-        /// <returns>The minimum size of the Band UI.</returns>
-        protected virtual Size GetMinimumSize()
-        {
-            Log("GetMinimumSize");
-            //  Get the band.
-            var band = lazyDeskBand.Value;
-
-            //  Return the minimum size if none zero, otherwise the actual size.
-            return new Size(band.MinimumSize.Width > 0 ? band.MinimumSize.Width : band.Width,
-                band.MinimumSize.Height > 0 ? band.MinimumSize.Height : band.Height);
-        }
-
-        /// <summary>
-        /// Gets the maximum size of the Band UI. This uses the <see cref="Control.MaximumSize"/> value or
-        /// <see cref="Control.Size"/> if no maximum size is defined. This can be overriden to customise this
-        /// behaviour.
-        /// </summary>
-        /// <returns>The minimum size of the Band UI.</returns>
-        protected virtual Size GetMaximumSize()
-        {
-            Log("GetMaximumSize");
-            //  Get the band.
-            var band = lazyDeskBand.Value;
-
-            //  Return the minimum size if none zero, otherwise the actual size.
-            return new Size(band.MaximumSize.Width > 0 ? band.MaximumSize.Width : band.Width,
-                band.MaximumSize.Height > 0 ? band.MaximumSize.Height : band.Height);
-        }
-
-        /// <summary>
-        /// Called when the band is being removed from explorer.
-        /// </summary>
-        protected virtual void OnBandRemoved()
-        {
-            Log("OnBandRemoved");
-        }
-
-        /// <summary>
-        /// This function should return a new instance of the desk band's user interface,
-        /// which will simply be a usercontrol.
-        /// </summary>
-        /// <returns></returns>
-        protected abstract UserControl CreateDeskBand();
-
-        /// <summary>
-        /// Gets the band options.
-        /// </summary>
-        /// <returns>The band options. See <see cref="BandOptions"/> for more details.</returns>
-        protected abstract BandOptions GetBandOptions();
-
-        /// <summary>
-        /// The lazy desk band provider.
-        /// </summary>
-        private Lazy<UserControl> lazyDeskBand;
     }
 }

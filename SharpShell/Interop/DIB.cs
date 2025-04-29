@@ -1,4 +1,3 @@
-using NUnit.Framework.Legacy;
 namespace SharpShell.Interop
 {
     internal enum DIB

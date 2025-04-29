@@ -1,4 +1,14 @@
-﻿Implement lazy loading of context menus in "Extensions" folder.
+﻿- Add a switch that restricts a context menu to only show up if the background was clicked with no selection made.
+- Add a switch that restricts a context menu to set the matching case strict, i.e. only show if all selected items have a matching file extension or MIME type.
+
+
+
+
+
+-----------------------------------------------
+
+
+Implement lazy loading of context menus in "Extensions" folder.
 
 (by System.Lazy (see SharpContextMenu.cs Lazy<...>) or by only calling
 

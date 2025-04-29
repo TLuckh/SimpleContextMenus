@@ -1,17 +1,29 @@
-﻿using NUnit.Framework.Legacy;
-using System;
-using SharpShell.Interop;
+﻿using SharpShell.Interop;
 
 namespace SharpShell
 {
     /// <summary>
-    /// InitializeWithItemServer provides a base for SharpShell Servers that must implement
-    /// IInitializeWithItem (thumbnail handlers which need a display name or path for initialisation etc).
-    /// Note that if possible, <see cref="InitializeWithStreamServer"/> should be used, as it is far more
-    /// performant.
+    ///     InitializeWithItemServer provides a base for SharpShell Servers that must implement
+    ///     IInitializeWithItem (thumbnail handlers which need a display name or path for initialisation etc).
+    ///     Note that if possible, <see cref="InitializeWithStreamServer" /> should be used, as it is far more
+    ///     performant.
     /// </summary>
     public abstract class InitializeWithItemServer : SharpShellServer, IInitializeWithItem
     {
+        /// <summary>
+        ///     Gets the selected shell item.
+        /// </summary>
+        /// <value>
+        ///     The selected shell item.
+        /// </value>
+        public IShellItem SelectedShellItem { get; private set; }
+
+        /// <summary>
+        ///     Gets the selected shell item access mode.
+        /// </summary>
+        /// <value>The selected shell item access mode.</value>
+        public STGM SelectedShellItemAccessMode { get; private set; }
+
         #region Implementation of IInitializeWithItem
 
         public int Initialize(IShellItem shellItem, STGM accessMode)
@@ -27,20 +39,5 @@ namespace SharpShell
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the selected shell item.
-        /// </summary>
-        /// <value>
-        /// The selected shell item.
-        /// </value>
-        public IShellItem SelectedShellItem { get; private set; }
-
-        /// <summary>
-        ///  Gets the selected shell item access mode.
-        /// </summary>
-        /// <value>The selected shell item access mode.</value>
-        public STGM SelectedShellItemAccessMode { get; private set; }
-
     }
 }

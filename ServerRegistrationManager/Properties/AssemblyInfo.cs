@@ -1,13 +1,12 @@
-﻿using NUnit.Framework.Legacy;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ServerRegistrationManager")]
-[assembly: AssemblyDescription("Server Registration Manager for SharpShell, can be used in install or uninstall servers.")]
+[assembly:
+    AssemblyDescription("Server Registration Manager for SharpShell, can be used in install or uninstall servers.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

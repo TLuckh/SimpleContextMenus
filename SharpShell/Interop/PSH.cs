@@ -1,4 +1,3 @@
-using NUnit.Framework.Legacy;
 using System;
 
 namespace SharpShell.Interop

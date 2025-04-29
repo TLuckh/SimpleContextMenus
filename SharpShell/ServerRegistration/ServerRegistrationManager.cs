@@ -1,6 +1,6 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.AccessControl;
 using Microsoft.Win32;
@@ -8,19 +8,68 @@ using SharpShell.Attributes;
 using SharpShell.Extensions;
 using SharpShell.Registry;
 
-
 namespace SharpShell.ServerRegistration
 {
     /// <summary>
-    /// THe Server Registration Manager is an object that can be used to
-    /// help with Server Registration tasks, such as registering, unregistering
-    /// and checking servers. It will work with SharpShell Server objects or
-    /// other servers.
+    ///     THe Server Registration Manager is an object that can be used to
+    ///     help with Server Registration tasks, such as registering, unregistering
+    ///     and checking servers. It will work with SharpShell Server objects or
+    ///     other servers.
     /// </summary>
     public static class ServerRegistrationManager
     {
         /// <summary>
-        /// Installs a SharpShell COM server.
+        ///     The classes key name.
+        /// </summary>
+        private const string KeyName_Classes = @"CLSID";
+
+        /// <summary>
+        ///     The InProc32 key name.
+        /// </summary>
+        private const string KeyName_InProc32 = @"InprocServer32";
+
+        /// <summary>
+        ///     The value for the net framework servers.
+        /// </summary>
+        private const string KeyValue_NetFrameworkServer = @"mscoree.dll";
+
+        /// <summary>
+        ///     The threading model key name.
+        /// </summary>
+        private const string KeyName_ThreadingModel = @"ThreadingModel";
+
+        /// <summary>
+        ///     THe assembly key name.
+        /// </summary>
+        private const string KeyName_Assembly = @"Assembly";
+
+        /// <summary>
+        ///     The class key name.
+        /// </summary>
+        private const string KeyName_Class = @"Class";
+
+        /// <summary>
+        ///     The runtime version key name.
+        /// </summary>
+        private const string KeyName_RuntimeVersion = @"RuntimeVersion";
+
+        /// <summary>
+        ///     The codebase keyname.
+        /// </summary>
+        private const string KeyName_CodeBase = @"CodeBase";
+
+        /// <summary>
+        ///     The default icon keyname.
+        /// </summary>
+        private const string KeyName_DefaultIcon = @"DefaultIcon";
+
+        /// <summary>
+        ///     The default icon backup value name.
+        /// </summary>
+        private const string ValueName_DefaultIconBackup = @"SharpShell_Backup_DefaultIcon";
+
+        /// <summary>
+        ///     Installs a SharpShell COM server.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -28,41 +77,43 @@ namespace SharpShell.ServerRegistration
         public static void InstallServer(ISharpShellServer server, RegistrationType registrationType, bool codeBase)
         {
             //  Get the server registration information.
-            var serverRegistrationInformation = GetServerRegistrationInfo(server, registrationType);
+            ShellExtensionRegistrationInfo serverRegistrationInformation =
+                GetServerRegistrationInfo(server, registrationType);
 
             //  If it is registered, unregister first.
             if (serverRegistrationInformation != null)
                 UninstallServer(server, registrationType);
-            
+
             //  Open the classes.
-            using (var classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (IRegistryKey classesKey =
+                   OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
             {
                 //  Create the server key.
-                using (var serverKey = classesKey.CreateSubKey(server.ServerClsid.ToRegistryString()))
+                using (IRegistryKey serverKey = classesKey.CreateSubKey(server.ServerClsid.ToRegistryString()))
                 {
-                    if(serverKey == null)
+                    if (serverKey == null)
                         throw new InvalidOperationException("Cannot create server key.");
 
                     //  We always set the server key default value to the display name if we can.
-                    if(!string.IsNullOrEmpty(server.DisplayName))
+                    if (!string.IsNullOrEmpty(server.DisplayName))
                         serverKey.SetValue(null, server.DisplayName, RegistryValueKind.String);
 
                     //  Create the inproc key.
-                    using (var inproc32Key = serverKey.CreateSubKey(KeyName_InProc32))
+                    using (IRegistryKey inproc32Key = serverKey.CreateSubKey(KeyName_InProc32))
                     {
                         //  Check the key.
-                        if(inproc32Key == null)
+                        if (inproc32Key == null)
                             throw new InvalidOperationException("Cannot create InProc32 key.");
 
                         //  Set the .NET value.
                         inproc32Key.SetValue(null, KeyValue_NetFrameworkServer);
 
                         //  Create the values.
-                        var assemblyVersion = server.GetType().Assembly.GetName().Version.ToString();
-                        var assemblyFullName = server.GetType().Assembly.FullName;
-                        var className = server.GetType().FullName;
-                        var runtimeVersion = server.GetType().Assembly.ImageRuntimeVersion;
-                        var codeBaseValue = server.GetType().Assembly.CodeBase;
+                        string assemblyVersion = server.GetType().Assembly.GetName().Version.ToString();
+                        string assemblyFullName = server.GetType().Assembly.FullName;
+                        string className = server.GetType().FullName;
+                        string runtimeVersion = server.GetType().Assembly.ImageRuntimeVersion;
+                        string codeBaseValue = server.GetType().Assembly.CodeBase;
                         const string threadingModel = "Both";
 
                         //  Register all details at server level.
@@ -74,10 +125,10 @@ namespace SharpShell.ServerRegistration
                             inproc32Key.SetValue(KeyName_CodeBase, codeBaseValue);
 
                         //  Create the version key.
-                        using (var versionKey = inproc32Key.CreateSubKey(assemblyVersion))
+                        using (IRegistryKey versionKey = inproc32Key.CreateSubKey(assemblyVersion))
                         {
                             //  Check the key.
-                            if(versionKey == null)
+                            if (versionKey == null)
                                 throw new InvalidOperationException("Cannot create assembly version key.");
 
                             //  Set the values.
@@ -93,7 +144,7 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Uninstalls the server.
+        ///     Uninstalls the server.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -101,12 +152,14 @@ namespace SharpShell.ServerRegistration
         public static bool UninstallServer(ISharpShellServer server, RegistrationType registrationType)
         {
             //  Open classes.
-            using (var classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (IRegistryKey classesKey =
+                   OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
             {
-                var subKeyTreeName = server.ServerClsid.ToRegistryString();
+                string subKeyTreeName = server.ServerClsid.ToRegistryString();
 
                 //  If the subkey doesn't exist, we can return false - we're already uninstalled.
-                if (classesKey.GetSubKeyNames().Any(skn => skn.Equals(subKeyTreeName, StringComparison.OrdinalIgnoreCase)) == false)
+                if (classesKey.GetSubKeyNames()
+                        .Any(skn => skn.Equals(subKeyTreeName, StringComparison.OrdinalIgnoreCase)) == false)
                     return false;
 
                 //  Delete the subkey tree.
@@ -116,8 +169,8 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Registers a SharpShell server. This will create the associations defined by the
-        /// server's COMServerAssociation attribute.
+        ///     Registers a SharpShell server. This will create the associations defined by the
+        ///     server's COMServerAssociation attribute.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -132,8 +185,8 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Unregisters a SharpShell server. This will remove the associations defined by the
-        /// server's COMServerAssociation attribute.
+        ///     Unregisters a SharpShell server. This will remove the associations defined by the
+        ///     server's COMServerAssociation attribute.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration to undo.</param>
@@ -148,99 +201,101 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Enumerates Shell extensions.
+        ///     Enumerates Shell extensions.
         /// </summary>
         /// <param name="registrationType">Type of the registration.</param>
         /// <param name="shellExtensionTypes">The shell extension types.</param>
         /// <returns></returns>
-        public static IEnumerable<ShellExtensionRegistrationInfo> EnumerateExtensions(RegistrationType registrationType, ShellExtensionType shellExtensionTypes)
+        public static IEnumerable<ShellExtensionRegistrationInfo> EnumerateExtensions(RegistrationType registrationType,
+            ShellExtensionType shellExtensionTypes)
         {
-            var shellExtensionsGuidMap = new Dictionary<Guid, ShellExtensionRegistrationInfo>();
+            Dictionary<Guid, ShellExtensionRegistrationInfo> shellExtensionsGuidMap =
+                new Dictionary<Guid, ShellExtensionRegistrationInfo>();
 
             //  Go through all classes.
-            using (var classes = OpenClassesRoot(registrationType))
+            using (IRegistryKey classes = OpenClassesRoot(registrationType))
             {
                 //  Read each subkey.
-                foreach (var className in classes.GetSubKeyNames().Where(cn => !cn.StartsWith("{")))
-                {
+                foreach (string className in classes.GetSubKeyNames().Where(cn => !cn.StartsWith("{")))
                     //  Go through every shell extension type.
-                    foreach (ShellExtensionType shellExtensionType in Enum.GetValues(typeof (ShellExtensionType)))
+                foreach (ShellExtensionType shellExtensionType in Enum.GetValues(typeof(ShellExtensionType)))
+                {
+                    //  Get the handler subkey.
+                    HandlerSubkeyAttribute handlerSubkey = shellExtensionType.GetAttribute<HandlerSubkeyAttribute>();
+
+                    if (handlerSubkey == null)
+                        continue;
+
+                    //  Check for the subkey.
+                    if (handlerSubkey.AllowMultipleEntries)
                     {
-                        //  Get the handler subkey.
-                        var handlerSubkey = shellExtensionType.GetAttribute<HandlerSubkeyAttribute>();
-
-                        if(handlerSubkey == null)
-                            continue;
-
-                        //  Check for the subkey.
-                        if (handlerSubkey.AllowMultipleEntries)
+                        //  Do we have the single subkey?
+                        string handlerKeyPath = $"{className}\\ShellEx\\{handlerSubkey.HandlerSubkey}";
+                        using (IRegistryKey handlerSubKey = classes.OpenSubKey(handlerKeyPath,
+                                   RegistryKeyPermissionCheck.ReadSubTree,
+                                   RegistryRights.ReadKey | RegistryRights.QueryValues))
                         {
-                            //  Do we have the single subkey?
-                            var handlerKeyPath = $"{className}\\ShellEx\\{handlerSubkey.HandlerSubkey}";
-                            using (var handlerSubKey = classes.OpenSubKey(handlerKeyPath, RegistryKeyPermissionCheck.ReadSubTree, RegistryRights.ReadKey | RegistryRights.QueryValues))
-                            {
-                                //  Skip empty handlers.
-                                if (handlerSubKey == null) continue;
+                            //  Skip empty handlers.
+                            if (handlerSubKey == null) continue;
 
-                                //  Read entries.
-                                foreach (var entry in handlerSubKey.GetSubKeyNames())
+                            //  Read entries.
+                            foreach (string entry in handlerSubKey.GetSubKeyNames())
+                                using (IRegistryKey entryKey = handlerSubKey.OpenSubKey(entry,
+                                           RegistryKeyPermissionCheck.ReadSubTree,
+                                           RegistryRights.QueryValues | RegistryRights.ReadKey))
                                 {
-                                    using (var entryKey = handlerSubKey.OpenSubKey(entry, RegistryKeyPermissionCheck.ReadSubTree, RegistryRights.QueryValues | RegistryRights.ReadKey))
-                                    {
-                                        var guidVal = entryKey.GetValue(null, string.Empty).ToString();
-
-                                        Guid guid;
-                                        if (Guid.TryParse(guidVal, out guid) == false)
-                                            continue;
-                                        System.Diagnostics.Trace.WriteLine(string.Format("{0} has {3} {1} guid {2}", className,
-                                            shellExtensionType.ToString(), guid, entry));
-
-                                        //  If we do not have a shell extension info for this extension, create one.
-                                        if (!shellExtensionsGuidMap.ContainsKey(guid))
-                                        {
-                                            shellExtensionsGuidMap[guid] = new ShellExtensionRegistrationInfo
-                                            {
-                                                DisplayName = entry,
-                                                ShellExtensionType = shellExtensionType,
-                                                ServerCLSID = guid,
-                                            };
-                                        }
-
-                                        //  Add the class association.
-                                        shellExtensionsGuidMap[guid].classRegistrations.Add(new ClassRegistration(className));
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //  Do we have the single subkey?
-                            var handlerKeyPath = string.Format("{0}\\ShellEx\\{1}", className, handlerSubkey.HandlerSubkey);
-                            using (var handlerSubKey = classes.OpenSubKey(handlerKeyPath, RegistryKeyPermissionCheck.ReadSubTree, RegistryRights.ReadKey | RegistryRights.QueryValues))
-                            {
-                                if (handlerSubKey != null)
-                                {
-                                    var guidVal = handlerSubKey.GetValue(null, string.Empty).ToString();
+                                    string guidVal = entryKey.GetValue(null, string.Empty).ToString();
 
                                     Guid guid;
                                     if (Guid.TryParse(guidVal, out guid) == false)
                                         continue;
-                                    System.Diagnostics.Trace.WriteLine(string.Format("{0} has {1} guid {2}", className, 
-                                        shellExtensionType.ToString(), guid));
-                                    
+                                    Trace.WriteLine(string.Format("{0} has {3} {1} guid {2}", className,
+                                        shellExtensionType.ToString(), guid, entry));
+
                                     //  If we do not have a shell extension info for this extension, create one.
                                     if (!shellExtensionsGuidMap.ContainsKey(guid))
-                                    {
                                         shellExtensionsGuidMap[guid] = new ShellExtensionRegistrationInfo
                                         {
+                                            DisplayName = entry,
                                             ShellExtensionType = shellExtensionType,
-                                            ServerCLSID = guid,
+                                            ServerCLSID = guid
                                         };
-                                    }
 
                                     //  Add the class association.
-                                    shellExtensionsGuidMap[guid].classRegistrations.Add(new ClassRegistration(className));
+                                    shellExtensionsGuidMap[guid].classRegistrations
+                                        .Add(new ClassRegistration(className));
                                 }
+                        }
+                    }
+                    else
+                    {
+                        //  Do we have the single subkey?
+                        string handlerKeyPath =
+                            string.Format("{0}\\ShellEx\\{1}", className, handlerSubkey.HandlerSubkey);
+                        using (IRegistryKey handlerSubKey = classes.OpenSubKey(handlerKeyPath,
+                                   RegistryKeyPermissionCheck.ReadSubTree,
+                                   RegistryRights.ReadKey | RegistryRights.QueryValues))
+                        {
+                            if (handlerSubKey != null)
+                            {
+                                string guidVal = handlerSubKey.GetValue(null, string.Empty).ToString();
+
+                                Guid guid;
+                                if (Guid.TryParse(guidVal, out guid) == false)
+                                    continue;
+                                Trace.WriteLine(string.Format("{0} has {1} guid {2}", className,
+                                    shellExtensionType.ToString(), guid));
+
+                                //  If we do not have a shell extension info for this extension, create one.
+                                if (!shellExtensionsGuidMap.ContainsKey(guid))
+                                    shellExtensionsGuidMap[guid] = new ShellExtensionRegistrationInfo
+                                    {
+                                        ShellExtensionType = shellExtensionType,
+                                        ServerCLSID = guid
+                                    };
+
+                                //  Add the class association.
+                                shellExtensionsGuidMap[guid].classRegistrations.Add(new ClassRegistration(className));
                             }
                         }
                     }
@@ -251,95 +306,100 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Gets the server registration info.
+        ///     Gets the server registration info.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <returns>
-        /// The ServerRegistrationInfo if the server is registered, otherwise false.
+        ///     The ServerRegistrationInfo if the server is registered, otherwise false.
         /// </returns>
-        public static ShellExtensionRegistrationInfo GetServerRegistrationInfo(ISharpShellServer server, RegistrationType registrationType)
+        public static ShellExtensionRegistrationInfo GetServerRegistrationInfo(ISharpShellServer server,
+            RegistrationType registrationType)
         {
             //  Call the main function.
             return GetServerRegistrationInfo(server.ServerClsid, registrationType);
         }
 
         /// <summary>
-        /// Gets the server registration info.
+        ///     Gets the server registration info.
         /// </summary>
         /// <param name="serverCLSID">The server CLSID.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <returns>
-        /// The ServerRegistrationInfo if the server is registered, otherwise false.
+        ///     The ServerRegistrationInfo if the server is registered, otherwise false.
         /// </returns>
-        public static ShellExtensionRegistrationInfo GetServerRegistrationInfo(Guid serverCLSID, RegistrationType registrationType)
+        public static ShellExtensionRegistrationInfo GetServerRegistrationInfo(Guid serverCLSID,
+            RegistrationType registrationType)
         {
             //  We can very quickly check to see if the server is approved.
             bool serverApproved = IsExtensionApproved(serverCLSID, registrationType);
 
             //  Open the classes.
-            using (var classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadSubTree))
+            using (IRegistryKey classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadSubTree))
             {
                 //  Do we have a subkey for the server?
-                using (var serverClassKey = classesKey.OpenSubKey(serverCLSID.ToRegistryString()))
+                using (IRegistryKey serverClassKey = classesKey.OpenSubKey(serverCLSID.ToRegistryString()))
                 {
                     //  If there's no subkey, the server isn't registered.
                     if (serverClassKey == null)
                         return null;
 
                     //  Do we have an InProc32 server?
-                    using(var inproc32ServerKey = serverClassKey.OpenSubKey(KeyName_InProc32))
+                    using (IRegistryKey inproc32ServerKey = serverClassKey.OpenSubKey(KeyName_InProc32))
                     {
                         //  If we do, we can return the server info for an inproc 32 server.
                         if (inproc32ServerKey != null)
                         {
                             //  Get the default value.
-                            var defaultValue = GetValueOrEmpty(inproc32ServerKey, null);
+                            string defaultValue = GetValueOrEmpty(inproc32ServerKey, null);
 
                             //  If we default value is null or empty, we've got a partially registered server.
                             if (string.IsNullOrEmpty(defaultValue))
-                                return new ShellExtensionRegistrationInfo(ServerRegistationType.PartiallyRegistered, serverCLSID);
+                                return new ShellExtensionRegistrationInfo(ServerRegistationType.PartiallyRegistered,
+                                    serverCLSID);
 
                             //  Get the threading model.
-                            var threadingModel = GetValueOrEmpty(inproc32ServerKey, KeyName_ThreadingModel);
+                            string threadingModel = GetValueOrEmpty(inproc32ServerKey, KeyName_ThreadingModel);
 
                             //  Is it a .NET server?
                             if (defaultValue == KeyValue_NetFrameworkServer)
                             {
                                 //  We've got a .NET server. We should have one subkey, with the assembly version.
-                                var subkeyName = inproc32ServerKey.GetSubKeyNames().FirstOrDefault();
+                                string subkeyName = inproc32ServerKey.GetSubKeyNames().FirstOrDefault();
 
                                 //  If we have no subkey name, we've got a partially registered server.
                                 if (subkeyName == null)
-                                    return new ShellExtensionRegistrationInfo(ServerRegistationType.PartiallyRegistered, serverCLSID);
+                                    return new ShellExtensionRegistrationInfo(ServerRegistationType.PartiallyRegistered,
+                                        serverCLSID);
 
                                 //  Otherwise we now have the assembly version.
-                                var assemblyVersion = subkeyName;
+                                string assemblyVersion = subkeyName;
 
                                 //  Open the assembly subkey.
-                                using (var assemblySubkey = inproc32ServerKey.OpenSubKey(assemblyVersion))
+                                using (IRegistryKey assemblySubkey = inproc32ServerKey.OpenSubKey(assemblyVersion))
                                 {
                                     //  If we can't open the key, we've got a problem.
                                     if (assemblySubkey == null)
                                         throw new InvalidOperationException("Can't open the details of the server.");
 
                                     //  Read the managed server details.
-                                    var assembly = GetValueOrEmpty(assemblySubkey, KeyName_Assembly);
-                                    var @class = GetValueOrEmpty(assemblySubkey, KeyName_Class);
-                                    var runtimeVersion = GetValueOrEmpty(assemblySubkey, KeyName_RuntimeVersion);
-                                    var codeBase = assemblySubkey.GetValue(KeyName_CodeBase, null);
+                                    string assembly = GetValueOrEmpty(assemblySubkey, KeyName_Assembly);
+                                    string @class = GetValueOrEmpty(assemblySubkey, KeyName_Class);
+                                    string runtimeVersion = GetValueOrEmpty(assemblySubkey, KeyName_RuntimeVersion);
+                                    object codeBase = assemblySubkey.GetValue(KeyName_CodeBase, null);
 
                                     //  Return the server info.
-                                    return new ShellExtensionRegistrationInfo(ServerRegistationType.ManagedInProc32, serverCLSID)
-                                               {
-                                                   ThreadingModel = threadingModel,
-                                                   Assembly = assembly,
-                                                   AssemblyVersion = assemblyVersion,
-                                                   Class = @class,
-                                                   RuntimeVersion = runtimeVersion,
-                                                   CodeBase = codeBase != null ? codeBase.ToString() : null,
-                                                   IsApproved = serverApproved
-                                               };
+                                    return new ShellExtensionRegistrationInfo(ServerRegistationType.ManagedInProc32,
+                                        serverCLSID)
+                                    {
+                                        ThreadingModel = threadingModel,
+                                        Assembly = assembly,
+                                        AssemblyVersion = assemblyVersion,
+                                        Class = @class,
+                                        RuntimeVersion = runtimeVersion,
+                                        CodeBase = codeBase != null ? codeBase.ToString() : null,
+                                        IsApproved = serverApproved
+                                    };
                                 }
                             }
 
@@ -347,11 +407,11 @@ namespace SharpShell.ServerRegistration
 
                             //  Return the server info.
                             return new ShellExtensionRegistrationInfo(ServerRegistationType.NativeInProc32, serverCLSID)
-                                       {
-                                           ThreadingModel = threadingModel,
-                                           ServerPath = defaultValue,
-                                           IsApproved = serverApproved
-                                       };
+                            {
+                                ThreadingModel = threadingModel,
+                                ServerPath = defaultValue,
+                                IsApproved = serverApproved
+                            };
                         }
                     }
 
@@ -362,7 +422,7 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Sets the display name of the a COM server.
+        ///     Sets the display name of the a COM server.
         /// </summary>
         /// <param name="classId">The class identifier.</param>
         /// <param name="displayName">The display name.</param>
@@ -371,8 +431,10 @@ namespace SharpShell.ServerRegistration
         public static void SetServerDisplayName(Guid classId, string displayName, RegistrationType registrationType)
         {
             //  Open the class key for the server.
-            using (var classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
-            using (var serverKey = classesKey.OpenSubKey(classId.ToRegistryString(), RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.SetValue))
+            using (IRegistryKey classesKey =
+                   OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (IRegistryKey serverKey = classesKey.OpenSubKey(classId.ToRegistryString(),
+                       RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.SetValue))
             {
                 if (serverKey == null)
                     throw new InvalidOperationException($"Cannot open class id key for '{classId}'");
@@ -383,18 +445,21 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Sets the 'DisableProcessIsolation' value of the a COM server.
+        ///     Sets the 'DisableProcessIsolation' value of the a COM server.
         /// </summary>
-        /// <seealso cref="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/cc144118"/>
+        /// <seealso cref="https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/cc144118" />
         /// <param name="classId">The class identifier.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <param name="disableProcessIsolationValue">The DisableProcessIsolation value, generally 1 or 0.</param>
         /// <exception cref="InvalidOperationException">Thrown if the class key does not exist for the COM server.</exception>
-        public static void SetDisableProcessIsolationValue(Guid classId, RegistrationType registrationType, int disableProcessIsolationValue)
+        public static void SetDisableProcessIsolationValue(Guid classId, RegistrationType registrationType,
+            int disableProcessIsolationValue)
         {
             //  Open the class key for the server.
-            using (var classesKey = OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
-            using (var serverKey = classesKey.OpenSubKey(classId.ToRegistryString(), RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.SetValue))
+            using (IRegistryKey classesKey =
+                   OpenClassesKey(registrationType, RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (IRegistryKey serverKey = classesKey.OpenSubKey(classId.ToRegistryString(),
+                       RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.SetValue))
             {
                 if (serverKey == null)
                     throw new InvalidOperationException($"Cannot open class id key for '{classId}'");
@@ -404,35 +469,38 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Registers the server associations.
+        ///     Registers the server associations.
         /// </summary>
         /// <param name="serverClsid">The server CLSID.</param>
         /// <param name="serverType">Type of the server.</param>
         /// <param name="serverName">Name of the server.</param>
         /// <param name="associationAttributes">The association attributes.</param>
         /// <param name="registrationType">Type of the registration.</param>
-        internal static void RegisterServerAssociations(Guid serverClsid, ServerType serverType, string serverName, 
+        internal static void RegisterServerAssociations(Guid serverClsid, ServerType serverType, string serverName,
             IEnumerable<COMServerAssociationAttribute> associationAttributes, RegistrationType registrationType)
         {
             //  Go through each association.
-            foreach (var associationAttribute in associationAttributes)
+            foreach (COMServerAssociationAttribute associationAttribute in associationAttributes)
             {
                 //  Get the association classes.
-                var associationClassNames = CreateClassNamesForAssociations(associationAttribute.AssociationType, 
+                IEnumerable<string> associationClassNames = CreateClassNamesForAssociations(
+                    associationAttribute.AssociationType,
                     associationAttribute.Associations, registrationType);
 
                 //  Open the classes key.
-                using (var classesKey = OpenClassesRoot(registrationType))
+                using (IRegistryKey classesKey = OpenClassesRoot(registrationType))
                 {
                     //  For each one, create the server type key.
-                    foreach (var associationClassName in associationClassNames)
+                    foreach (string associationClassName in associationClassNames)
                     {
                         //  Create the server key.
-                        var serverKeyPath = GetKeyForServerType(associationClassName, serverType, serverName);
-                        using (var serverKey = classesKey.CreateSubKey(serverKeyPath))
+                        string serverKeyPath = GetKeyForServerType(associationClassName, serverType, serverName);
+                        using (IRegistryKey serverKey = classesKey.CreateSubKey(serverKeyPath))
                         {
                             //  If we failed to craete the server key, that's a big problem.
-                            if (serverKey == null) throw new InvalidOperationException($"Failed to create server key at '{serverKeyPath}'.");
+                            if (serverKey == null)
+                                throw new InvalidOperationException(
+                                    $"Failed to create server key at '{serverKeyPath}'.");
 
                             //  Set the server CLSID.
                             serverKey.SetValue(null, serverClsid.ToRegistryString());
@@ -447,33 +515,36 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Sets the icon handler default icon, enabling an icon handler extension.
+        ///     Sets the icon handler default icon, enabling an icon handler extension.
         /// </summary>
         /// <param name="classesKey">The classes key.</param>
         /// <param name="className">Name of the class.</param>
         private static void SetIconHandlerDefaultIcon(IRegistryKey classesKey, string className)
         {
             //  Open the class.
-            using (var classKey = classesKey.OpenSubKey(className))
+            using (IRegistryKey classKey = classesKey.OpenSubKey(className))
             {
                 //  Check we have the class.
-                if(classKey == null)
+                if (classKey == null)
                     throw new InvalidOperationException("Cannot open class " + className);
 
                 //  Open the default icon.
-                using (var defaultIconKey = classKey.OpenSubKey(KeyName_DefaultIcon, RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.ReadKey | RegistryRights.WriteKey))
+                using (IRegistryKey defaultIconKey = classKey.OpenSubKey(KeyName_DefaultIcon,
+                           RegistryKeyPermissionCheck.ReadWriteSubTree,
+                           RegistryRights.ReadKey | RegistryRights.WriteKey))
                 {
                     //  Check we have the key.
                     if (defaultIconKey == null)
                     {
                         // if not, we create the key.
-                        var tempDefaultIconKey = classesKey.CreateSubKey(className + @"\" + KeyName_DefaultIcon, RegistryKeyPermissionCheck.ReadWriteSubTree);
+                        IRegistryKey tempDefaultIconKey = classesKey.CreateSubKey(
+                            className + @"\" + KeyName_DefaultIcon, RegistryKeyPermissionCheck.ReadWriteSubTree);
                         tempDefaultIconKey.SetValue(null, "%1");
-                    } 
-                    else 
+                    }
+                    else
                     {
                         //  Get the default icon.
-                        var defaultIcon = defaultIconKey.GetValue(null, string.Empty).ToString();
+                        string defaultIcon = defaultIconKey.GetValue(null, string.Empty).ToString();
 
                         //  Save the default icon.
                         defaultIconKey.SetValue(ValueName_DefaultIconBackup, defaultIcon);
@@ -484,21 +555,23 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Unsets the icon handler default icon sharp shell value, restoring the backed up value.
+        ///     Unsets the icon handler default icon sharp shell value, restoring the backed up value.
         /// </summary>
         /// <param name="classesKey">The classes key.</param>
         /// <param name="className">Name of the class.</param>
         private static void UnsetIconHandlerDefaultIcon(IRegistryKey classesKey, string className)
         {
             //  Open the class.
-            using (var classKey = classesKey.OpenSubKey(className))
+            using (IRegistryKey classKey = classesKey.OpenSubKey(className))
             {
                 //  Check we have the class.
                 if (classKey == null)
                     throw new InvalidOperationException("Cannot open class " + className);
 
                 //  Open the default icon.
-                using (var defaultIconKey = classKey.OpenSubKey(KeyName_DefaultIcon, RegistryKeyPermissionCheck.ReadWriteSubTree, RegistryRights.ReadKey | RegistryRights.WriteKey))
+                using (IRegistryKey defaultIconKey = classKey.OpenSubKey(KeyName_DefaultIcon,
+                           RegistryKeyPermissionCheck.ReadWriteSubTree,
+                           RegistryRights.ReadKey | RegistryRights.WriteKey))
                 {
                     //  Check we have the key.
                     if (defaultIconKey == null)
@@ -508,7 +581,8 @@ namespace SharpShell.ServerRegistration
                     if (defaultIconKey.GetValueNames().Any(vm => vm == ValueName_DefaultIconBackup))
                     {
                         //  Get the backup default icon.
-                        var backupDefaultIcon = defaultIconKey.GetValue(ValueName_DefaultIconBackup, string.Empty).ToString();
+                        string backupDefaultIcon = defaultIconKey.GetValue(ValueName_DefaultIconBackup, string.Empty)
+                            .ToString();
 
                         //  Save the default icon, delete the backup.
                         defaultIconKey.SetValue(null, backupDefaultIcon);
@@ -519,7 +593,7 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Unregisters the server associations.
+        ///     Unregisters the server associations.
         /// </summary>
         /// <param name="serverClsid">The server CLSID.</param>
         /// <param name="serverType">Type of the server.</param>
@@ -530,20 +604,21 @@ namespace SharpShell.ServerRegistration
             IEnumerable<COMServerAssociationAttribute> associationAttributes, RegistrationType registrationType)
         {
             //  Go through each association attribute.
-            foreach (var associationAttribute in associationAttributes)
+            foreach (COMServerAssociationAttribute associationAttribute in associationAttributes)
             {
                 //  Get the assocation classes.
-                var associationClassNames = CreateClassNamesForAssociations(associationAttribute.AssociationType,
+                IEnumerable<string> associationClassNames = CreateClassNamesForAssociations(
+                    associationAttribute.AssociationType,
                     associationAttribute.Associations, registrationType);
 
                 //  Open the classes key...
-                using (var classesKey = OpenClassesRoot(registrationType))
+                using (IRegistryKey classesKey = OpenClassesRoot(registrationType))
                 {
                     //  ...then go through each association class.
-                    foreach (var associationClassName in associationClassNames)
+                    foreach (string associationClassName in associationClassNames)
                     {
                         //  Get the key for the association.
-                        var associationKeyPath = GetKeyForServerType(associationClassName, serverType, serverName);
+                        string associationKeyPath = GetKeyForServerType(associationClassName, serverType, serverName);
 
                         //  Delete it if it exists.
                         classesKey.DeleteSubKeyTree(associationKeyPath, false);
@@ -557,15 +632,15 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Creates the class names for associations.
+        ///     Creates the class names for associations.
         /// </summary>
         /// <param name="associationType">Type of the association.</param>
         /// <param name="associations">The associations.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <returns>
-        /// The class names for the associations.
+        ///     The class names for the associations.
         /// </returns>
-        private static IEnumerable<string> CreateClassNamesForAssociations(AssociationType associationType, 
+        private static IEnumerable<string> CreateClassNamesForAssociations(AssociationType associationType,
             IEnumerable<string> associations, RegistrationType registrationType)
         {
             //  Switch on the association type.
@@ -582,9 +657,10 @@ namespace SharpShell.ServerRegistration
                 case AssociationType.ClassOfExtension:
 
                     //  Open the classes sub key and get or create each file extension classes.
-                    using (var classesKey = OpenClassesRoot(registrationType))
+                    using (IRegistryKey classesKey = OpenClassesRoot(registrationType))
                     {
-                        return associations.Select(extension => FileExtensionClass.Get(classesKey, extension, true)).ToArray();
+                        return associations.Select(extension => FileExtensionClass.Get(classesKey, extension, true))
+                            .ToArray();
                     }
 
                 case AssociationType.Class:
@@ -595,16 +671,17 @@ namespace SharpShell.ServerRegistration
                 default:
 
                     //  If this is a predefined shell object, return the class for it.
-                    var className = PredefinedShellObjectAttribute.GetClassName(associationType);
-                    if (className != null) return new[] {className};
-                    
+                    string className = PredefinedShellObjectAttribute.GetClassName(associationType);
+                    if (className != null) return new[] { className };
+
                     //  It's not a type we know how to deal with, so bail.
-                    throw new InvalidOperationException($@"Unable to determine associations for AssociationType '{associationType}'");
+                    throw new InvalidOperationException(
+                        $@"Unable to determine associations for AssociationType '{associationType}'");
             }
         }
 
         /// <summary>
-        /// Gets the type of the key for server.
+        ///     Gets the type of the key for server.
         /// </summary>
         /// <param name="className">Name of the class.</param>
         /// <param name="serverType">Type of the server.</param>
@@ -616,7 +693,7 @@ namespace SharpShell.ServerRegistration
             switch (serverType)
             {
                 case ServerType.ShellContextMenu:
-                    
+
                     //  Create the key name for a context menu.
                     return string.Format(@"{0}\ShellEx\ContextMenuHandlers\{1}", className, serverName);
 
@@ -644,13 +721,13 @@ namespace SharpShell.ServerRegistration
                     return string.Format(@"{0}\ShellEx\DropHandler", className);
 
                 case ServerType.ShellPreviewHander:
-                    
+
                     //  Create the key name for a preview handler. This has no server name, 
                     //  as there cannot be multiple preview handlers.
                     return string.Format(@"{0}\ShellEx\{{8895b1c6-b41f-4c1c-a562-0d564250836f}}", className);
 
                 case ServerType.ShellDataHandler:
-                    
+
                     //  Create the key name for a data handler. This has no server name, 
                     //  as there cannot be multiple data handlers.
                     return string.Format(@"{0}\ShellEx\DataHandler", className);
@@ -666,25 +743,27 @@ namespace SharpShell.ServerRegistration
 
                     //  We don't have a key for shell namespace extensions.
                     return null;
-                    
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(serverType));
             }
         }
 
         /// <summary>
-        /// Opens the classes key.
+        ///     Opens the classes key.
         /// </summary>
         /// <param name="registrationType">Type of the registration.</param>
         /// <param name="permissions">The permissions.</param>
         /// <returns></returns>
-        private static IRegistryKey OpenClassesKey(RegistrationType registrationType, RegistryKeyPermissionCheck permissions)
+        private static IRegistryKey OpenClassesKey(RegistrationType registrationType,
+            RegistryKeyPermissionCheck permissions)
         {
             //  Get the classes base key.
-            var classesBaseKey = OpenClassesRoot(registrationType);
-            
+            IRegistryKey classesBaseKey = OpenClassesRoot(registrationType);
+
             //  Open classes.
-            var classesKey = classesBaseKey.OpenSubKey(KeyName_Classes, permissions, RegistryRights.QueryValues | RegistryRights.ReadPermissions | RegistryRights.EnumerateSubKeys);
+            IRegistryKey classesKey = classesBaseKey.OpenSubKey(KeyName_Classes, permissions,
+                RegistryRights.QueryValues | RegistryRights.ReadPermissions | RegistryRights.EnumerateSubKeys);
             if (classesKey == null)
                 throw new InvalidOperationException("Cannot open classes.");
 
@@ -692,26 +771,26 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Opens the classes root.
+        ///     Opens the classes root.
         /// </summary>
         /// <param name="registrationType">Type of the registration.</param>
         /// <returns>The classes root key.</returns>
         private static IRegistryKey OpenClassesRoot(RegistrationType registrationType)
         {
             //  Get the registry.
-            var registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
+            IRegistry registry = ServiceRegistry.ServiceRegistry.GetService<IRegistry>();
 
             //  Get the classes base key.
-            var classesBaseKey = registrationType == RegistrationType.OS64Bit
-                ? registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry64) :
-                registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry32);
+            IRegistryKey classesBaseKey = registrationType == RegistrationType.OS64Bit
+                ? registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry64)
+                : registry.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Registry32);
 
             //  Return the classes key.
             return classesBaseKey;
         }
 
         /// <summary>
-        /// Gets the value or empty.
+        ///     Gets the value or empty.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="valueName">Name of the value.</param>
@@ -725,7 +804,7 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Approves an extension.
+        ///     Approves an extension.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -733,12 +812,15 @@ namespace SharpShell.ServerRegistration
         private static void ApproveExtension(ISharpShellServer server, RegistrationType registrationType)
         {
             //  Open the approved extensions key.
-            using(var approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, 
-                registrationType == RegistrationType.OS64Bit ? RegistryView.Registry64 : RegistryView.Registry32)
-                .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved", RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (RegistryKey approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                           registrationType == RegistrationType.OS64Bit
+                               ? RegistryView.Registry64
+                               : RegistryView.Registry32)
+                       .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved",
+                           RegistryKeyPermissionCheck.ReadWriteSubTree))
             {
                 //  If we can't open the key, we're going to have problems.
-                if(approvedKey == null)
+                if (approvedKey == null)
                     throw new InvalidOperationException("Failed to open the Approved Extensions key.");
 
                 //  Create an entry for the server.
@@ -747,31 +829,35 @@ namespace SharpShell.ServerRegistration
         }
 
         /// <summary>
-        /// Determines whether an extension is approved.
+        ///     Determines whether an extension is approved.
         /// </summary>
         /// <param name="serverClsid">The server CLSID.</param>
         /// <param name="registrationType">Type of the registration.</param>
         /// <returns>
-        ///   <c>true</c> if the extension is approved; otherwise, <c>false</c>.
+        ///     <c>true</c> if the extension is approved; otherwise, <c>false</c>.
         /// </returns>
         /// <exception cref="System.InvalidOperationException">Failed to open the Approved Extensions key.</exception>
         private static bool IsExtensionApproved(Guid serverClsid, RegistrationType registrationType)
         {
             //  Open the approved extensions key.
-            using (var approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
-                registrationType == RegistrationType.OS64Bit ? RegistryView.Registry64 : RegistryView.Registry32)
-                .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved", RegistryKeyPermissionCheck.ReadSubTree))
+            using (RegistryKey approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                           registrationType == RegistrationType.OS64Bit
+                               ? RegistryView.Registry64
+                               : RegistryView.Registry32)
+                       .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved",
+                           RegistryKeyPermissionCheck.ReadSubTree))
             {
                 //  If we can't open the key, we're going to have problems.
                 if (approvedKey == null)
                     throw new InvalidOperationException("Failed to open the Approved Extensions key.");
 
-                return approvedKey.GetValueNames().Any(vn => vn.Equals(serverClsid.ToRegistryString(), StringComparison.OrdinalIgnoreCase));
+                return approvedKey.GetValueNames().Any(vn =>
+                    vn.Equals(serverClsid.ToRegistryString(), StringComparison.OrdinalIgnoreCase));
             }
         }
 
         /// <summary>
-        /// Unapproves an extension.
+        ///     Unapproves an extension.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="registrationType">Type of the registration.</param>
@@ -779,9 +865,12 @@ namespace SharpShell.ServerRegistration
         private static void UnapproveExtension(ISharpShellServer server, RegistrationType registrationType)
         {
             //  Open the approved extensions key.
-            using (var approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
-                registrationType == RegistrationType.OS64Bit ? RegistryView.Registry64 : RegistryView.Registry32)
-                .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved", RegistryKeyPermissionCheck.ReadWriteSubTree))
+            using (RegistryKey approvedKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,
+                           registrationType == RegistrationType.OS64Bit
+                               ? RegistryView.Registry64
+                               : RegistryView.Registry32)
+                       .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved",
+                           RegistryKeyPermissionCheck.ReadWriteSubTree))
             {
                 //  If we can't open the key, we're going to have problems.
                 if (approvedKey == null)
@@ -791,55 +880,5 @@ namespace SharpShell.ServerRegistration
                 approvedKey.DeleteValue(server.ServerClsid.ToRegistryString(), false);
             }
         }
-
-        /// <summary>
-        /// The classes key name.
-        /// </summary>
-        private const string KeyName_Classes = @"CLSID";
-
-        /// <summary>
-        /// The InProc32 key name.
-        /// </summary>
-        private const string KeyName_InProc32 = @"InprocServer32";
-
-        /// <summary>
-        /// The value for the net framework servers.
-        /// </summary>
-        private const string KeyValue_NetFrameworkServer = @"mscoree.dll";
-
-        /// <summary>
-        /// The threading model key name.
-        /// </summary>
-        private const string KeyName_ThreadingModel = @"ThreadingModel";
-
-        /// <summary>
-        /// THe assembly key name.
-        /// </summary>
-        private const string KeyName_Assembly = @"Assembly";
-
-        /// <summary>
-        /// The class key name.
-        /// </summary>
-        private const string KeyName_Class = @"Class";
-
-        /// <summary>
-        /// The runtime version key name.
-        /// </summary>
-        private const string KeyName_RuntimeVersion = @"RuntimeVersion";
-
-        /// <summary>
-        /// The codebase keyname.
-        /// </summary>
-        private const string KeyName_CodeBase = @"CodeBase";
-
-        /// <summary>
-        /// The default icon keyname.
-        /// </summary>
-        private const string KeyName_DefaultIcon = @"DefaultIcon";
-
-        /// <summary>
-        /// The default icon backup value name.
-        /// </summary>
-        private const string ValueName_DefaultIconBackup = @"SharpShell_Backup_DefaultIcon";
     }
 }

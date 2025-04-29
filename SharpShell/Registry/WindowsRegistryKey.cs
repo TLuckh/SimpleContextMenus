@@ -1,12 +1,11 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 using System.Security.AccessControl;
 using Microsoft.Win32;
 
 namespace SharpShell.Registry
 {
     /// <summary>
-    /// A Windows Registry Key. Essentially a wrapper around <see cref="RegistryKey"/>.
+    ///     A Windows Registry Key. Essentially a wrapper around <see cref="RegistryKey" />.
     /// </summary>
     /// <seealso cref="SharpShell.Registry.IRegistryKey" />
     public class WindowsRegistryKey : IRegistryKey
@@ -14,7 +13,7 @@ namespace SharpShell.Registry
         private readonly RegistryKey _registryKey;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WindowsRegistryKey"/> class.
+        ///     Initializes a new instance of the <see cref="WindowsRegistryKey" /> class.
         /// </summary>
         /// <param name="registryKey">The registry key.</param>
         /// <exception cref="ArgumentNullException">registryKey</exception>
@@ -38,28 +37,28 @@ namespace SharpShell.Registry
         /// <inheritdoc />
         public IRegistryKey OpenSubKey(string name)
         {
-            var subkey = _registryKey.OpenSubKey(name);
+            RegistryKey subkey = _registryKey.OpenSubKey(name);
             return subkey != null ? new WindowsRegistryKey(subkey) : null;
         }
 
         /// <inheritdoc />
         public IRegistryKey OpenSubKey(string name, bool writable)
         {
-            var subkey = _registryKey.OpenSubKey(name, writable);
+            RegistryKey subkey = _registryKey.OpenSubKey(name, writable);
             return subkey != null ? new WindowsRegistryKey(subkey) : null;
         }
 
         /// <inheritdoc />
         public IRegistryKey OpenSubKey(string name, RegistryKeyPermissionCheck permissionCheck)
         {
-            var subkey = _registryKey.OpenSubKey(name, permissionCheck);
+            RegistryKey subkey = _registryKey.OpenSubKey(name, permissionCheck);
             return subkey != null ? new WindowsRegistryKey(subkey) : null;
         }
 
         /// <inheritdoc />
         public IRegistryKey OpenSubKey(string name, RegistryKeyPermissionCheck permissionCheck, RegistryRights rights)
         {
-            var subkey = _registryKey.OpenSubKey(name, permissionCheck, rights);
+            RegistryKey subkey = _registryKey.OpenSubKey(name, permissionCheck, rights);
             return subkey != null ? new WindowsRegistryKey(subkey) : null;
         }
 
@@ -92,9 +91,10 @@ namespace SharpShell.Registry
         {
             return new WindowsRegistryKey(_registryKey.CreateSubKey(subkey, permissionCheck));
         }
-        
+
         /// <inheritdoc />
-        public IRegistryKey CreateSubKey(string subkey, RegistryKeyPermissionCheck permissionCheck, RegistrySecurity registrySecurity)
+        public IRegistryKey CreateSubKey(string subkey, RegistryKeyPermissionCheck permissionCheck,
+            RegistrySecurity registrySecurity)
         {
             return new WindowsRegistryKey(_registryKey.CreateSubKey(subkey, permissionCheck, registrySecurity));
         }

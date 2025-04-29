@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
 
 namespace SharpShell.Attributes
 {
@@ -8,80 +7,75 @@ namespace SharpShell.Attributes
     //  at some stage.
 
     /// <summary>
-    /// The AssociationType determines what kind of associate a COM
-    /// server is made to a class, such as a file class or a drive.
+    ///     The AssociationType determines what kind of associate a COM
+    ///     server is made to a class, such as a file class or a drive.
     /// </summary>
     public enum AssociationType
     {
         /// <summary>
-        /// No server association.
+        ///     No server association.
         /// </summary>
         None,
 
         /// <summary>
-        /// Create an association to a specific file extension.
-        /// This attribute is deprecated. Shell extensions should not be registered directly on file extensions,
-        /// but on the class of the extension.
+        ///     Create an association to a specific file extension.
+        ///     This attribute is deprecated. Shell extensions should not be registered directly on file extensions,
+        ///     but on the class of the extension.
         /// </summary>
         [Obsolete("FileExtension is deprecated. Use 'ClassOfExtension' instead.")]
         FileExtension,
 
         /// <summary>
-        /// Create an association to the class of a specific file extension.
+        ///     Create an association to the class of a specific file extension.
         /// </summary>
         ClassOfExtension,
 
         /// <summary>
-        /// Create an association to a class.
+        ///     Create an association to a class.
         /// </summary>
         Class,
 
         /// <summary>
-        /// Create an association to the 'all files' class.
+        ///     Create an association to the 'all files' class.
         /// </summary>
-        [PredefinedShellObject(@"*")]
-        AllFiles,
+        [PredefinedShellObject(@"*")] AllFiles,
 
         /// <summary>
-        /// Create an association to the 'all files and folders' class.
+        ///     Create an association to the 'all files and folders' class.
         /// </summary>
         [PredefinedShellObject(@"AllFileSystemObjects")]
         AllFilesAndFolders,
 
         /// <summary>
-        /// Create an association to the 'directory' class, i.e. file-system folders.
+        ///     Create an association to the 'directory' class, i.e. file-system folders.
         /// </summary>
-        [PredefinedShellObject(@"Directory")]
-        Directory,
+        [PredefinedShellObject(@"Directory")] Directory,
 
         /// <summary>
-        /// Create an association to the background of folders and the desktop
+        ///     Create an association to the background of folders and the desktop
         /// </summary>
         [PredefinedShellObject(@"Directory\Background")]
         DirectoryBackground,
 
         /// <summary>
-        /// Create an association to the background of the desktop (Windows 7 and higher)
+        ///     Create an association to the background of the desktop (Windows 7 and higher)
         /// </summary>
         [PredefinedShellObject(@"DesktopBackground")]
         DesktopBackground,
 
         /// <summary>
-        /// Create an association to the drive class.
+        ///     Create an association to the drive class.
         /// </summary>
-        [PredefinedShellObject(@"Drive")]
-        Drive,
+        [PredefinedShellObject(@"Drive")] Drive,
 
         /// <summary>
-        /// Create an association to the 'folder' class, i.e. all containers.
+        ///     Create an association to the 'folder' class, i.e. all containers.
         /// </summary>
-        [PredefinedShellObject(@"Folder")]
-        Folder,
+        [PredefinedShellObject(@"Folder")] Folder,
 
         /// <summary>
-        /// Create an association to the unknown files class.
+        ///     Create an association to the unknown files class.
         /// </summary>
-        [PredefinedShellObject(@"Unknown")]
-        UnknownFiles
+        [PredefinedShellObject(@"Unknown")] UnknownFiles
     }
 }

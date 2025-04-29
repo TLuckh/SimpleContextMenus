@@ -1,5 +1,4 @@
-using NUnit.Framework.Legacy;
-﻿using System;
+using System;
 using System.Reflection;
 using System.Windows.Forms;
 using SharpShell.Diagnostics;
@@ -7,12 +6,12 @@ using SharpShell.Diagnostics;
 namespace SharpShell.Extensions
 {
     /// <summary>
-    /// Extensions for cotrols.
+    ///     Extensions for cotrols.
     /// </summary>
     public static class ControlExtensions
     {
         /// <summary>
-        /// Calls the window proc.
+        ///     Calls the window proc.
         /// </summary>
         /// <param name="me">Me.</param>
         /// <param name="hWnd">The window handle.</param>
@@ -25,9 +24,11 @@ namespace SharpShell.Extensions
             //  Get the wndproc function.
             try
             {
-
-                var methodInfo = me.GetType().GetMethod("WndProc", BindingFlags.Instance | BindingFlags.NonPublic);
-                return (bool)methodInfo.Invoke(me, new object[] { new Message { HWnd = hWnd, WParam = wParam, LParam = lParam, Msg = (int)uMessage } });
+                MethodInfo methodInfo =
+                    me.GetType().GetMethod("WndProc", BindingFlags.Instance | BindingFlags.NonPublic);
+                return (bool)methodInfo.Invoke(me,
+                    new object[]
+                        { new Message { HWnd = hWnd, WParam = wParam, LParam = lParam, Msg = (int)uMessage } });
             }
             catch (Exception exception)
             {
@@ -37,18 +38,19 @@ namespace SharpShell.Extensions
         }
 
         /// <summary>
-        /// Finds the control inside this control which has focus, if any.
+        ///     Finds the control inside this control which has focus, if any.
         /// </summary>
         /// <param name="this">The the parent control.</param>
         /// <returns>The child control with focus, or null.</returns>
         public static Control FindFocusedControl(this Control @this)
         {
-            var container = @this as ContainerControl;
+            ContainerControl container = @this as ContainerControl;
             while (container != null)
             {
                 @this = container.ActiveControl;
                 container = @this as ContainerControl;
             }
+
             return @this;
         }
     }

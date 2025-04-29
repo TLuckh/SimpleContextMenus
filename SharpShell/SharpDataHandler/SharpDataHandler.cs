@@ -1,5 +1,5 @@
-﻿using NUnit.Framework.Legacy;
-using System;
+﻿using System;
+using System.Runtime.InteropServices.ComTypes;
 using System.Windows.Forms;
 using SharpShell.Attributes;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
@@ -7,15 +7,21 @@ using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 namespace SharpShell.SharpDataHandler
 {
     /// <summary>
-    /// The SharpDataHandler is the base class for SharpShell servers that provide
-    /// custom Icon Handlers.
+    ///     The SharpDataHandler is the base class for SharpShell servers that provide
+    ///     custom Icon Handlers.
     /// </summary>
     [ServerType(ServerType.ShellDataHandler)]
     public abstract class SharpDataHandler : PersistFileServer, IDataObject
     {
+        /// <summary>
+        ///     Gets the data for the selected item. The selected item's path is stored in the SelectedItemPath property.
+        /// </summary>
+        /// <returns>The data for the selected item, or null if there is none.</returns>
+        protected abstract DataObject GetData();
+
         #region Implementation of IDataObject
 
-        int IDataObject.DAdvise(ref System.Runtime.InteropServices.ComTypes.FORMATETC pFormatetc, System.Runtime.InteropServices.ComTypes.ADVF advf, System.Runtime.InteropServices.ComTypes.IAdviseSink adviseSink, out int connection)
+        int IDataObject.DAdvise(ref FORMATETC pFormatetc, ADVF advf, IAdviseSink adviseSink, out int connection)
         {
             //  DebugLog key events.
             Log("IDataObject.DAdvise called.");
@@ -33,7 +39,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        int IDataObject.EnumDAdvise(out System.Runtime.InteropServices.ComTypes.IEnumSTATDATA enumAdvise)
+        int IDataObject.EnumDAdvise(out IEnumSTATDATA enumAdvise)
         {
             //  DebugLog key events.
             Log("IDataObject.EnumDAdvise called.");
@@ -42,7 +48,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        System.Runtime.InteropServices.ComTypes.IEnumFORMATETC IDataObject.EnumFormatEtc(System.Runtime.InteropServices.ComTypes.DATADIR direction)
+        IEnumFORMATETC IDataObject.EnumFormatEtc(DATADIR direction)
         {
             //  DebugLog key events.
             Log("IDataObject.EnumFormatEtc called.");
@@ -51,7 +57,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        int IDataObject.GetCanonicalFormatEtc(ref System.Runtime.InteropServices.ComTypes.FORMATETC formatIn, out System.Runtime.InteropServices.ComTypes.FORMATETC formatOut)
+        int IDataObject.GetCanonicalFormatEtc(ref FORMATETC formatIn, out FORMATETC formatOut)
         {
             //  DebugLog key events.
             Log("IDataObject.GetCanonicalFormatEtc called.");
@@ -60,7 +66,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        void IDataObject.GetData(ref System.Runtime.InteropServices.ComTypes.FORMATETC format, out System.Runtime.InteropServices.ComTypes.STGMEDIUM medium)
+        void IDataObject.GetData(ref FORMATETC format, out STGMEDIUM medium)
         {
             //  DebugLog key events.
             Log("IDataObject.GetData called.");
@@ -69,7 +75,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        void IDataObject.GetDataHere(ref System.Runtime.InteropServices.ComTypes.FORMATETC format, ref System.Runtime.InteropServices.ComTypes.STGMEDIUM medium)
+        void IDataObject.GetDataHere(ref FORMATETC format, ref STGMEDIUM medium)
         {
             //  DebugLog key events.
             Log("IDataObject.GetDataHere called.");
@@ -78,7 +84,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        int IDataObject.QueryGetData(ref System.Runtime.InteropServices.ComTypes.FORMATETC format)
+        int IDataObject.QueryGetData(ref FORMATETC format)
         {
             //  DebugLog key events.
             Log("IDataObject.QueryGetData called.");
@@ -87,7 +93,7 @@ namespace SharpShell.SharpDataHandler
             throw new NotImplementedException();
         }
 
-        void IDataObject.SetData(ref System.Runtime.InteropServices.ComTypes.FORMATETC formatIn, ref System.Runtime.InteropServices.ComTypes.STGMEDIUM medium, bool release)
+        void IDataObject.SetData(ref FORMATETC formatIn, ref STGMEDIUM medium, bool release)
         {
             //  DebugLog key events.
             Log("IDataObject.SetData called.");
@@ -95,7 +101,7 @@ namespace SharpShell.SharpDataHandler
             try
             {
                 //  Let the derived class provide data.
-                var itemData = GetData();
+                DataObject itemData = GetData();
 
                 //  Set the data.
                 ((IDataObject)itemData).SetData(ref formatIn, ref medium, release);
@@ -107,11 +113,5 @@ namespace SharpShell.SharpDataHandler
         }
 
         #endregion
-
-        /// <summary>
-        /// Gets the data for the selected item. The selected item's path is stored in the SelectedItemPath property.
-        /// </summary>
-        /// <returns>The data for the selected item, or null if there is none.</returns>
-        protected abstract DataObject GetData();
     }
 }
