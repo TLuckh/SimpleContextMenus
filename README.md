@@ -21,7 +21,8 @@ Possibly you need to restart your explorer.exe process.
 ## Deinstallation
 
 To uninstall the server, run the '#Uninstall.bat' which is located in
-the directory where you installed the server.
+the directory where you installed the server. 
+To be able to delete the files, one has to additionally restart explorer.exe once.
 
 ## Configuration
 
@@ -34,8 +35,7 @@ Here, you can add any number of files and folders.
 For each folder, a drop down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
 
-Each file has the following naming convention:
-See SimpleContextMenu.cs/NamingConventionParser documentation.
+For the naming convention of files, see NamingConvention.md.
 
 Note that the file extension restrictions do not affect the passed selection,
 only whether or not the context menu is visible.
@@ -46,10 +46,10 @@ not be filtered when doing a right click on the background
 Clicking on an entry in the context menu will open the
 corresponding file in the local file structure
 (using the standard association for the program),
-and passes each of the selected files, if any as arguments (each wrapped in quotes).
+and passes each of the selected files, if any as, arguments (each wrapped in quotes).
 
 Furthermore, the current working directory (in Python e.g. os.getcwd())
-will be set to the directory in which you right clicked.
+will be set to the directory in which you right-clicked.
 
 ## Odd Behavior
 

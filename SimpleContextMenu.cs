@@ -280,21 +280,33 @@ public class SimpleContextMenu : SharpContextMenu
                 return true;
         }
 
+        // Get the MIME types and file extension for each of the selected items:
+        #region GetMimeTypesAndFileExtensions
+        
+        List<string> mimeTypesOfSelection = [];
+        List<string> fileExtensionsOfSelection = [];
+        foreach (string itemPath in itemPathsToMatch)
+        {
+            if (File.GetAttributes(itemPath).HasFlag(FileAttributes.Directory))
+            {
+                fileExtensionsOfSelection.Add("folder");
+                continue;
+            }
+            
+            var mimeTypeFull = MimeTypeMap.GetMimeType(itemPath).ToLower();
+            var mimeTypeRoughType = MimeTypeMap.GetMimeType(itemPath).Split('/')[0].ToLower();
+            mimeTypesOfSelection.Add(mimeTypeFull);
+            mimeTypesOfSelection.Add(mimeTypeRoughType);
+            
+            var fileExtension = Path.GetExtension(itemPath).Remove(0, 1);
+            fileExtensionsOfSelection.Add(fileExtension);
 
-        List<string> mimeTypesOfSelection =
-            itemPathsToMatch
-                .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
-                // Maps the file path to the MIME type, of which we just want the coarse type.
-                .Select(x => MimeTypeMap.GetMimeType(x).Split('/')[0].ToLower())
-                .ToList();
-        List<string> fileExtensionsOfSelection =
-            itemPathsToMatch
-                .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
-                .Select(x => Path.GetExtension(x).Remove(0, 1))
-                .ToList();
-
+        }
+        
         if (GetSelectedItemPaths().Any(x => File.GetAttributes(x).HasFlag(FileAttributes.Directory)))
             fileExtensionsOfSelection.Add("folder");
+        
+        #endregion
 
         // Comparing the MIME types and file extensions of the selection to the MIME types and file extensions passed into the method.
 
@@ -306,17 +318,9 @@ public class SimpleContextMenu : SharpContextMenu
 
     /// <summary>
     ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
-    ///     (displayName, MIMETypes, FileExtensions)
-    ///     The naming convention is as follows:
-    ///     Starting with a file name with extension, but without path to it in its name:
-    ///     The file name is split by each dot. The first part is the display name,
-    ///     and each following part (except the last for files, i.e. non-folders) is either a MIME type (if it's uppercase)
-    ///     or a file extension (if it's lowercase).
-    ///     The last part (if it is a file extension) is ignored.
-    ///     Hint: If you want to call a Python script,
-    ///     it should be .py if the script should run in foreground, or .pyw if the script should run in background.
-    ///     Each middle part should have all its letters in lower case if it's a file extension, and in upper case if it's a
-    ///     MIME type.
+    ///     (displayName, MIMETypes, FileExtensions) <br></br>
+    ///     For the naming convention applied, see NamingConvention.md.
+    /// 
     ///     The returned MIME types and file extensions are in lower case and without dot.
     /// </summary>
     /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param>
@@ -331,7 +335,7 @@ public class SimpleContextMenu : SharpContextMenu
             filePathFull = Path.GetFileName(filePathFull);
 
 
-        List<string> parts = filePathFull.Split('.').ToList();
+        List<string> parts = filePathFull.Replace("..","/").Split('.').ToList();
         string displayName = parts[0];
         List<string> middleParts = parts.Skip(1).ToList();
 
