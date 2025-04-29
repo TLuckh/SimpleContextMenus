@@ -2,17 +2,17 @@
 
     <PropertyGroup>
         <UseWindowsForms>true</UseWindowsForms>
-        <TargetFramework>net45</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.0.3</Version>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
+        <TargetFramework>net481</TargetFramework>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <PlatformTarget>AnyCPU</PlatformTarget>
+        <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
@@ -28,25 +28,42 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
-    
+
     <ItemGroup>
-      <PackageReference Include="ServerRegistrationManager" Version="2.7.2" />
-      <PackageReference Include="SharpShell" Version="2.7.2" />
+        <PackageReference Include="ServerRegistrationManager" Version="2.7.2"/>
+        <PackageReference Include="StrongNamer" Version="0.2.5" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Update="Properties\Resources.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Remove="SharpShell\**" />
+        <EmbeddedResource Remove="ServerRegistrationManager\**" />
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Properties\Resources.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Resources.resx</DependentUpon>
-      </Compile>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+        <Compile Remove="SharpShell\**" />
+        <Compile Remove="ServerRegistrationManager\**" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
+      <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\sharpshell\SharpShell\SharpShell\SharpShell.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="SharpShell\**" />
+      <None Remove="ServerRegistrationManager\**" />
     </ItemGroup>
 
 </Project>

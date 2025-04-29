@@ -1,0 +1,38 @@
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\SharpShell.xml
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\SharpShell.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\SharpShell.pdb
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\nunit.framework.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\nunit.framework.legacy.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.Buffers.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.Memory.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.Numerics.Vectors.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.Runtime.CompilerServices.Unsafe.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.Threading.Tasks.Extensions.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\bin\Release\System.ValueTuple.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.csproj.AssemblyReference.cache
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.SharpPreviewHandler.PreviewHandlerHost.resources
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.SharpPropertySheet.SharpPropertyPage.resources
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.csproj.GenerateResource.cache
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.csproj.CoreCompileInputs.cache
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.csproj.Up2Date
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.dll
+I:\!Coding\SharpShell\sharpshell\SharpShell\SharpShell\obj\Release\SharpShell.pdb
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\SharpShell.xml
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.csproj.AssemblyReference.cache
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.SharpPreviewHandler.PreviewHandlerHost.resources
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.SharpPropertySheet.SharpPropertyPage.resources
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.csproj.GenerateResource.cache
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.csproj.CoreCompileInputs.cache
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.pdb
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\SharpShell.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\SharpShell.pdb
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\nunit.framework.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\nunit.framework.legacy.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.Buffers.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.Memory.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.Numerics.Vectors.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.Runtime.CompilerServices.Unsafe.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.Threading.Tasks.Extensions.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\bin\Release\System.ValueTuple.dll
+I:\!Coding\SharpShell\SimpleContextMenus New\SimpleContextMenus\SharpShell\obj\Release\SharpShell.csproj.Up2Date

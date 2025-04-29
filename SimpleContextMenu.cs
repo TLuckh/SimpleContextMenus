@@ -2,10 +2,10 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using MimeTypes;
 using SharpShell.Attributes;
 using SharpShell.SharpContextMenu;
 using SimpleContextMenus.Properties;
-using VLCShellExtension;
 
 namespace SimpleContextMenus
 {
@@ -268,7 +268,7 @@ namespace SimpleContextMenus
                 return true;
             
             // Parsing the selected items to their MIME types and file extensions.
-
+            // // Debug only vars:
             // var x1 = GetFolderPath();
             // var x2 = Directory.GetFileSystemEntries(x1);
             // var x3 = x2.ToList();
@@ -289,7 +289,7 @@ namespace SimpleContextMenus
                 itemPathsToMatch
                     .Where(x => !File.GetAttributes(x).HasFlag(FileAttributes.Directory))
                     // Maps the file path to the MIME type, of which we just want the coarse type.
-                    .Select(x => MIMEAssistant.GetMIMEType(x).Split('/')[0]) 
+                    .Select(x => MimeTypeMap.GetMimeType(x).Split('/')[0].ToLower()) 
                     .ToList();
             List<string> fileExtensionsOfSelection =
                 itemPathsToMatch
