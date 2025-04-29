@@ -8,6 +8,10 @@ Explorer.
 Each file in the local file structure then gets run when you press the corresponding
 item of the context menu.
 
+## System Requirements
+- Windows 10 (not tested on Windows 11)
+- .NET Framework 4.8.1 or a compatible version ()
+
 ## Installation
 
 To install the server, take the build output of this project and
