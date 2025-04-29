@@ -28,10 +28,11 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
+    
+    
 
     <ItemGroup>
-        <PackageReference Include="ServerRegistrationManager" Version="2.7.2"/>
-        <PackageReference Include="StrongNamer" Version="0.2.5" />
+        <PackageReference Include="StrongNamer" Version="0.2.5"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -39,8 +40,8 @@
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
         </EmbeddedResource>
-        <EmbeddedResource Remove="SharpShell\**" />
-        <EmbeddedResource Remove="ServerRegistrationManager\**" />
+        <EmbeddedResource Remove="SharpShell\**"/>
+        <EmbeddedResource Remove="ServerRegistrationManager\**"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -49,21 +50,21 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>Resources.resx</DependentUpon>
         </Compile>
-        <Compile Remove="SharpShell\**" />
-        <Compile Remove="ServerRegistrationManager\**" />
+        <Compile Remove="SharpShell\**"/>
+        <Compile Remove="ServerRegistrationManager\**"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
-      <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
+        <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\sharpshell\SharpShell\SharpShell\SharpShell.csproj" />
+        <None Remove="SharpShell\**"/>
+        <None Remove="ServerRegistrationManager\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="SharpShell\**" />
-      <None Remove="ServerRegistrationManager\**" />
+      <ProjectReference Include="SharpShell\SharpShell.csproj" />
     </ItemGroup>
 
 </Project>

@@ -71,9 +71,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="Actions\ConfigAction.cs" />
     <Compile Include="Actions\EnableEventLogAction.cs" />
     <Compile Include="Actions\ShowHelpAction.cs" />
@@ -91,13 +88,6 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\SharpShell\SharpShell.csproj">
-      <Project>{b5d5f670-bfba-4d09-91c6-74bb12b7edd4}</Project>
-      <Name>SharpShell</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SharpShell\SharpShell.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Actions\Help.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +96,9 @@
   <ItemGroup>
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SharpShell\SharpShell.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
