@@ -333,26 +333,25 @@ public class SimpleContextMenu : SharpContextMenu
     /// </summary>
     class FileAttributes(string displayName, List<string> mimeTypes, List<string> fileExtensions, string filePathFull)
     {
-
-        
-            /// <summary>
-            ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
-            ///     (displayName, MIMETypes, FileExtensions) <br></br>
-            ///     For the naming convention applied, see NamingConvention.md.
-            ///     The returned MIME types and file extensions are in lower case and without dot.
-            /// </summary>
-            /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param>
-            public static FileAttributes NamingConventionParser(
+        /// <summary>
+        ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
+        ///     (displayName, MIMETypes, FileExtensions) <br></br>
+        ///     For the naming convention applied, see NamingConvention.md.
+        ///     The returned MIME types and file extensions are in lower case and without dot.
+        /// </summary>
+        /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param>
+        public static FileAttributes NamingConventionParser(
                 string filePathFull)
             {
+                string filePath = filePathFull;
                 // Get rid of the file extension & directory prefixes
-                if (!File.GetAttributes(filePathFull).HasFlag(System.IO.FileAttributes.Directory))
-                    filePathFull = Path.GetFileNameWithoutExtension(filePathFull);
+                if (!File.GetAttributes(filePath).HasFlag(System.IO.FileAttributes.Directory))
+                    filePath = Path.GetFileNameWithoutExtension(filePath);
                 else
-                    filePathFull = Path.GetFileName(filePathFull);
+                    filePath = Path.GetFileName(filePath);
         
         
-                List<string> parts = filePathFull.Replace("..", "/").Split('.').ToList();
+                List<string> parts = filePath.Replace("..", "/").Split('.').ToList();
                 string displayName = parts[0];
                 List<string> middleParts = parts.Skip(1).ToList();
         
