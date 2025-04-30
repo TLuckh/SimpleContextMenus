@@ -44,3 +44,4 @@ it should be .py if the script should run in the foreground, or .pyw if the scri
 Each middle part should have all its letters in lower case if it's a file extension, and in upper case if it's a
 MIME type.
 
+

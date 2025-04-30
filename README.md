@@ -39,21 +39,31 @@ Here, you can add any number of files and folders.
 For each folder, a drop down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
 
-For the naming convention of files, see [NamingConvention.md](NamingConvention.md).
+For the naming convention of files and folders, see [NamingConvention.md](NamingConvention.md). <br>
+Their name will determine to which of selected items 
+(or the items in the folder for a background click) 
+the context menu submenu/item is applicable.
 
-Note that the file extension restrictions do not affect the passed selection,
-only whether or not the context menu is visible.
-Furthermore, if a folder has many files (&ge; 50), the context menus will
-not be filtered when doing a right-click on the background
+A context menu item will only be visible if at least one selected item is applicable.
+A context menu submenu will only show if it contains at least one context menu item that is visible.
+
+Furthermore, if a folder has many files (&ge; 50), the context menus will always be shown
 (this does not apply when right-clicking on a selection).
 
-Clicking on an entry in the context menu will open the
-corresponding file in the local file structure
-(using the standard association for the program),
-and passes each of the selected files, if any as, arguments (each wrapped in quotes).
+
+Clicking on an entry in the context menu will:
+1. Open the corresponding file in the local file structure
+(using the standard association for the program)
+2. Pass it each of the matching files, if any as, arguments (each wrapped in quotes).
+    - Note that the file extension restrictions you encoded into the file-name affect the passed selection:<br>
+Only those of the selected items
+which match at least one of the given file extensions or MIME types
+will be passed to the file.
 
 Furthermore, the current working directory (in Python e.g. os.getcwd())
 will be set to the directory in which you right-clicked.
+
+For examples see [NamingConvention.md](NamingConvention.md)
 
 ## Odd Behavior
 
