@@ -154,8 +154,7 @@ public class SimpleContextMenu : SharpContextMenu
         foreach (FileAttributes menuItemAttributes in
                  Directory.GetDirectories(currentDirectory).Union(Directory.GetFiles(currentDirectory))
                      .Where(x => !File.GetAttributes(x).HasFlag(System.IO.FileAttributes.Hidden))
-                     .Select(x => FileAttributes.NamingConventionParser(x)))
-            // First directories, then files. Only list stuff that's visible in Windows Explorer
+                     .Select(FileAttributes.NamingConventionParser))
         {
             
             
