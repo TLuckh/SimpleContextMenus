@@ -39,6 +39,8 @@ Here, you can add any number of files and folders.
 For each folder, a drop down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
 
+
+
 For the naming convention of files and folders, see [NamingConvention.md](NamingConvention.md). <br>
 Their name will determine to which of selected items 
 (or the items in the folder for a background click) 

@@ -1,5 +1,4 @@
-﻿- Add a switch that restricts a context menu to only show up if the background was clicked with no selection made.
-- Add a switch that restricts a context menu to set the matching case strict, i.e. only show if all selected items have a matching file extension or MIME type.
+﻿- Add a switch that restricts a context menu to set the matching case strict, i.e. only show if all selected items have a matching file extension or MIME type.
 
 
 

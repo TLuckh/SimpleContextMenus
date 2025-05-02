@@ -335,7 +335,7 @@ public class SimpleContextMenu : SharpContextMenu
     {
         /// <summary>
         ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
-        ///     (displayName, MIMETypes, FileExtensions) <br></br>
+        ///     (displayName, MIMETypes, FileExtensions, resolved [for .lnk] full path) <br></br>
         ///     For the naming convention applied, see NamingConvention.md.
         ///     The returned MIME types and file extensions are in lower case and without dot.
         /// </summary>
@@ -344,6 +344,10 @@ public class SimpleContextMenu : SharpContextMenu
                 string filePathFull)
             {
                 string filePath = filePathFull;
+                
+                while (Path.GetExtension(filePathFull) == ".lnk")
+                    filePathFull = ShellLink.GetShortcutTarget(filePathFull);
+                
                 // Get rid of the file extension & directory prefixes
                 if (!File.GetAttributes(filePath).HasFlag(System.IO.FileAttributes.Directory))
                     filePath = Path.GetFileNameWithoutExtension(filePath);
@@ -374,3 +378,4 @@ public class SimpleContextMenu : SharpContextMenu
         public string FilePathFull { get; set; } = filePathFull;
     }
 }
+
