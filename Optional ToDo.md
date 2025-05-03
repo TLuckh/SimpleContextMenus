@@ -1,12 +1,4 @@
-﻿- Add a switch that restricts a context menu to set the matching case strict, i.e. only show if all selected items have a matching file extension or MIME type.
-
-
-
-
-
------------------------------------------------
-
-
+﻿
 Implement lazy loading of context menus in "Extensions" folder.
 
 (by System.Lazy (see SharpContextMenu.cs Lazy<...>) or by only calling
@@ -17,6 +9,8 @@ bool subItemIsApplicable = AddMenuItems(menuStrip, extensionBaseItem, GetExtensi
 when the "Extensions" submenu is opened, i.e. an event of type DropDownOpening is fired)
 
 As far as I tried, this seems unnecessary, as it's fast enough even with ~100 items in the subfolders in Extensions.
+
+Test whether with the current target framework being NET 4.8.1, the strong naming is actually necessary anymore. 
 
 ## Tips
 

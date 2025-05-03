@@ -81,3 +81,18 @@ and the passed string is
 
 In general, any passed parameter is wrapped in quotes, and separated by a space.
 
+
+# Development
+## Debugging 
+To get a debugger into the deployed COM server such that the breakpoints work:
+
+- Build the solution in Debug / AnyCPU
+- Open the built ServerManager.exe
+- Attach to it from the IDE
+- In the Server Manager, select: File -> Load Server -> Load the SimpleContextMenus.dll you just built
+- Select it in the Server Manager, so that it is marked. 
+- Click “Test Server in Test Shell”
+- (Navigate into a folder; Not sure if it’s necessary or if you can just stay on Desktop)
+- Right Click
+
+Note that the Debugging Breakpoints might only work for the first click after you started the Server Manager!
