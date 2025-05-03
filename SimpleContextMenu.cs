@@ -96,6 +96,7 @@ public class SimpleContextMenu : SharpContextMenu
     /// </returns>
     protected override ContextMenuStrip CreateMenu()
     {
+        
         //  Create the menu strip
         ContextMenuStrip menuStrip = new();
         menuStrip.Items.Add(new ToolStripSeparator());
@@ -106,16 +107,25 @@ public class SimpleContextMenu : SharpContextMenu
             Text = Resources.SimpleContextMenu_CreateMenu_Extensions,
             Image = Resources.Extension_Menu
         };
-        // Add all submenus to "Extensions"
-        bool subItemIsApplicable = AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
-        // Show extensions in the context menu if there's at least one applicable item in a submenu.
-        if (subItemIsApplicable)
-            menuStrip.Items.Add(extensionBaseItem);
 
-        // Add all top-level items to the context menu
-        AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
-        menuStrip.Items.Add(new ToolStripSeparator());
-        return menuStrip;
+        try         // ToDo: Add actual error handling with a log, so this ugly try-catch that I deactivate in no-debug anyway can go away
+        {
+            // Add all submenus to "Extensions"
+            bool subItemIsApplicable = AddMenuItems(menuStrip, extensionBaseItem, GetExtensionsFolderPath());
+            // Show extensions in the context menu if there's at least one applicable item in a submenu.
+            if (subItemIsApplicable)
+                menuStrip.Items.Add(extensionBaseItem);
+
+            // Add all top-level items to the context menu
+            AddMenuItems(menuStrip, null, GetTopLevelItemsFolderPath());
+            menuStrip.Items.Add(new ToolStripSeparator());
+            return menuStrip;
+        }
+        catch (Exception e) when (IsDebug())
+        {
+            menuStrip.Items.Add(new ToolStripMenuItem(e.Message));
+            return menuStrip;
+        }
 
 
         // // Clicking on the "Extensions" menu item opens the directory which mirrors the context menu structure
@@ -157,6 +167,32 @@ public class SimpleContextMenu : SharpContextMenu
                      .Select(FileAttributes.NamingConventionParser))
         {
             
+            ToolStripMenuItem menuItem = new()
+            {
+                Text = menuItemAttributes.DisplayName
+            };
+
+            #region Error handling
+
+            if (menuItemAttributes.IsError)
+            {
+                // So far only error caught is when a .lnk has invalid target.
+                // ToDo: Make more general, and make the corresponding context menu clickable such that it returns the error.
+                // Not really a fan of having it as field, but Union types aren't supported (yet). Maybe let try-catch return a Subtype of FileAttributes?
+                // Or move the .Select out of the foreach and put a try-catch around the call to NamingConventionParser?
+                if (menu != null)
+                    menu.DropDownItems.Add(menuItem);
+                else
+                    menuStrip.Items.Add(menuItem);
+
+
+                anyEndItemApplicable = true;
+                // menuItem.Click += launchScriptOnMenuItemClick(menuItemAttributes); // Throws some error if added as is
+                continue;
+            }
+            #endregion
+
+            
             
             // Check if we should show the file/directory by checking it against the selection
             // (or all elements in the directory if nothing is selected)
@@ -165,10 +201,7 @@ public class SimpleContextMenu : SharpContextMenu
                 continue;
 
 
-            ToolStripMenuItem menuItem = new()
-            {
-                Text = menuItemAttributes.DisplayName
-            };
+
             // Whether or not we add menuItem as a drop down item to menu depends on whether it's an end item or at least contains one.
             // I've tried doing this using visibility, but for some reason that tag gets ignored...
 
@@ -183,7 +216,7 @@ public class SimpleContextMenu : SharpContextMenu
                     menuStrip.Items.Add(menuItem);
 
                 anyEndItemApplicable = true;
-                menuItem.Click += launchScriptOnMenuItemOnClick(menuItemAttributes);
+                menuItem.Click += launchScriptOnMenuItemClick(menuItemAttributes);
             }
             // And if it's a directory, we recursively add the items in the directory to the menu
             else
@@ -224,7 +257,7 @@ public class SimpleContextMenu : SharpContextMenu
     /// </summary>
     /// <param name="fileAttributes"> The full path to the working directory in which the script should be launched</param>
     /// <returns></returns>
-    private EventHandler launchScriptOnMenuItemOnClick(FileAttributes fileAttributes)
+    private EventHandler launchScriptOnMenuItemClick(FileAttributes fileAttributes)
     {
         return (sender, args) =>
         {
@@ -331,7 +364,12 @@ public class SimpleContextMenu : SharpContextMenu
     /// <summary>
     /// Represents attributes for a file, including its display name, associated MIME types, and file extensions.
     /// </summary>
-    class FileAttributes(string displayName, List<string> mimeTypes, List<string> fileExtensions, string filePathFull)
+    class FileAttributes(
+        string displayName,
+        List<string> mimeTypes,
+        List<string> fileExtensions,
+        string filePathFull,
+        bool isError)
     {
         /// <summary>
         ///     Takes in a full file path and turns it, according to the naming convention, into a tuple:
@@ -344,10 +382,24 @@ public class SimpleContextMenu : SharpContextMenu
                 string filePathFull)
             {
                 string filePath = filePathFull;
-                
-                while (Path.GetExtension(filePathFull) == ".lnk")
-                    filePathFull = ShellLink.GetShortcutTarget(filePathFull);
-                
+
+                try
+                {
+                    while (Path.GetExtension(filePathFull) == ".lnk")
+                        filePathFull = ShellLink.GetShortcutTarget(filePathFull);
+                    
+                    if (!File.Exists(filePathFull) && !Directory.Exists(filePathFull))
+                        throw new System.IO.FileNotFoundException($"File or directory not found: {filePathFull}");
+                }
+                catch (Exception e) when (e is System.IO.DirectoryNotFoundException || e is System.IO.FileNotFoundException) 
+                {
+                    return new FileAttributes($"""Shortcut "{filePath}" not found""", [], [],"",true);
+                }
+
+
+
+
+
                 // Get rid of the file extension & directory prefixes
                 if (!File.GetAttributes(filePath).HasFlag(System.IO.FileAttributes.Directory))
                     filePath = Path.GetFileNameWithoutExtension(filePath);
@@ -369,13 +421,24 @@ public class SimpleContextMenu : SharpContextMenu
                     else
                         fileExtensions.Add(part);
         
-                return new FileAttributes(displayName, mimeTypes, fileExtensions,filePathFull);
+                return new FileAttributes(displayName, mimeTypes, fileExtensions,filePathFull,false);
             }
         public string DisplayName { get; set; } = displayName;
         public List<string> MimeTypes { get; set; } = mimeTypes;
         public List<string> FileExtensions { get; set; } = fileExtensions;
         
         public string FilePathFull { get; set; } = filePathFull;
+        
+        public bool IsError { get; set; } = isError;
+    }
+
+    private bool IsDebug()
+    {
+#if DEBUG
+    return true;
+#else
+        return false;
+#endif
     }
 }
 

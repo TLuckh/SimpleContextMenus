@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpShell", "SharpShell\Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerRegistrationManager", "ServerRegistrationManager\ServerRegistrationManager.csproj", "{80B7B105-FDEE-44D7-B2A3-5DD61A80C93B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerManager", "ServerManager\ServerManager.csproj", "{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{80B7B105-FDEE-44D7-B2A3-5DD61A80C93B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80B7B105-FDEE-44D7-B2A3-5DD61A80C93B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80B7B105-FDEE-44D7-B2A3-5DD61A80C93B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

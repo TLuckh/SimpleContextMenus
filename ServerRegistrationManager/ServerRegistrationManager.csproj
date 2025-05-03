@@ -81,6 +81,9 @@
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
     <ItemGroup>
+        <None Include="..\SimpleContextMenuKey.snk">
+          <Link>SimpleContextMenuKey.snk</Link>
+        </None>
         <None Include="App.config"/>
         <None Include="app.manifest">
             <SubType>Designer</SubType>

@@ -5,10 +5,10 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Version>0.0.3</Version>
-        <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
         <TargetFramework>net481</TargetFramework>
+        <SignAssembly>true</SignAssembly>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -41,6 +41,7 @@
         </EmbeddedResource>
         <EmbeddedResource Remove="SharpShell\**"/>
         <EmbeddedResource Remove="ServerRegistrationManager\**"/>
+        <EmbeddedResource Remove="ServerManager\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -51,6 +52,7 @@
         </Compile>
         <Compile Remove="SharpShell\**"/>
         <Compile Remove="ServerRegistrationManager\**"/>
+        <Compile Remove="ServerManager\**" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
@@ -60,6 +62,7 @@
     <ItemGroup>
         <None Remove="SharpShell\**"/>
         <None Remove="ServerRegistrationManager\**"/>
+        <None Remove="ServerManager\**" />
     </ItemGroup>
 
     <ItemGroup>
