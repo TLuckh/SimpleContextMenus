@@ -255,21 +255,31 @@ public class SimpleContextMenu : SharpContextMenu
     ///     as arguments to the script (a background click has no selected items!).
     ///     Sets the working directory of the script to be the folder in which the right click occured.
     /// </summary>
-    /// <param name="fileAttributes"> The full path to the working directory in which the script should be launched</param>
+    /// <param name="fileAttributes"> The full path to the working directory in which the script should be launched as well as filter info for file selection</param>
     /// <returns></returns>
     private EventHandler launchScriptOnMenuItemClick(FileAttributes fileAttributes)
     {
         return (sender, args) =>
         {
             Directory.SetCurrentDirectory(GetFolderPath());
-            // Konversion in Argumentliste:
-            StringBuilder stringBuilder = new();
+
+            StringBuilder argumentsToPass = new();
+            // Add all selected items which match at least one of the given mime types or file extensions to the argument list
+            #region CreateArgumentListForScript
 
             foreach (string fileToAdd in GetSelectedItemPaths())
             {
-                if (IsAnyMimeTypeOrFileExtensionApplicableToSelectedItems(fileAttributes.MimeTypes,fileAttributes.FileExtensions))
-                    stringBuilder.Append($"\"{fileToAdd}\" ");
+                 var (mimeTypesOfSelection, fileExtensionsOfSelection) = GetMimeTypesAndFileExtensions([fileToAdd]);
+
+                 if (!fileAttributes.HasAnyMimeTypeOrFileExtension()
+                     || fileAttributes.MimeTypes.Intersect(mimeTypesOfSelection).Any()
+                     || fileAttributes.FileExtensions.Intersect(fileExtensionsOfSelection).Any())
+                 {
+                     argumentsToPass.Append($"\"{fileToAdd}\" ");
+                 }
+
             }
+            #endregion
 
             Process process = new();
             ProcessStartInfo startInfo = new()
@@ -277,12 +287,13 @@ public class SimpleContextMenu : SharpContextMenu
                 WindowStyle = ProcessWindowStyle.Normal,
                 FileName = fileAttributes.FilePathFull,
                 WorkingDirectory = GetFolderPath(),
-                Arguments = stringBuilder.ToString()
+                Arguments = argumentsToPass.ToString()
             };
             process.StartInfo = startInfo;
             process.Start();
         };
     }
+
 
 
     /// <summary>
@@ -322,6 +333,18 @@ public class SimpleContextMenu : SharpContextMenu
 
         // Get the MIME types and file extension for each of the selected items:
 
+        (List<string> mimeTypesOfSelection, List<string> fileExtensionsOfSelection) = GetMimeTypesAndFileExtensions(itemPathsToMatch);
+
+        // Comparing the MIME types and file extensions of the selection to the MIME types and file extensions passed into the method.
+
+        return
+            mimeTypesOfSelection.Intersect(mimeTypes).Any()
+            ||
+            fileExtensionsOfSelection.Intersect(fileExtensions).Any();
+    }
+
+    private (List<string> mimeTypesOfSelection, List<string> fileExtensionsOfSelection) GetMimeTypesAndFileExtensions(List<string> itemPathsToMatch)
+    {
         #region GetMimeTypesAndFileExtensions
 
         List<string> mimeTypesOfSelection = [];
@@ -349,19 +372,12 @@ public class SimpleContextMenu : SharpContextMenu
 
         #endregion
 
-        // Comparing the MIME types and file extensions of the selection to the MIME types and file extensions passed into the method.
-
-        return
-            mimeTypesOfSelection.Intersect(mimeTypes).Any()
-            ||
-            fileExtensionsOfSelection.Intersect(fileExtensions).Any();
+        return (mimeTypesOfSelection, fileExtensionsOfSelection);
     }
 
 
-
-
-
     /// <summary>
+    /// The underlying data model for the view of each menu item.
     /// Represents attributes for a file, including its display name, associated MIME types, and file extensions.
     /// </summary>
     class FileAttributes(
@@ -377,19 +393,19 @@ public class SimpleContextMenu : SharpContextMenu
         ///     For the naming convention applied, see NamingConvention.md.
         ///     The returned MIME types and file extensions are in lower case and without dot.
         /// </summary>
-        /// <param name="filePathFull"> A path to the file. Both absolute and relative paths are accepted.</param>
+        /// <param name="filePathFullOfMenuItem"> A path to the file. Both absolute and relative paths are accepted.</param>
         public static FileAttributes NamingConventionParser(
-                string filePathFull)
+                string filePathFullOfMenuItem)
             {
-                string filePath = filePathFull;
+                string filePath = filePathFullOfMenuItem;
 
                 try
                 {
-                    while (Path.GetExtension(filePathFull) == ".lnk")
-                        filePathFull = ShellLink.GetShortcutTarget(filePathFull);
+                    while (Path.GetExtension(filePathFullOfMenuItem) == ".lnk")
+                        filePathFullOfMenuItem = ShellLink.GetShortcutTarget(filePathFullOfMenuItem);
                     
-                    if (!File.Exists(filePathFull) && !Directory.Exists(filePathFull))
-                        throw new System.IO.FileNotFoundException($"File or directory not found: {filePathFull}");
+                    if (!File.Exists(filePathFullOfMenuItem) && !Directory.Exists(filePathFullOfMenuItem))
+                        throw new System.IO.FileNotFoundException($"File or directory not found: {filePathFullOfMenuItem}");
                 }
                 catch (Exception e) when (e is System.IO.DirectoryNotFoundException || e is System.IO.FileNotFoundException) 
                 {
@@ -421,7 +437,7 @@ public class SimpleContextMenu : SharpContextMenu
                     else
                         fileExtensions.Add(part);
         
-                return new FileAttributes(displayName, mimeTypes, fileExtensions,filePathFull,false);
+                return new FileAttributes(displayName, mimeTypes, fileExtensions,filePathFullOfMenuItem,false);
             }
         public string DisplayName { get; set; } = displayName;
         public List<string> MimeTypes { get; set; } = mimeTypes;
@@ -430,6 +446,11 @@ public class SimpleContextMenu : SharpContextMenu
         public string FilePathFull { get; set; } = filePathFull;
         
         public bool IsError { get; set; } = isError;
+        
+        public bool HasAnyMimeTypeOrFileExtension()
+        {
+            return MimeTypes.Count > 0 || FileExtensions.Count > 0;
+        }
     }
 
     private bool IsDebug()
