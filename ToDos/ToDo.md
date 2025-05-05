@@ -16,7 +16,7 @@ the folders with the file extensions/MIME types are shown
 
 
 # Features
-- Add support for pictures for contex menus. Probably by excluding all files starting with a dot.
+- Add support for pictures for contex menus. Probably by excluding all files starting with a dot. Merge with the windows internal method of showing a folder icon (via hidden desktop.ini)?
 - Add a STRICT switch, so that an option is only shown if all selected files match the filters.
 
 
