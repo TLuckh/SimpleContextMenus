@@ -8,3 +8,20 @@ the folders with the file extensions/MIME types are shown
 - Test that if you execute Example Script.py after it has moved by putting a shortcut to it into the TopLevelFolder/Extensions folder, it correctly shows the exectued file location.
 - Test that if a shortcut has been orphaned (file deleted, folder deleted, drive unplugged), the menu item will be replaced by an error message, without any other menu item being missing
 
+
+
+
+
+
+
+
+# Features
+- Add support for pictures for contex menus. Probably by excluding all files starting with a dot.
+- Add a STRICT switch, so that an option is only shown if all selected files match the filters.
+
+
+
+# Examples
+- Add example for folder with switches
+- Add mp3 converter example
+- Add Diashow converter example
