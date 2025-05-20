@@ -3,7 +3,7 @@ Start with a file representing a context menu, or a folder representing a contex
 Let its name be given with extension, but without path to it in its name.
 
 Then the naming convention is as follows:
-- The name is split by each dot.
+- The name is split by each occurence of a dot that's not followed by another dot.
 - The first part is the display name.
 - Each following part (except the last for files, i.e. non-folders) is either:
     - a MIME type (if it's uppercase)
@@ -22,7 +22,7 @@ is selected, or if no selection is made, if any file within the folder has the e
 
 ## MIME Type Schema
 
-As for the MIME-types, the expected format is "<rough type>", or "<rough type>..<subtype>".<br>
+As for the MIME-types, the expected format is "\<rough type\>", or "\<rough type\>..\<subtype\>".<br>
 The understood MIME-types are pulled from https://github.com/samuelneff/MimeTypeMap/blob/master/MimeTypeMap.cs.<br>
 If a MIME type isn't understood, the output will be "application/octet-stream" (where for example application is the
 rough type, and octet stream the subtype).
