@@ -37,6 +37,12 @@ Similarly, "convert_to_mp3.AUDIO.VIDEO.py" will only show if at least one audio 
 And "convert_to_mp3.AUDIO..OGG.py" will only show if the MIME-type is "audio/ogg", which is e.g. the case for .opus, but
 not for .mp3 (which is audio/mpeg).
 
+Finally, "list_content.folder.py" will only show the context menu "list_content" if at least one folder
+is selected.
+
+
+
+
 # Tips 
 To separate implementation and display concerns, one can use shortcuts to files and folders to be executed. 
 
