@@ -29,11 +29,6 @@
         </ContentWithTargetPath>
     </ItemGroup>
 
-
-    <ItemGroup>
-        <PackageReference Include="StrongNamer" Version="0.2.5"/>
-    </ItemGroup>
-
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>

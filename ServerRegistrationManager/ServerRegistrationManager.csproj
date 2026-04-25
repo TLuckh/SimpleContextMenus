@@ -11,6 +11,8 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>ServerRegistrationManager</RootNamespace>
         <AssemblyName>ServerRegistrationManager</AssemblyName>
+        
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
 
         <FileAlignment>512</FileAlignment>
         <SccProjectName>
@@ -64,6 +66,9 @@
     <ItemGroup>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
+        <Reference Include="System.Resources.Extensions">
+          <HintPath>..\Dependencies\System.Resources.Extensions.dll</HintPath>
+        </Reference>
         <Reference Include="System.Xml.Linq"/>
         <Reference Include="System.Data.DataSetExtensions"/>
         <Reference Include="Microsoft.CSharp"/>
@@ -95,9 +100,6 @@
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="EmbeddedReferences\SharpShell.dll"/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="StrongNamer" Version="0.2.5"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SharpShell\SharpShell.csproj"/>

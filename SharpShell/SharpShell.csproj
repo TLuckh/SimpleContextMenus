@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProductVersion>8.0.30703</ProductVersion>
@@ -12,6 +11,10 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>SharpShell</RootNamespace>
         <AssemblyName>SharpShell</AssemblyName>
+
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+
 
         <FileAlignment>512</FileAlignment>
         <SccProjectName>
@@ -49,16 +52,7 @@
         <DocumentationFile>bin\Release\SharpShell.xml</DocumentationFile>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <SignAssembly>true</SignAssembly>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
+
     <ItemGroup>
         <Reference Include="System"/>
         <Reference Include="System.ComponentModel.Composition"/>
@@ -326,7 +320,6 @@
     </ItemGroup>
     <ItemGroup>
         <None Include="Key.snk"/>
-        <None Include="packages.config"/>
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="NativeBridge\SharpShellNativeBridge32.dll"/>
@@ -341,26 +334,7 @@
     <ItemGroup>
         <Content Include="SharpShell.nuspec"/>
     </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="StrongNamer" Version="0.2.5"/>
-    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <PostBuildEvent>xcopy "$(TargetPath)" "$(SolutionDir)artifacts\build\SharpShell\" /F /R /Y /I</PostBuildEvent>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <PreBuildEvent>
-        </PreBuildEvent>
-    </PropertyGroup>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
+
+
 </Project>

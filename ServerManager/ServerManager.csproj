@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
@@ -14,8 +13,11 @@
     <AssemblyName>ServerManager</AssemblyName>
     <ApplicationIcon>SharpShell.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    
-    
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+
+
+
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -125,6 +127,9 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Resources.Extensions">
+      <HintPath>..\Dependencies\System.Resources.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
