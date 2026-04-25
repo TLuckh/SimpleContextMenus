@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <TargetFramework>net481</TargetFramework>
+    
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
@@ -12,6 +12,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServerManager</RootNamespace>
     <AssemblyName>ServerManager</AssemblyName>
+    <ApplicationIcon>SharpShell.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     
     
     <FileAlignment>512</FileAlignment>
@@ -113,19 +115,12 @@
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
-  <PropertyGroup>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <TargetFramework>net481</TargetFramework>
-    <ApplicationIcon>SharpShell.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <TargetFramework>net481</TargetFramework>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Apex.WinForms">
-      <HintPath>..\..\Dependencies\Apex\Apex.WinForms.dll</HintPath>
+      <HintPath>..\Dependencies\Apex.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework.legacy">
+      <HintPath>..\Dependencies\nunit.framework.legacy.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -258,23 +253,7 @@
     <Content Include="SharpShell.ico" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit" Version="4.3.2" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\SharpShell\SharpShell.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-    <TargetFramework>net481</TargetFramework>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

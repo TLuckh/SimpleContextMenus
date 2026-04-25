@@ -97,7 +97,6 @@
         <EmbeddedResource Include="EmbeddedReferences\SharpShell.dll"/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="NUnit" Version="4.3.2"/>
         <PackageReference Include="StrongNamer" Version="0.2.5"/>
     </ItemGroup>
     <ItemGroup>
