@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MAIN PROPERTY GROUP
+         ═══════════════════════════════════════════════════════════════ -->
     <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{80B7B105-FDEE-44D7-B2A3-5DD61A80C93B}</ProjectGuid>
@@ -11,19 +14,22 @@
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <RootNamespace>ServerRegistrationManager</RootNamespace>
         <AssemblyName>ServerRegistrationManager</AssemblyName>
-        
-        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-
+        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
-        <SccProjectName>
-        </SccProjectName>
-        <SccLocalPath>
-        </SccLocalPath>
-        <SccAuxPath>
-        </SccAuxPath>
-        <SccProvider>
-        </SccProvider>
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+        <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <SccProjectName></SccProjectName>
+        <SccLocalPath></SccLocalPath>
+        <SccAuxPath></SccAuxPath>
+        <SccProvider></SccProvider>
     </PropertyGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         DEBUG CONFIGURATION
+         ═══════════════════════════════════════════════════════════════ -->
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
@@ -34,6 +40,10 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         RELEASE CONFIGURATION
+         ═══════════════════════════════════════════════════════════════ -->
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
         <DebugType>pdbonly</DebugType>
@@ -43,31 +53,15 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <SignAssembly>true</SignAssembly>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
-    </PropertyGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         REFERENCES
+         ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Resources.Extensions">
-          <HintPath>..\Dependencies\System.Resources.Extensions.dll</HintPath>
+            <HintPath>..\Dependencies\System.Resources.Extensions.dll</HintPath>
         </Reference>
         <Reference Include="System.Xml.Linq"/>
         <Reference Include="System.Data.DataSetExtensions"/>
@@ -75,6 +69,10 @@
         <Reference Include="System.Data"/>
         <Reference Include="System.Xml"/>
     </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SOURCE FILES
+         ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <Compile Include="Actions\ConfigAction.cs"/>
         <Compile Include="Actions\EnableEventLogAction.cs"/>
@@ -85,9 +83,13 @@
         <Compile Include="Program.cs"/>
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         NONE / CONTENT FILES
+         ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <None Include="..\SimpleContextMenuKey.snk">
-          <Link>SimpleContextMenuKey.snk</Link>
+            <Link>SimpleContextMenuKey.snk</Link>
         </None>
         <None Include="App.config"/>
         <None Include="app.manifest">
@@ -95,32 +97,23 @@
         </None>
         <None Include="Key.snk"/>
     </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         EMBEDDED RESOURCES
+         ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <EmbeddedResource Include="Actions\Help.txt"/>
-    </ItemGroup>
-    <ItemGroup>
         <EmbeddedResource Include="EmbeddedReferences\SharpShell.dll"/>
     </ItemGroup>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         PROJECT REFERENCES
+         ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <ProjectReference Include="..\SharpShell\SharpShell.csproj"/>
     </ItemGroup>
+
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <PostBuildEvent>
-        </PostBuildEvent>
-    </PropertyGroup>
-    <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <TargetFramework>net481</TargetFramework>
-        <PreBuildEvent>xcopy "$(SolutionDir)artifacts\build\SharpShell\SharpShell.dll" "$(ProjectDir)EmbeddedReferences\" /F /R /Y /I</PreBuildEvent>
-    </PropertyGroup>
-    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-         Other similar extension points exist, see Microsoft.Common.targets.
-    <Target Name="BeforeBuild">
-    </Target>
-    <Target Name="AfterBuild">
-    </Target>
-    -->
+
+
 </Project>
