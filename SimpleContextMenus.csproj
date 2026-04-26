@@ -12,15 +12,14 @@
         <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
-
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
         <ContentWithTargetPath Include="CopyToOutputDebug\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
+
+        <AdditionalOutputProject Include="ServerManager\ServerManager.csproj" />
+        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -28,8 +27,28 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
+
+        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj" />
     </ItemGroup>
 
+    <Target Name="BuildAndCopyAdditionalOutputProjects"
+            AfterTargets="Build"
+            Condition="'@(AdditionalOutputProject)' != ''">
+
+        <MSBuild Projects="@(AdditionalOutputProject)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
+                 BuildInParallel="true">
+            <Output TaskParameter="TargetOutputs"
+                    ItemName="AdditionalOutputProjectBuiltFiles" />
+        </MSBuild>
+
+        <Copy SourceFiles="@(AdditionalOutputProjectBuiltFiles)"
+              DestinationFolder="$(OutDir)"
+              SkipUnchangedFiles="true" />
+    </Target>
+    
+    
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>

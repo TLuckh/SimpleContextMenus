@@ -84,6 +84,11 @@ In general, any passed parameter is wrapped in quotes, and separated by a space.
 
 # Development
 ## Building
+To build the project, you need NET Framework 4.8.1 or a compatible version. 
+
+Before building, make sure that for compilation, the MSBuild version from VS oder Rider is used, not the one bundled with .NET.
+
+Now, you can simply build SimpleContextMenus.csproj.
 
 ## Debugging 
 To get a debugger into the deployed COM server such that the breakpoints work:
