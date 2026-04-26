@@ -16,6 +16,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
+        <ContentWithTargetPath Include="Dependencies\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
+        </ContentWithTargetPath>
 
         <AdditionalOutputProject Include="ServerManager\ServerManager.csproj" />
         <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj" />
