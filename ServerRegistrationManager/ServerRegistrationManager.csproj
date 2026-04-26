@@ -103,7 +103,6 @@
          ═══════════════════════════════════════════════════════════════ -->
     <ItemGroup>
         <EmbeddedResource Include="Actions\Help.txt"/>
-        <EmbeddedResource Include="EmbeddedReferences\SharpShell.dll"/>
     </ItemGroup>
 
     <!-- ═══════════════════════════════════════════════════════════════

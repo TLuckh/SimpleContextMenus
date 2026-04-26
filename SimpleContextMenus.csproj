@@ -9,7 +9,6 @@
         <LangVersion>12</LangVersion>
         <TargetFramework>net481</TargetFramework>
         <SignAssembly>false</SignAssembly>
-        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
@@ -82,12 +81,6 @@
 
     <ItemGroup>
         <ProjectReference Include="SharpShell\SharpShell.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="System.Resources.Extensions">
-        <HintPath>Dependencies\System.Resources.Extensions.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>
