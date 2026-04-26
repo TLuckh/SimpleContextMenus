@@ -8,7 +8,8 @@
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
         <TargetFramework>net481</TargetFramework>
-        <SignAssembly>true</SignAssembly>
+        <SignAssembly>false</SignAssembly>
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -62,6 +63,12 @@
 
     <ItemGroup>
         <ProjectReference Include="SharpShell\SharpShell.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="System.Resources.Extensions">
+        <HintPath>Dependencies\System.Resources.Extensions.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

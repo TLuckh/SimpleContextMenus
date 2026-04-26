@@ -83,6 +83,8 @@ In general, any passed parameter is wrapped in quotes, and separated by a space.
 
 
 # Development
+## Building
+
 ## Debugging 
 To get a debugger into the deployed COM server such that the breakpoints work:
 
