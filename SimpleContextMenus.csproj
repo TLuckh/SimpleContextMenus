@@ -21,8 +21,8 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
-        <AdditionalOutputProject Include="ServerManager\ServerManager.csproj" />
-        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj" />
+        <AdditionalOutputProject Include="ServerManager\ServerManager.csproj"/>
+        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Release'">
@@ -31,7 +31,7 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
-        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj" />
+        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
     </ItemGroup>
 
     <Target Name="BuildAndCopyAdditionalOutputProjects"
@@ -43,15 +43,15 @@
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
             <Output TaskParameter="TargetOutputs"
-                    ItemName="AdditionalOutputProjectBuiltFiles" />
+                    ItemName="AdditionalOutputProjectBuiltFiles"/>
         </MSBuild>
 
         <Copy SourceFiles="@(AdditionalOutputProjectBuiltFiles)"
               DestinationFolder="$(OutDir)"
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true"/>
     </Target>
-    
-    
+
+
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
@@ -59,7 +59,7 @@
         </EmbeddedResource>
         <EmbeddedResource Remove="SharpShell\**"/>
         <EmbeddedResource Remove="ServerRegistrationManager\**"/>
-        <EmbeddedResource Remove="ServerManager\**" />
+        <EmbeddedResource Remove="ServerManager\**"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -70,7 +70,7 @@
         </Compile>
         <Compile Remove="SharpShell\**"/>
         <Compile Remove="ServerRegistrationManager\**"/>
-        <Compile Remove="ServerManager\**" />
+        <Compile Remove="ServerManager\**"/>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
@@ -80,11 +80,19 @@
     <ItemGroup>
         <None Remove="SharpShell\**"/>
         <None Remove="ServerRegistrationManager\**"/>
-        <None Remove="ServerManager\**" />
+        <None Remove="ServerManager\**"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="SharpShell\SharpShell.csproj"/>
     </ItemGroup>
+    <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
+        <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>
+        <Message Importance="high" Text="MSBuildToolsPath=$(MSBuildToolsPath)"/>
+        <Message Importance="high" Text="MSBuildBinPath=$(MSBuildBinPath)"/>
 
+        <Error
+                Condition="'$(MSBuildRuntimeType)' == 'Core'"
+                Text="Falsche Build-Toolchain erkannt: $(MSBuildRuntimeType). Dieses Legacy-.NET-Framework-Projekt enthält vorserialisierte ResX-Ressourcen und muss mit klassischem MSBuild.exe (Visual Studio / Build Tools) gebaut werden, nicht mit dotnet-MSBuild."/>
+    </Target>
 </Project>

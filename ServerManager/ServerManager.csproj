@@ -259,4 +259,14 @@
 
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+
+    <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
+        <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>
+        <Message Importance="high" Text="MSBuildToolsPath=$(MSBuildToolsPath)"/>
+        <Message Importance="high" Text="MSBuildBinPath=$(MSBuildBinPath)"/>
+
+        <Error
+                Condition="'$(MSBuildRuntimeType)' == 'Core'"
+                Text="Falsche Build-Toolchain erkannt: $(MSBuildRuntimeType). Dieses Legacy-.NET-Framework-Projekt enthält vorserialisierte ResX-Ressourcen und muss mit klassischem MSBuild.exe (Visual Studio / Build Tools) gebaut werden, nicht mit dotnet-MSBuild."/>
+    </Target>
 </Project>
