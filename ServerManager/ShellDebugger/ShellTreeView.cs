@@ -464,6 +464,7 @@ namespace ServerManager.ShellDebugger
 
         /// <summary>
         /// Creates the desktop shell folder.
+        /// Copied from SharpShell/Tools/ServerManager/ShellDebugger/ShellTreeView.cs/ShellItem/CreateDesktopShellFolder
         /// </summary>
         /// <returns>The desktop shell folder.</returns>
         private static ShellItem CreateDesktopShellFolder()
@@ -513,7 +514,7 @@ namespace ServerManager.ShellDebugger
         /// </summary>
         /// <param name="pidl">The pidl.</param>
         /// <param name="parentFolder">The parent folder.</param>
-        private void Initialise(IntPtr pidl, ShellItem parentFolder)
+        public void Initialise(IntPtr pidl, ShellItem parentFolder)
         {
             //  Set the parent item and relative pidl.
             ParentItem = parentFolder;

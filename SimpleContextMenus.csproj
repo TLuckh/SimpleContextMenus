@@ -60,6 +60,7 @@
         <EmbeddedResource Remove="SharpShell\**"/>
         <EmbeddedResource Remove="ServerRegistrationManager\**"/>
         <EmbeddedResource Remove="ServerManager\**"/>
+        <EmbeddedResource Remove="SimpleContextMenus.Tests\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -71,6 +72,7 @@
         <Compile Remove="SharpShell\**"/>
         <Compile Remove="ServerRegistrationManager\**"/>
         <Compile Remove="ServerManager\**"/>
+        <Compile Remove="SimpleContextMenus.Tests\**" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
@@ -81,6 +83,7 @@
         <None Remove="SharpShell\**"/>
         <None Remove="ServerRegistrationManager\**"/>
         <None Remove="ServerManager\**"/>
+        <None Remove="SimpleContextMenus.Tests\**" />
     </ItemGroup>
 
     <ItemGroup>
