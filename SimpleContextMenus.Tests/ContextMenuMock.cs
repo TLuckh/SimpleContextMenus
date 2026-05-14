@@ -2,47 +2,32 @@
 using System.Runtime.InteropServices;
 using ServerManager.ShellDebugger;
 using SharpShell.Interop;
+using static SimpleContextMenus.Tests.MarshallingStructures;
 
 namespace SimpleContextMenus.Tests;
 
-public class FromDebug
+public class ContextMenuMock
 {
-    // private void InitializeParentFolder()
-    // {
-    //     #region CreateRootFolder (Desktop) 
-    //     //  Get the dekstop PDIL.
-    //     var desktopPIDL = IntPtr.Zero;
-    //     var result = Shell32.SHGetFolderLocation(IntPtr.Zero, CSIDL.CSIDL_DESKTOP, IntPtr.Zero, 0, out desktopPIDL);
-    //
-    //     //  Validate the result.
-    //     if (result != 0)
-    //     {
-    //         //  Throw the failure as an exception.
-    //         Marshal.ThrowExceptionForHR(result);
-    //     }
-    //     
-    //     
-    //     //  Get the file info.
-    //     var fileInfo = new SHFILEINFO();
-    //     Shell32.SHGetFileInfo(desktopPIDL, 0, out fileInfo, (uint)Marshal.SizeOf(fileInfo),
-    //         SHGFI.SHGFI_DISPLAYNAME | SHGFI.SHGFI_PIDL | SHGFI.SHGFI_SMALLICON | SHGFI.SHGFI_SYSICONINDEX);
-    //
-    //     //  Return the Shell Folder.
-    //     return new ShellItem
-    //     {
-    //         DisplayName = fileInfo.szDisplayName,
-    //         IconIndex = fileInfo.iIcon,
-    //         HasSubFolders = true,
-    //         IsFolder = true,
-    //         ShellFolderInterface = desktopShellFolderInterface,
-    //         PIDL = desktopPIDL,
-    //         RelativePIDL = desktopPIDL
-    //     };
-    // }
-    // #endregion
-
-
-    public static void Main()
+    public Node<string> contextMenuTree;
+    public ContextMenuMock(string testFolderPath, List<string> selectedTestItems)
+    {
+        this.contextMenuTree = GetContextMenuView(testFolderPath, selectedTestItems);
+        
+        
+    }
+    /// <summary>
+    /// Simulates the act of:
+    /// 1. installing the SimpleContextMenus.dll,
+    /// 2. then navigating into testFolderPath,
+    /// 3. then marking the items in testFolderPath which are listed in selectedItems, and
+    /// 4. then right-clicking on one of the marked files, so that we get the context.
+    /// If no file has been marked, the click is viewed as a right-click on the empty space within the explorer.
+    /// 
+    /// </summary>
+    /// <param name="testFolderPath">A subpath starting from the output directory, i.e. where the SimpleContextMenus.Tests.dll is being built</param>
+    /// <param name="selectedTestItems">Files & Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
+    /// <returns>A tree of [ToDo] which can be used to view or execute the items of the context menu.</returns>
+    public static Node<string> GetContextMenuView(string testFolderPath, List<string> selectedTestItems)
     {
         // Der Pfad der zu testenden Dateien und Ordner. 
         // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
@@ -50,24 +35,26 @@ public class FromDebug
         // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
         // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
-        // Definition des Testpfades
-        using DisposableMap testItemMap = ItemsInTestPath("1FilterBasedOnExtension");
+        // We let SharpShells ShellItem-class handle most of the marashalling necessary to build the context menu; 
+        // All ItemsInTestPath does is to get PIDLs of the files in the testFolderPath, which we'll use indirectly via SharpShells ShellItem-class.
+        //
+        using DisposableMap testItemMap = ItemsInTestPath(testFolderPath);
         // Definition der markierten Items
-        ShellItem[] items = [testItemMap["Dummy.mp3"]];
+        ShellItem[] selectedItems = selectedTestItems.Select(name => testItemMap[name]).ToArray();
 
-        var TestContextMenu = new SimpleContextMenu();
+        var testContextMenu = new SimpleContextMenu();
         // TestContextMenu.DisplayName = "SimpleContextMenu";
 
-        // Ab hier Copy & Paste aus ServerManager
+        #region Copy & Paste aus ServerManager
 
-        var shellExtInitInterface = (IShellExtInit)TestContextMenu;
-        var contextMenuInterface = (SharpShell.Interop.IContextMenu)TestContextMenu;
+        var shellExtInitInterface = (IShellExtInit)testContextMenu;
+        var contextMenuInterface = (SharpShell.Interop.IContextMenu)testContextMenu;
 
         try
         {
             //  Create the file paths.
             var filePaths = new StringCollection();
-            filePaths.AddRange(items.Select(i => i.Path).ToArray());
+            filePaths.AddRange(selectedItems.Select(i => i.Path).ToArray());
 
             //  Create the data object from the file paths.
             var dataObject = new DataObject();
@@ -78,62 +65,58 @@ public class FromDebug
 
             //  Pass the data to the shell extension, attempt to initialise it.
             //  We must provide the data object as well as the parent folder PIDL.
-            if (items.Any())
+            if (selectedItems.Any())
             {
-                var folderPIDL = items.First().ParentItem.PIDL;
+                var folderPIDL = selectedItems.First().ParentItem.PIDL;
                 shellExtInitInterface.Initialize(folderPIDL, dataObjectInterfacePointer, IntPtr.Zero); // Notwendig?
             }
         }
         catch (Exception)
         {
-            //  Not supported for the file
-            return;
+            throw new Exception("Not supported for the file");
         }
 
         //  Create a native menu.
         var menuHandle = CreatePopupMenu();
 
-        //  Build the menu.
+        #endregion Copy & Paste aus ServerManager
+
+        //  Build the menu
         contextMenuInterface.QueryContextMenu(menuHandle, 0, 0, 0x7FFF, 0);
 
-        // Anzahl der Einträge
-        int count = GetMenuItemCount(menuHandle);
-        
-        ReadMenu(menuHandle, "  ");
+        Node<string> returnItem = ReadMenu(menuHandle);
 
-
-        // for (int i = 0; i < count; i++)
-        // {
-        //     var info = new MENUITEMINFO
-        //     {
-        //         cbSize = (uint)Marshal.SizeOf<MENUITEMINFO>(),
-        //         fMask = 64 | 256 | 4, // MIIM_STRING u. MIIM_FTYPE u. MIIM_SUBMENU
-        //         dwTypeData = new string('\0', 256),
-        //         cch = 255
-        //     };
-        //     if (GetMenuItemInfo(menuHandle, (uint)i, true, ref info))
-        //     {
-        //         bool isSeparator = (info.fType & 0x00000800) != 0; // MFT_SEPARATOR
-        //         if (isSeparator)
-        //             Console.WriteLine($"[{i}] ---SEPARATOR---");
-        //         else
-        //             Console.WriteLine($"[{i}] {info.dwTypeData}");
-        //         if (info.hSubMenu != IntPtr.Zero)
-        //
-        //
-        //         
-        //     }
-        //     
-        // }
-
+        // The handle for the main context menu has to be disposed; The submenus should be collected automatically then
         DestroyMenu(menuHandle);
+        return returnItem;
     }
 
-    static void ReadMenu(IntPtr hMenu, string indent = "")
+    public static void Main()
     {
-        int count = GetMenuItemCount(hMenu);
-    
-        for (int i = 0; i < count; i++)
+        // Der Pfad der zu testenden Dateien und Ordner. 
+        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
+        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
+        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
+        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
+
+        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        List<string> selectedTestItems = ["Dummy.mp3"];
+
+        Node<string> contextMenuTree = GetContextMenuView(testFolderPath, selectedTestItems);
+
+        Console.WriteLine(contextMenuTree);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="hMenu">The <see cref="IntPtr"/> pointing towards the handle for the windows context menu, most likely from <see cref="CreatePopupMenu"/></param>
+    /// <param name="rootNodeName">Freely choosable name for the root node representing the context menu itself </param>
+    static Node<string> ReadMenu(IntPtr hMenu, string rootNodeName = "Context Menu")
+    {
+        Node<string> contextMenuTreeView = new Node<string>(rootNodeName);
+
+        for (int i = 0; i < GetMenuItemCount(hMenu); i++)
         {
             var info = new MENUITEMINFO
             {
@@ -149,51 +132,30 @@ public class FromDebug
                 continue;
 
             bool isSeparator = (info.fType & 0x00000800) != 0;
-
-            if (isSeparator)
+            if (isSeparator) // case separator
             {
-                Console.WriteLine($"{indent}---");
+                contextMenuTreeView.AddChild("---");
             }
-            else if (info.hSubMenu != IntPtr.Zero)
+            else if (info.hSubMenu != IntPtr.Zero) // case submenu
             {
-                Console.WriteLine($"{indent}[+] {info.dwTypeData}");
-                ReadMenu(info.hSubMenu, indent + "  "); // Rekursion
+                contextMenuTreeView.AddChild(ReadMenu(info.hSubMenu, info.dwTypeData)); // Recursion-step
             }
-            else
+            else // case end-item
             {
-                Console.WriteLine($"{indent}[ ] {info.dwTypeData}");
+                contextMenuTreeView.AddChild(info.dwTypeData);
             }
         }
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    public struct MENUITEMINFO
-    {
-        public uint cbSize;
-        public uint fMask;
-        public uint fType;
-        public uint fState;
-        public uint wID;
-        public IntPtr hSubMenu;
-        public IntPtr hbmpChecked;
-        public IntPtr hbmpUnchecked;
-        public IntPtr dwItemData;
-        public string dwTypeData;
-        public uint cch;
-        public IntPtr hbmpItem;
+
+        return contextMenuTreeView;
     }
 
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    static extern bool GetMenuItemInfo(
-        IntPtr hMenu,
-        uint item,
-        bool fByPosition,
-        ref MENUITEMINFO lpmii);
 
-    [DllImport("user32.dll")]
-    static extern int GetMenuItemCount(IntPtr hMenu);
+    /// <summary>
+    /// Returns the number of items in the passed windows explorer context menu
+    /// </summary>
+    /// <param name="hMenu"></param>
+    /// <returns></returns>
 
-    [DllImport("user32.dll")]
-    static extern bool DestroyMenu(IntPtr hMenu);
 
 
     /// <summary>
@@ -204,10 +166,10 @@ public class FromDebug
     /// <exception cref="Exception"></exception>
     private static DisposableMap ItemsInTestPath(string testFolder)
     {
-        string testPath = Path.Combine(AppContext.BaseDirectory, "IntegrationTests", testFolder);
+        string testPath = Path.Combine(AppContext.BaseDirectory, testFolder);
 
 
-        // Nutze die Vorarbeit in ServerManager, indem du wie in diesem Desktop als Root setzt:
+        // Nutze die Vorarbeit in ServerManager, indem du wie in diesem Desktop als Root setzt: [vermutlich nicht notwendig]
         ShellItem baseRoot = ShellItem.DesktopShellFolder;
         if (baseRoot == null)
         {
@@ -237,31 +199,21 @@ public class FromDebug
             IntPtr pathPIDL = GetPIDLFromPath(fullPath);
             var shellItem = new ShellItem();
             shellItem.Initialise(pathPIDL, testRoot);
+
             testItemMap.Add(Path.GetFileName(filename), shellItem);
         }
 
         return testItemMap;
     }
 
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    private static extern int SHParseDisplayName(
-        string pszName,
-        IntPtr pbc,
-        out IntPtr ppidl,
-        uint sfgaoIn,
-        out uint psfgaoOut);
-
-    public static IntPtr GetPIDLFromPath(string path)
-    {
-        int hr = SHParseDisplayName(path, IntPtr.Zero, out IntPtr pidl, 0, out _);
-
-        if (hr != 0)
-            Marshal.ThrowExceptionForHR(hr);
-
-        return pidl;
-    }
 
 
+
+
+    /// <summary>
+    /// Class to wrap the IntPtr handles in to make it easy to Dispose of them later of, e.g. with the using keyword,
+    /// or by adding the to a DisposableMap (of which one then still has to  dispose of  manually later-on).
+    /// </summary>
     public sealed class SafePidl : SafeHandle
     {
         public SafePidl(IntPtr pidl) : base(IntPtr.Zero, true)
@@ -300,11 +252,10 @@ public class FromDebug
         /// either by calling <see cref="Dispose"/> directly or by
         /// constraining its lifetime to a <c>using</c> block.
         /// </summary>
-        /// <param name="disposables">Accepts a list of disposables, which will be disposed when the DisposableMap is being disposed.</param>
+        /// <param name="disposables">Accepts a list of IDisposable, each of which will be disposed when the DisposableMap is being disposed.</param>
         public DisposableMap(params IDisposable[] disposables)
         {
             this.disposables = new List<IDisposable>(disposables);
-            
         }
 
         public void Dispose()
@@ -318,6 +269,5 @@ public class FromDebug
     }
 
 
-    [DllImport("User32.dll")]
-    internal static extern IntPtr CreatePopupMenu();
+
 }
