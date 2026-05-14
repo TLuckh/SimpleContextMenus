@@ -1,25 +1,27 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
+using SharpShell.Interop;
 
 namespace SimpleContextMenus.Tests;
 
-// public class ContextMenuTreeView<T>
+// public class ContextMenuTreeView
 // {
-//     public readonly Node<T> rootNode;
+//     public readonly Node rootNode;
 //
 //     /// <summary>
 //     /// Makes a new ContextMenuTreeView from scratch with the given root value.
 //     /// </summary>
 //     /// <param name="rootValue"></param>
-//     public ContextMenuTreeView(T rootValue)
+//     public ContextMenuTreeView(string rootValue)
 //     {
-//         rootNode = new Node<T>(rootValue);
+//         rootNode = new Node(rootValue);
 //     }
 //
 //     /// <summary>
 //     /// Makes a new ContextMenuTreeView with the given root node. Shallow copy!
 //     /// </summary>
 //     /// <param name="rootNode"></param>
-//     public ContextMenuTreeView(Node<T> rootNode)
+//     public ContextMenuTreeView(Node rootNode)
 //     {
 //         this.rootNode = rootNode;
 //     }
@@ -28,11 +30,11 @@ namespace SimpleContextMenus.Tests;
 //     {
 //         return ToStringInternal(rootNode).ToString();
 //
-//         StringBuilder ToStringInternal(Node<T> node, string indent = "  ")
+//         StringBuilder ToStringInternal(Node node, string indent = "  ")
 //         {
 //             var returnString = new StringBuilder();
 //             returnString.Append(indent + node);
-//             foreach (Node<T> child in node.Children)
+//             foreach (Node child in node.Children)
 //             {
 //                 returnString.Append(ToStringInternal(child, indent + indent));
 //             }
@@ -46,38 +48,68 @@ namespace SimpleContextMenus.Tests;
 /// <summary>
 /// Helper class to create a tree view of the context menu being built for the tests, and for pretty printing it.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public class Node<T>
+public class Node
 {
-    public T Value { get; set; }
+    public string ContextMenuEntryName { get; set; }
+    public uint ContextMenuEntryHandlerCommandId { get; set; }
 
-    public List<Node<T>> Children { get; } = new List<Node<T>>();
+    public List<Node> Children { get; } = new List<Node>();
 
-    public Node(T value)
+    public Node(string value)
     {
-        Value = value;
+        ContextMenuEntryName = value;
     }
 
-    public Node<T> AddChild(T childValue)
+    public Node AddChild(string childValue)
     {
-        var child = new Node<T>(childValue);
+        var child = new Node(childValue);
         Children.Add(child);
         return child;
     }
 
-    public Node<T> AddChild(Node<T> child)
+    public Node AddChild(Node child)
     {
         Children.Add(child);
         return child;
     }
     
+    /// <summary>
+    /// Executes a context menu entry. Needs the contextMenuInterface with which the menu has been built.
+    /// </summary>
+    /// <param name="contextMenuInterface"></param>
+    public void Invoke(IContextMenu contextMenuInterface)
+    {
+        uint commandId = ContextMenuEntryHandlerCommandId;
+        var invoke = new CMINVOKECOMMANDINFO
+        {
+            cbSize = (uint)Marshal.SizeOf<CMINVOKECOMMANDINFO>(),
+            fMask = CMIC.CMIC_MASK_FLAG_NO_UI,
+            verb = (IntPtr)(commandId), // 0-basiert
+            nShow = 1
+        };
+    
+        IntPtr pici = Marshal.AllocCoTaskMem(Marshal.SizeOf<CMINVOKECOMMANDINFO>());
+        try
+        {
+            Marshal.StructureToPtr(invoke, pici, false);
+            contextMenuInterface.InvokeCommand(pici);
+        }
+        finally
+        {
+            Marshal.FreeCoTaskMem(pici); // immer freigeben, auch bei Exception
+        }
+    }
+
+
+
     public override string ToString()
     {
         return ToStringInternal(this).ToString();
 
-        StringBuilder ToStringInternal(Node<T> node, string indent = "  " , string parentItemID = "", int currentItemID = 0)
+        StringBuilder ToStringInternal(Node node, string indent = "  ", string parentItemID = "",
+            int currentItemID = 0)
         {
-            
+
             string idInterior;
             if (parentItemID == "") // base case of recursion
             {
@@ -87,15 +119,16 @@ public class Node<T>
             {
                 idInterior = $"{parentItemID}.{currentItemID}";
             }
+
             string id = $"[{idInterior}]".PadRight(11);
-                
+
             var returnString = new StringBuilder();
-            returnString.Append(id + indent  + node.Value + "\n");
-            
+            returnString.Append(id + indent + node.ContextMenuEntryName + "\n");
+
             int childCounter = 0;
-            foreach (Node<T> child in node.Children)
+            foreach (Node child in node.Children)
             {
-                returnString.Append(ToStringInternal(child, indent + indent,$"{idInterior}", childCounter));
+                returnString.Append(ToStringInternal(child, indent + indent, $"{idInterior}", childCounter));
                 childCounter++;
             }
 
@@ -103,3 +136,4 @@ public class Node<T>
         }
     }
 }
+

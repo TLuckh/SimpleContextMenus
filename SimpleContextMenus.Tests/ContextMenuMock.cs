@@ -2,19 +2,129 @@
 using System.Runtime.InteropServices;
 using ServerManager.ShellDebugger;
 using SharpShell.Interop;
+using SharpShell.SharpContextMenu;
 using static SimpleContextMenus.Tests.MarshallingStructures;
 
 namespace SimpleContextMenus.Tests;
 
 public class ContextMenuMock
 {
-    public Node<string> contextMenuTree;
+    public Node contextMenuTree;
+    private DisposableMap disposableMap;
+    private IContextMenu contextMenuInterface;
+    public List<string> SelectedTestItems { get; }
+    public string TestFolderPath { get; }
+    public string TestFolderPathAbsolute => Path.Combine(AppContext.BaseDirectory, TestFolderPath);
+    
+        public static void ExampleTest1()
+    {
+        // Der Pfad der zu testenden Dateien und Ordner. 
+        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
+        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
+        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
+        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
+
+        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        List<string> selectedTestItems = ["Dummy.mp3"];
+
+        var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
+
+        Console.WriteLine(contextMenuMock.contextMenuTree);
+    }
+        
+    public static void ExampleTest2()
+    {
+        // Der Pfad der zu testenden Dateien und Ordner. 
+        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
+        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
+        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
+        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
+
+        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        List<string> selectedTestItems = ["Dummy.mp3"];
+
+        var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
+
+        var exampleScriptNode = contextMenuMock.contextMenuTree.Children[1].Children[0];
+        
+        exampleScriptNode.Invoke(contextMenuMock.contextMenuInterface);
+        
+        
+        // Die Klasse hat hier eigentlich, was wir wollen:
+        // ((SharpContextMenu) contextMenuMock.contextMenuInterface).NativeContextMenuWrapper
+        // Ist aber private...
+
+        Console.WriteLine(contextMenuMock.contextMenuTree);
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="hMenu">The <see cref="IntPtr"/> pointing towards the handle for the windows context menu, most likely from <see cref="CreatePopupMenu"/></param>
+    /// <param name="rootNodeName">Freely choosable name for the root node representing the context menu itself </param>
+    static Node ReadMenu(IntPtr hMenu, string rootNodeName = "Context Menu")
+    {
+        Node contextMenuTreeView = new Node(rootNodeName);
+
+        for (int i = 0; i < GetMenuItemCount(hMenu); i++)
+        {
+            var info = new MENUITEMINFO
+            {
+                cbSize = (uint)Marshal.SizeOf<MENUITEMINFO>(),
+                fMask = 64 // MIIM_STRING
+                        | 256 // MIIM_FTYPE
+                        | 4 // MIIM_SUBMENU
+                        | 2, // MIIM_ID  ; Sagt GetMenuItemInfo, dass es die ID des Menuitems zurückliefern soll. Später für InvokeCommand notwendig, zum Ausführen des Kontextmenüeintrags
+                dwTypeData = new string('\0', 256),
+                cch = 255
+            };
+
+            if (!GetMenuItemInfo(hMenu, (uint)i, true, ref info))
+                continue;
+
+            uint menuItemId = info.wID; 
+
+            bool isSeparator = (info.fType & 0x00000800) != 0;
+            if (isSeparator) // case separator
+            {
+                contextMenuTreeView.AddChild("---");
+            }
+            else if (info.hSubMenu != IntPtr.Zero) // case submenu
+            {
+                contextMenuTreeView.AddChild(ReadMenu(info.hSubMenu, info.dwTypeData)); // Recursion-step
+            }
+            else // case end-item
+            {
+                contextMenuTreeView.AddChild(info.dwTypeData);
+            }
+            contextMenuTreeView.Children.Last().ContextMenuEntryHandlerCommandId = menuItemId; // Setze die CommandId für alle Items, auch Submenus, damit wir sie später mit InvokeCommand ausführen können
+        }
+
+        return contextMenuTreeView;
+    }
+
+
+    /// <summary>
+    /// Simulates the act of:
+    /// 1. installing the SimpleContextMenus.dll,
+    /// 2. then navigating into testFolderPath,
+    /// 3. then marking the items in testFolderPath which are listed in selectedItems, and
+    /// 4. then right-clicking on one of the marked files, so that we get the context.
+    /// If no file has been marked, the click is viewed as a right-click on the empty space within the explorer.
+    ///
+    /// Should be disposed of after use, either by calling Dispose() directly or by constraining its lifetime to a using-block, to free up the resources used for the ShellItems within the context menu tree!
+    /// </summary>
+    /// <param name="testFolderPath">A subpath starting from the output directory, i.e. where the SimpleContextMenus.Tests.dll is being built</param>
+    /// <param name="selectedTestItems">Files & Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
+    /// <returns>A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.</returns>
     public ContextMenuMock(string testFolderPath, List<string> selectedTestItems)
     {
-        this.contextMenuTree = GetContextMenuView(testFolderPath, selectedTestItems);
-        
-        
+        (this.contextMenuTree, disposableMap,contextMenuInterface) = GetContextMenuView(testFolderPath, selectedTestItems);
+        TestFolderPath = testFolderPath;
+        SelectedTestItems = selectedTestItems;
     }
+
     /// <summary>
     /// Simulates the act of:
     /// 1. installing the SimpleContextMenus.dll,
@@ -24,10 +134,11 @@ public class ContextMenuMock
     /// If no file has been marked, the click is viewed as a right-click on the empty space within the explorer.
     /// 
     /// </summary>
-    /// <param name="testFolderPath">A subpath starting from the output directory, i.e. where the SimpleContextMenus.Tests.dll is being built</param>
+    /// <param name="testFolderPath">A subpath starting from the output directory, i.e., where the SimpleContextMenus.Tests.dll is being built</param>
     /// <param name="selectedTestItems">Files & Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
-    /// <returns>A tree of [ToDo] which can be used to view or execute the items of the context menu.</returns>
-    public static Node<string> GetContextMenuView(string testFolderPath, List<string> selectedTestItems)
+    /// <returns>A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.</returns>
+    private static (Node, DisposableMap, IContextMenu) GetContextMenuView(string testFolderPath,
+        List<string> selectedTestItems)
     {
         // Der Pfad der zu testenden Dateien und Ordner. 
         // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
@@ -38,7 +149,7 @@ public class ContextMenuMock
         // We let SharpShells ShellItem-class handle most of the marashalling necessary to build the context menu; 
         // All ItemsInTestPath does is to get PIDLs of the files in the testFolderPath, which we'll use indirectly via SharpShells ShellItem-class.
         //
-        using DisposableMap testItemMap = ItemsInTestPath(testFolderPath);
+        DisposableMap testItemMap = ItemsInTestPath(testFolderPath);
         // Definition der markierten Items
         ShellItem[] selectedItems = selectedTestItems.Select(name => testItemMap[name]).ToArray();
 
@@ -84,70 +195,13 @@ public class ContextMenuMock
         //  Build the menu
         contextMenuInterface.QueryContextMenu(menuHandle, 0, 0, 0x7FFF, 0);
 
-        Node<string> returnItem = ReadMenu(menuHandle);
+        Node returnItem = ReadMenu(menuHandle);
 
         // The handle for the main context menu has to be disposed; The submenus should be collected automatically then
         DestroyMenu(menuHandle);
-        return returnItem;
+        return (returnItem, testItemMap,contextMenuInterface);
     }
 
-    public static void Main()
-    {
-        // Der Pfad der zu testenden Dateien und Ordner. 
-        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
-        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
-        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
-        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
-
-        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
-        List<string> selectedTestItems = ["Dummy.mp3"];
-
-        Node<string> contextMenuTree = GetContextMenuView(testFolderPath, selectedTestItems);
-
-        Console.WriteLine(contextMenuTree);
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="hMenu">The <see cref="IntPtr"/> pointing towards the handle for the windows context menu, most likely from <see cref="CreatePopupMenu"/></param>
-    /// <param name="rootNodeName">Freely choosable name for the root node representing the context menu itself </param>
-    static Node<string> ReadMenu(IntPtr hMenu, string rootNodeName = "Context Menu")
-    {
-        Node<string> contextMenuTreeView = new Node<string>(rootNodeName);
-
-        for (int i = 0; i < GetMenuItemCount(hMenu); i++)
-        {
-            var info = new MENUITEMINFO
-            {
-                cbSize = (uint)Marshal.SizeOf<MENUITEMINFO>(),
-                fMask = 64 // MIIM_STRING
-                        | 256 // MIIM_FTYPE
-                        | 4, // MIIM_SUBMENU
-                dwTypeData = new string('\0', 256),
-                cch = 255
-            };
-
-            if (!GetMenuItemInfo(hMenu, (uint)i, true, ref info))
-                continue;
-
-            bool isSeparator = (info.fType & 0x00000800) != 0;
-            if (isSeparator) // case separator
-            {
-                contextMenuTreeView.AddChild("---");
-            }
-            else if (info.hSubMenu != IntPtr.Zero) // case submenu
-            {
-                contextMenuTreeView.AddChild(ReadMenu(info.hSubMenu, info.dwTypeData)); // Recursion-step
-            }
-            else // case end-item
-            {
-                contextMenuTreeView.AddChild(info.dwTypeData);
-            }
-        }
-
-        return contextMenuTreeView;
-    }
 
 
     /// <summary>
@@ -155,9 +209,6 @@ public class ContextMenuMock
     /// </summary>
     /// <param name="hMenu"></param>
     /// <returns></returns>
-
-
-
     /// <summary>
     /// Als using DisposableMap ...; verwenden!
     /// </summary>
@@ -205,9 +256,6 @@ public class ContextMenuMock
 
         return testItemMap;
     }
-
-
-
 
 
     /// <summary>
@@ -267,7 +315,4 @@ public class ContextMenuMock
             }
         }
     }
-
-
-
 }
