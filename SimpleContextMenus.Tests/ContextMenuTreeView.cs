@@ -55,14 +55,14 @@ public class Node
 
     public List<Node> Children { get; } = new List<Node>();
 
-    public Node(string value)
+    public Node(string contextMenuEntryName)
     {
-        ContextMenuEntryName = value;
+        ContextMenuEntryName = contextMenuEntryName;
     }
 
-    public Node AddChild(string childValue)
+    public Node AddChild(string childName)
     {
-        var child = new Node(childValue);
+        var child = new Node(childName);
         Children.Add(child);
         return child;
     }

@@ -7,16 +7,9 @@ using static SimpleContextMenus.Tests.MarshallingStructures;
 
 namespace SimpleContextMenus.Tests;
 
-public class ContextMenuMock
+public class ExampleTests
 {
-    public Node contextMenuTree;
-    private DisposableMap disposableMap;
-    private IContextMenu contextMenuInterface;
-    public List<string> SelectedTestItems { get; }
-    public string TestFolderPath { get; }
-    public string TestFolderPathAbsolute => Path.Combine(AppContext.BaseDirectory, TestFolderPath);
-    
-        public static void ExampleTest1()
+    public static void ExampleTest1()
     {
         // Der Pfad der zu testenden Dateien und Ordner. 
         // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
@@ -31,7 +24,7 @@ public class ContextMenuMock
 
         Console.WriteLine(contextMenuMock.contextMenuTree);
     }
-        
+
     public static void ExampleTest2()
     {
         // Der Pfad der zu testenden Dateien und Ordner. 
@@ -46,15 +39,100 @@ public class ContextMenuMock
         var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
 
         var exampleScriptNode = contextMenuMock.contextMenuTree.Children[1].Children[0];
-        
+
         exampleScriptNode.Invoke(contextMenuMock.contextMenuInterface);
-        
-        
+
+
         // Die Klasse hat hier eigentlich, was wir wollen:
         // ((SharpContextMenu) contextMenuMock.contextMenuInterface).NativeContextMenuWrapper
         // Ist aber private...
 
         Console.WriteLine(contextMenuMock.contextMenuTree);
+    }
+    
+    public static void ExampleTest3() // TODo: Als selbst-Test in die Tests übertragen (und vervollständigen); Teste, ob Namen mit Akzenten & Multibytes korrekt gelesen werden - im Kontextmenü, im Pfad, und dass Invoken funktioniert.
+    {
+        // Der Pfad der zu testenden Dateien und Ordner. 
+        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
+        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
+        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
+        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
+
+        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        List<string> selectedTestItems = ["Héllo_wörld_jap_日本語.txt"];
+
+        var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
+
+        Console.WriteLine(contextMenuMock.contextMenuTree);
+    }
+
+}
+
+public class ContextMenuMock
+{
+    /// <summary>
+    /// Root node of a tree datastructure representing the context menu. Can be used to view or execute the items of the context menu.
+    /// </summary>
+    public Node contextMenuTree;
+
+    /// <summary>
+    /// A wrapper over Map with convenience methods to group the lifetimes of IDisposable-items. See type definition for more info.
+    /// </summary>
+    private DisposableMap disposableMap;
+
+    /// <summary>
+    /// The SimpleContextMenu instance, cast to IContextMenu, which is needed in some Windows-COM-APIs (to reference an item of a context menu, you need its ID in the context menu and a reference to the context menu itself).    /// </summary>
+    public IContextMenu contextMenuInterface;
+
+    /// <summary>
+    /// The files & folders in testFolderPath, which shall be viewed as marked for the building of the context menu.
+    /// </summary>
+    public List<string> SelectedTestItems { get; }
+
+    /// <summary>
+    /// The subpath to the folder in which we want to simulate the building of the context menu, starting from the output directory, i.e., where the SimpleContextMenus.Tests.dll is being built.
+    /// </summary>
+    public string TestFolderPath { get; }
+
+    /// <summary>
+    /// See <see cref="TestFolderPath"/>.
+    /// </summary>
+    public string TestFolderPathAbsolute => Path.Combine(AppContext.BaseDirectory, TestFolderPath);
+
+    /// <summary>
+    /// Returns the Node representing the context menu entry with the given name. Returns null if no such entry exists.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="ignoreCase"></param>
+    /// <returns></returns>
+    public Node? GetContextMenuEntry(string name, bool ignoreCase = false)
+    {
+        var comparisonOptions = ignoreCase
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        // Manual DFS
+        Stack<Node> stack = [];
+        stack.Push(contextMenuTree);
+        while (stack.Count > 0)
+        {
+            Node currentNode = stack.Pop();
+            // Test if name of currentNode has been 
+            if (String.Equals(currentNode.ContextMenuEntryName.Trim(), name.Trim(), comparisonOptions))
+            {
+                return currentNode;
+            }
+            
+            currentNode.Children.ForEach(stack.Push);
+               
+        }
+
+        return null;
+    }
+
+    public void InvokeContextMenuEntry(Node contextMenuEntry)
+    {
+        contextMenuEntry.Invoke(contextMenuInterface);
     }
 
 
@@ -83,7 +161,7 @@ public class ContextMenuMock
             if (!GetMenuItemInfo(hMenu, (uint)i, true, ref info))
                 continue;
 
-            uint menuItemId = info.wID; 
+            uint menuItemId = info.wID;
 
             bool isSeparator = (info.fType & 0x00000800) != 0;
             if (isSeparator) // case separator
@@ -98,7 +176,9 @@ public class ContextMenuMock
             {
                 contextMenuTreeView.AddChild(info.dwTypeData);
             }
-            contextMenuTreeView.Children.Last().ContextMenuEntryHandlerCommandId = menuItemId; // Setze die CommandId für alle Items, auch Submenus, damit wir sie später mit InvokeCommand ausführen können
+
+            contextMenuTreeView.Children.Last().ContextMenuEntryHandlerCommandId =
+                menuItemId; // Setze die CommandId für alle Items, auch Submenus, damit wir sie später mit InvokeCommand ausführen können
         }
 
         return contextMenuTreeView;
@@ -120,7 +200,8 @@ public class ContextMenuMock
     /// <returns>A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.</returns>
     public ContextMenuMock(string testFolderPath, List<string> selectedTestItems)
     {
-        (this.contextMenuTree, disposableMap,contextMenuInterface) = GetContextMenuView(testFolderPath, selectedTestItems);
+        (this.contextMenuTree, disposableMap, contextMenuInterface) =
+            GetContextMenuView(testFolderPath, selectedTestItems);
         TestFolderPath = testFolderPath;
         SelectedTestItems = selectedTestItems;
     }
@@ -136,7 +217,10 @@ public class ContextMenuMock
     /// </summary>
     /// <param name="testFolderPath">A subpath starting from the output directory, i.e., where the SimpleContextMenus.Tests.dll is being built</param>
     /// <param name="selectedTestItems">Files & Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
-    /// <returns>A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.</returns>
+    /// <returns>Returns: 1. A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.
+    /// 2. A disposable map which maps paths to their ShellItem-definitions, and is to be used to group their lifetimes (i.e. dispopse of the map at the end of its lifecycle to free all handles from ShellItems).
+    /// 3. The SimpleContextMenu instance, cast to IContextMenu, which is needed in some Windows-COM-APIs (to reference an item of a context menu, you need its ID in the context menu and a reference to the context menu itself).
+    /// </returns>
     private static (Node, DisposableMap, IContextMenu) GetContextMenuView(string testFolderPath,
         List<string> selectedTestItems)
     {
@@ -199,9 +283,8 @@ public class ContextMenuMock
 
         // The handle for the main context menu has to be disposed; The submenus should be collected automatically then
         DestroyMenu(menuHandle);
-        return (returnItem, testItemMap,contextMenuInterface);
+        return (returnItem, testItemMap, contextMenuInterface);
     }
-
 
 
     /// <summary>
@@ -256,27 +339,42 @@ public class ContextMenuMock
 
         return testItemMap;
     }
+}
 
-
-    /// <summary>
-    /// Class to wrap the IntPtr handles in to make it easy to Dispose of them later of, e.g. with the using keyword,
-    /// or by adding the to a DisposableMap (of which one then still has to  dispose of  manually later-on).
-    /// </summary>
-    public sealed class SafePidl : SafeHandle
+/// <summary>
+/// Class to wrap the IntPtr handles in to make it easy to Dispose of them later of, e.g. with the using keyword,
+/// or by adding the to a DisposableMap (of which one then still has to  dispose of  manually later-on).
+/// </summary>
+public sealed class SafePidl : SafeHandle
+{
+    public SafePidl(IntPtr pidl) : base(IntPtr.Zero, true)
     {
-        public SafePidl(IntPtr pidl) : base(IntPtr.Zero, true)
-        {
-            SetHandle(pidl);
-        }
-
-        public override bool IsInvalid => handle == IntPtr.Zero;
-
-        protected override bool ReleaseHandle()
-        {
-            Marshal.FreeCoTaskMem(handle);
-            return true;
-        }
+        SetHandle(pidl);
     }
+
+    public override bool IsInvalid => handle == IntPtr.Zero;
+
+    protected override bool ReleaseHandle()
+    {
+        Marshal.FreeCoTaskMem(handle);
+        return true;
+    }
+}
+
+/// <summary>
+/// A regular <see cref="Dictionary{string,ShellItem}"/>
+/// containing types that require explicit resource lifetime management.
+/// Dispose of this map before it goes out of scope,
+/// either by calling <see cref="Dispose"/> directly or by
+/// constraining its lifetime to a <c>using</c> block.
+/// </summary>
+sealed class DisposableMap : Dictionary<string, ShellItem>, IDisposable
+{
+    /// <summary>
+    /// A collection of additional objects for the user to add everything which
+    /// he wants to have the same lifetime as the DisposableMap instance.
+    /// </summary>
+    public List<IDisposable> disposables;
 
     /// <summary>
     /// A regular <see cref="Dictionary{string,ShellItem}"/>
@@ -285,34 +383,18 @@ public class ContextMenuMock
     /// either by calling <see cref="Dispose"/> directly or by
     /// constraining its lifetime to a <c>using</c> block.
     /// </summary>
-    private sealed class DisposableMap : Dictionary<string, ShellItem>, IDisposable
+    /// <param name="disposables">Accepts a list of IDisposable, each of which will be disposed when the DisposableMap is being disposed.</param>
+    public DisposableMap(params IDisposable[] disposables)
     {
-        /// <summary>
-        /// A collection of additional objects for the user to add everything which
-        /// he wants to have the same lifetime as the DisposableMap instance.
-        /// </summary>
-        public List<IDisposable> disposables;
+        this.disposables = new List<IDisposable>(disposables);
+    }
 
-        /// <summary>
-        /// A regular <see cref="Dictionary{string,ShellItem}"/>
-        /// containing types that require explicit resource lifetime management.
-        /// Dispose of this map before it goes out of scope,
-        /// either by calling <see cref="Dispose"/> directly or by
-        /// constraining its lifetime to a <c>using</c> block.
-        /// </summary>
-        /// <param name="disposables">Accepts a list of IDisposable, each of which will be disposed when the DisposableMap is being disposed.</param>
-        public DisposableMap(params IDisposable[] disposables)
+    public void Dispose()
+    {
+        this.Values.ToList().ForEach(item => item?.Dispose());
+        foreach (IDisposable disposable in disposables)
         {
-            this.disposables = new List<IDisposable>(disposables);
-        }
-
-        public void Dispose()
-        {
-            this.Values.ToList().ForEach(item => item?.Dispose());
-            foreach (IDisposable disposable in disposables)
-            {
-                disposable?.Dispose();
-            }
+            disposable?.Dispose();
         }
     }
 }
