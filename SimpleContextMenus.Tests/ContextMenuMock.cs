@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ServerManager.ShellDebugger;
 using SharpShell.Interop;
@@ -17,7 +18,7 @@ public class ExampleTests
         // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
         // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
-        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Dummy.mp3"];
 
         var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
@@ -33,7 +34,7 @@ public class ExampleTests
         // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
         // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
-        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Dummy.mp3"];
 
         var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
@@ -49,8 +50,9 @@ public class ExampleTests
 
         Console.WriteLine(contextMenuMock.contextMenuTree);
     }
-    
-    public static void ExampleTest3() // TODo: Als selbst-Test in die Tests übertragen (und vervollständigen); Teste, ob Namen mit Akzenten & Multibytes korrekt gelesen werden - im Kontextmenü, im Pfad, und dass Invoken funktioniert.
+
+    public static void
+        ExampleTest3() // TODo: Als selbst-Test in die Tests übertragen (und vervollständigen); Teste, ob Namen mit Akzenten & Multibytes korrekt gelesen werden - im Kontextmenü, im Pfad, und dass Invoken funktioniert.
     {
         // Der Pfad der zu testenden Dateien und Ordner. 
         // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
@@ -58,14 +60,13 @@ public class ExampleTests
         // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
         // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
-        var testFolderPath = Path.Combine("IntegrationTests", "1FilterBasedOnExtension");
+        var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Héllo_wörld_jap_日本語.txt"];
 
         var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
 
         Console.WriteLine(contextMenuMock.contextMenuTree);
     }
-
 }
 
 public class ContextMenuMock
@@ -99,6 +100,15 @@ public class ContextMenuMock
     /// </summary>
     public string TestFolderPathAbsolute => Path.Combine(AppContext.BaseDirectory, TestFolderPath);
 
+
+    /// <summary>Returns the path to the folder (that is, what it was during compilation) in which the .cs file containing this method is located</summary>
+    private static string getProjectDir([CallerFilePath] string path = "") =>
+        Path.GetDirectoryName(path)!;
+
+    /// <summary>Returns the path to the folder (that is, what it was during compilation) in which the .cs file containing this method is located</summary>
+    public static string GetProjectDir([CallerFilePath] string path = "") => getProjectDir();
+
+
     /// <summary>
     /// Returns the Node representing the context menu entry with the given name. Returns null if no such entry exists.
     /// </summary>
@@ -122,9 +132,8 @@ public class ContextMenuMock
             {
                 return currentNode;
             }
-            
+
             currentNode.Children.ForEach(stack.Push);
-               
         }
 
         return null;
@@ -196,7 +205,7 @@ public class ContextMenuMock
     /// Should be disposed of after use, either by calling Dispose() directly or by constraining its lifetime to a using-block, to free up the resources used for the ShellItems within the context menu tree!
     /// </summary>
     /// <param name="testFolderPath">A subpath starting from the output directory, i.e. where the SimpleContextMenus.Tests.dll is being built</param>
-    /// <param name="selectedTestItems">Files & Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
+    /// <param name="selectedTestItems">Files &amp; Folders in 'testFolderPath', which shall be viewed as marked for the building of the context menu.</param>
     /// <returns>A tree of Nodes representing a view of the context menu. Can be used to view or execute the items of the context menu.</returns>
     public ContextMenuMock(string testFolderPath, List<string> selectedTestItems)
     {

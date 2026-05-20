@@ -1,0 +1,1 @@
+﻿[assembly: CollectionBehavior(DisableTestParallelization = true)]   // Each test cleans & refills TopLevelItems and Extensions, so they mustn't run parallel

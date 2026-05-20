@@ -55,6 +55,18 @@ public class Node
 
     public List<Node> Children { get; } = new List<Node>();
 
+    public Node? GetChildByName(string childName)
+    {
+        try
+        {
+            return Children.First(node => node.ContextMenuEntryName.Trim() == childName.Trim());
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
     public Node(string contextMenuEntryName)
     {
         ContextMenuEntryName = contextMenuEntryName;
