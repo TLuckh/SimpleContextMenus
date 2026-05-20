@@ -6,7 +6,6 @@ namespace SimpleContextMenus.Tests;
 /*
  * # Regression Tests
 Add files to the Debug configuration that make the following tests quick to do:
-- Test that the Example Script.py works correctly, i.e. it shows:
 - Test that the filters for file extensions/MIME types work correctly, so only if an applicable item is in the folder/selected items,
 the folders with the file extensions/MIME types are shown
 - Test that folders without files, and folders with no applicable items aren't shown

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Specialized;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Microsoft.Win32.SafeHandles;
 using ServerManager.ShellDebugger;
 using SharpShell.Interop;
 using SharpShell.SharpContextMenu;
@@ -265,7 +266,10 @@ public class ContextMenuMock
             dataObject.SetFileDropList(filePaths);
 
             //  Get the IUnknown COM interface address. Jesus .NET makes this easy.
-            var dataObjectInterfacePointer = Marshal.GetIUnknownForObject(dataObject);
+            var comDataObject = (System.Runtime.InteropServices.ComTypes.IDataObject)dataObject;
+            var dataObjectInterfacePointer = Marshal.GetComInterfaceForObject(
+                dataObject, 
+                typeof(System.Runtime.InteropServices.ComTypes.IDataObject));
 
             //  Pass the data to the shell extension, attempt to initialise it.
             //  We must provide the data object as well as the parent folder PIDL.
@@ -338,10 +342,13 @@ public class ContextMenuMock
         {
             string fullPath = Path.Combine(testPath, filename);
             IntPtr pathPIDL = GetPIDLFromPath(fullPath);
+            IntPtr relativePIDL = ILFindLastID(pathPIDL);
+
             var shellItem = new ShellItem();
-            shellItem.Initialise(pathPIDL, testRoot);
+            shellItem.Initialise(relativePIDL, testRoot);
 
             testItemMap.Add(Path.GetFileName(filename), shellItem);
+            testItemMap.disposables.Add(new SafePidl(pathPIDL));
         }
 
         return testItemMap;

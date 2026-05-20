@@ -90,5 +90,7 @@ public class MarshallingStructures
             uint sfgaoIn,
             out uint psfgaoOut);
 
+        [DllImport("shell32.dll")]
+        public static extern IntPtr ILFindLastID(IntPtr pidl);
 }
 

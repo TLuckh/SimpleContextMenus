@@ -1,8 +1,14 @@
+import msvcrt 
 import os
 import sys
+import pathlib
 
-with open("WriteComServerLocationResult.txt","w") as file:
+path = pathlib.Path(sys.argv[0]).parent / "WriteSelectedFilesResult.txt"
+if not "WriteSelectedFilesResult.txt" in [file.name for file in path.parent.iterdir()]:
+    input("The path we get passed from the context menu as the path of this script seems to be faulty (or the WriteComServerLocationResult.txt isn't in the same path as this script).")
+with open(path, "w") as file:
+    msvcrt.locking(file.fileno(), msvcrt.LK_NBLCK, 1)  # Lock
+    for arg in sys.argv[1:]:
+        file.write(arg +"\n")		# Unlock passiert automatisch beim Schließen
 
-    if len(sys.argv)>1:
-        for el in sys.argv[1:]:
-            file.write(el +"\n")
+
