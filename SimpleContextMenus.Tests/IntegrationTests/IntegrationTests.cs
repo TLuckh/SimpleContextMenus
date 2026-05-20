@@ -4,6 +4,7 @@ using PathLib;
 namespace SimpleContextMenus.Tests;
 
 /*
+ TODO:
  * # Regression Tests
 Add files to the Debug configuration that make the following tests quick to do:
 - Test that the filters for file extensions/MIME types work correctly, so only if an applicable item is in the folder/selected items,
@@ -13,12 +14,21 @@ the folders with the file extensions/MIME types are shown
 - Test that if you execute Example Script.py after it has moved by putting a shortcut to it into the TopLevelFolder/Extensions folder, it correctly shows the exectued file location.
 - Test that if a shortcut has been orphaned (file deleted, folder deleted, drive unplugged), the menu item will be replaced by an error message, without any other menu item being missing
 
-
-
-
-
  */
 
+
+/// <summary>
+///  
+/// The tests construct, using a ContextMenu instance at its core, each a windows context menu using the official API for it,
+/// where however only SimpleContextMenus.dll is installed.
+///  
+///     When using the context menu API, we pass both a folder path and a list of selected items, which are used by the API to determine the context in which the menu is spawned.
+///     This is, in effect, since there's only one COM Server installed, means that the windows context menu then passes the selected items on to SimpleContextMenus.dll
+///  
+///     Aside from potential bugs introduced during the calling of the API, this should be as close as possible to constructing
+/// a real context menu in windows explorer when SimpleContextMenus.dll is installed in the computer.  
+
+/// </summary>
 public abstract class IntegrationTestBaseClass : IDisposable
 {
     

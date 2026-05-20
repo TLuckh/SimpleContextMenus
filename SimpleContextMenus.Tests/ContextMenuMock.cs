@@ -13,11 +13,6 @@ public class ExampleTests
 {
     public static void ExampleTest1()
     {
-        // Der Pfad der zu testenden Dateien und Ordner. 
-        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
-        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
-        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
-        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
         var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Dummy.mp3"];
@@ -29,12 +24,6 @@ public class ExampleTests
 
     public static void ExampleTest2()
     {
-        // Der Pfad der zu testenden Dateien und Ordner. 
-        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
-        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
-        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
-        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
-
         var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Dummy.mp3"];
 
@@ -55,11 +44,7 @@ public class ExampleTests
     public static void
         ExampleTest3() // TODo: Als selbst-Test in die Tests übertragen (und vervollständigen); Teste, ob Namen mit Akzenten & Multibytes korrekt gelesen werden - im Kontextmenü, im Pfad, und dass Invoken funktioniert.
     {
-        // Der Pfad der zu testenden Dateien und Ordner. 
-        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
-        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
-        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
-        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
+
 
         var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
         List<string> selectedTestItems = ["Héllo_wörld_jap_日本語.txt"];
@@ -234,11 +219,6 @@ public class ContextMenuMock
     private static (Node, DisposableMap, IContextMenu) GetContextMenuView(string testFolderPath,
         List<string> selectedTestItems)
     {
-        // Der Pfad der zu testenden Dateien und Ordner. 
-        // TODo: Build von SimpleContextMenus.Tests sollte SimpleContextMenus bauen, und anschließend alle davon erzeugten Dateien in einen neuen Ordner kopieren, wo wir auch die Tests reinhauen (die noch zu schreiben sind)
-        // Die Tests selbst sollten eine relativ flache Dateistruktur darstellen, so dass wir diese für jeden Test manuell bauen können: 
-        // Es handelt sich einfach um eine Menge von Ordnern mit Dateien drin. Wir simulieren Klicks auf Teilmengen (inkl. leere Teilmenge) dieser Dateien im Ordner, und unser Ziel ist es, jeweils die richtigen Kontextmenüs zu kriegen.
-        // Der Test der Kontextmenüs wiederum kommt stattdessen in einen Unit Test (das hier sind Integration Tests i think?)
 
         // We let SharpShells ShellItem-class handle most of the marashalling necessary to build the context menu; 
         // All ItemsInTestPath does is to get PIDLs of the files in the testFolderPath, which we'll use indirectly via SharpShells ShellItem-class.

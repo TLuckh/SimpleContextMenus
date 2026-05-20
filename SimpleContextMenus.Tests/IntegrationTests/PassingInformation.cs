@@ -1,5 +1,9 @@
 ﻿namespace SimpleContextMenus.Tests;
 
+
+/// <summary>
+/// See <see cref="IntegrationTestBaseClass"/>
+/// </summary>
 public class PassingInformation: IntegrationTestBaseClass
 {
     protected override string FromFolder => "PassedInformation";
