@@ -269,11 +269,9 @@ public class ContextMenuMock
 
             //  Pass the data to the shell extension, attempt to initialise it.
             //  We must provide the data object as well as the parent folder PIDL.
-            if (selectedItems.Any())
-            {
-                var folderPIDL = selectedItems.First().ParentItem.PIDL;
-                shellExtInitInterface.Initialize(folderPIDL, dataObjectInterfacePointer, IntPtr.Zero); // Notwendig?
-            }
+
+            var folderPIDL = testItemMap.TestRoot.PIDL;
+            shellExtInitInterface.Initialize(folderPIDL, dataObjectInterfacePointer, IntPtr.Zero); // Initializes (via a base class), FolderPath and selectedItems in SimpleContextMenu
         }
         catch (Exception)
         {
@@ -331,7 +329,7 @@ public class ContextMenuMock
 
 
         // Die Map, die wir weiterreichen, die alle Namen der Ordner in IntegrationTests mit ShellItems verknüpft. Sollte als using-Block aufgerufen werden in der Methode, and die wir weiterreichen
-        var testItemMap = new DisposableMap(baseRoot, testRoot);
+        var testItemMap = new DisposableMap(testRoot, baseRoot);
 
         // Die Tests sind allesamt Dateien in testPath
         List<string> itemsInTestPath = Directory.EnumerateFileSystemEntries(testPath).ToList();
@@ -386,16 +384,24 @@ sealed class DisposableMap : Dictionary<string, ShellItem>, IDisposable
     public List<IDisposable> disposables;
 
     /// <summary>
+    /// The root folder of the items in the context menu (not the baseRoot, which isn't shown there).
+    /// </summary>
+    public ShellItem TestRoot { get; set; }
+
+    /// <summary>
     /// A regular <see cref="Dictionary{string,ShellItem}"/>
     /// containing types that require explicit resource lifetime management.
     /// Dispose of this map before it goes out of scope,
     /// either by calling <see cref="Dispose"/> directly or by
     /// constraining its lifetime to a <c>using</c> block.
     /// </summary>
+    /// <param name="testRoot">The root folder of the items in the context menu (not the baseRoot, which isn't shown there).</param>
     /// <param name="disposables">Accepts a list of IDisposable, each of which will be disposed when the DisposableMap is being disposed.</param>
-    public DisposableMap(params IDisposable[] disposables)
+    public DisposableMap(ShellItem testRoot, params IDisposable[] disposables)
     {
         this.disposables = new List<IDisposable>(disposables);
+        this.disposables.Add(testRoot);
+        this.TestRoot = testRoot;
     }
 
     public void Dispose()

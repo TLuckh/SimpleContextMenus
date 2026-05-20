@@ -15,7 +15,7 @@ public class PassingInformation: IntegrationTestBaseClass
         CopyFilesFromIntegrationTestsToTopLevelItems("WriteComServerLocation.py","WriteComServerLocationResult.txt");
         
         
-        List<string> selectedTestItems = ["Music.AUDIO.txt"];
+        List<string> selectedTestItems = [];
 
 
         var contextMenuMock = new ContextMenuMock("", selectedTestItems);
