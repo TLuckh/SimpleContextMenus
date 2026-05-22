@@ -96,19 +96,25 @@ Now, you can simply build SimpleContextMenus.csproj.
 ## Tests
 To run the tests, Python version 3.14 or higher needs installed on the sytem and associated with *.py files.
 
-Tests are located in the SimpleContMenus.Tests project in the folder IntegrationTests.
+Tests are located in the SimpleContextMenus.Tests project in the folder IntegrationTests.
 
 At its heart, each test case uses an instance of the ContextMenuMock class.
 For its semantics, see IntegrationTestBaseClass.cs's documentation, and for its usage see the test cases.
 
 ## Debugging 
-Since the tests still mock the Windows context menu to a certain extent <br>
+Debugging the tests works as one would expect by running a test in debug mode.
+
+Debugging the life application works simply by attaching a debugger to explorer.exe.
+
+Alternatively, the ServerManger.exe originating from ServerManager project can  be used to debug the COM server.
+It does a more faithful mock of the Windows context menu than the tests, and foregoes the need to install the COM server into the system.
+
+I.e., since the tests still mock the Windows context menu to a certain extent <br>
 (e.g. the menu that we let Windows create is created 
 such that SimpleContextMenus is its only registered COM Server and we ignore any entries which would originate from registry), <br>
 it is possible for bugs in a deployed COM server to not appear in the tests.
 
-In such a case, the ServerManger.exe originating from ServerManager project can often be used to debug the COM server.
-It does a more faithful mock of the Windows context menu.
+
 
 (Note: ServerManager is straight copy & pasted from www.github.com/dwmkerr/sharpshell; This was done to simplify the debugging process)
 

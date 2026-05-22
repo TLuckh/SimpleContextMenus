@@ -34,7 +34,7 @@
         <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
     </ItemGroup>
 
-    <Target Name="BuildAndCopyAdditionalOutputProjects"
+    <Target Name="BuildAndCopyAdditionalOutputProjects_Build"
             AfterTargets="Build"
             Condition="'@(AdditionalOutputProject)' != ''">
 
@@ -52,7 +52,7 @@
     </Target>
 
 
-    <Target Name="BuildAndCopyAdditionalOutputProjects"
+    <Target Name="BuildAndCopyAdditionalOutputProjects_Publish"
             AfterTargets="Publish"
             Condition="'@(AdditionalOutputProject)' != ''">
 
