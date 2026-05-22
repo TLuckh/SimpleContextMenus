@@ -1,4 +1,4 @@
-﻿namespace SimpleContextMenus.Tests;
+﻿namespace SimpleContextMenus.Tests.IntegrationTests;
 
 
 /// <summary>
@@ -10,8 +10,8 @@ public class PassingInformation: IntegrationTestBaseClass
 
 
     /// <summary>
-    /// Tests that the path to the COM server, i.e. to the SimpleContMenu.dll that has been installed,
-    /// is correctly passed as first parameter to a script executed by it.
+    /// Tests that the path to the file executed by SimpleContMenu.dll (via clicking a context menu entry),
+    /// is correctly passed as the first argument to the file (CLI argument).
     /// </summary>
     [Fact]
     public void TestComPath()
@@ -30,8 +30,8 @@ public class PassingInformation: IntegrationTestBaseClass
         Assert.True(exampleScriptNode != null, "Couldn't find the script to execute from within the context menu");
 
         exampleScriptNode.Invoke(contextMenuMock.contextMenuInterface);
-
         Thread.Sleep(1000);      // Give the script executed via context menu enough time to lock the files first 
+
 
         string content;
         var fs = new FileStream(
@@ -84,7 +84,7 @@ public class PassingInformation: IntegrationTestBaseClass
             content = file.ReadToEnd();
         }
 
-        Assert.Equal(Path.Combine(PathToAssembly,assemblySubFolder), content);
+        Assert.Equal(Path.Combine(PathToAssemblyFolder,assemblySubFolder), content);
         
     }
 
@@ -120,13 +120,57 @@ public class PassingInformation: IntegrationTestBaseClass
 
         using (var file = new StreamReader(fs))
         {
-            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssembly,selectedTestItems[0]).Trim());
-            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssembly,selectedTestItems[1]).Trim());
-            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssembly,selectedTestItems[2]).Trim());
+            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssemblyFolder,selectedTestItems[0]).Trim());
+            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssemblyFolder,selectedTestItems[1]).Trim());
+            Assert.Equal(file.ReadLine().Trim() , Path.Combine(PathToAssemblyFolder,selectedTestItems[2]).Trim());
             
             
         }
 
+    }
+    
+    
+    /// <summary>
+    /// If nothing is selected, SimpleContextMenus.dll interprets it as "everything has been selected" for purposes of filtering the context menu entries.
+    /// Yet it still means that we pass no selection to the script.
+    ///
+    /// This test tests the latter, i.e. we want to see, if we mark nothing as selected, then the script gets no selected items either. 
+    ///
+    /// Only works correctly if TestComPath() and TestSelectedItems() work correctly.
+    /// </summary>
+    [Fact]
+    public void TestNoSelectionPassesNothing()
+    {
+        const string file1 = "WriteSelectedFiles.py";
+        const string file2 = "WriteSelectedFilesResult.txt";
+        CopyFilesFromIntegrationTestsToTopLevelItems(file1,file2);
+        
+        List<string> selectedTestItems = [];
+        var testFolderPath = "TopLevelItems";
+
+        var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
+        
+        Node? exampleScriptNode = contextMenuMock.contextMenuTree.GetChildByName("WriteSelectedFiles");
+        
+        Assert.True(exampleScriptNode != null, "Couldn't find the script to execute from within the context menu");
+        
+        exampleScriptNode.Invoke(contextMenuMock.contextMenuInterface);
+        
+        Thread.Sleep(1000);
+        
+        string content;
+        var fs = new FileStream(
+            Path.Combine(PathToTopLevelItems_Folder, "WriteSelectedFilesResult.txt"),
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.None);  // ← We lock the same file
+
+        string fileContents;
+        using (var reader = new StreamReader(fs))
+        {
+            fileContents = reader.ReadToEnd();
+        }
+        Assert.Equal("", fileContents);
     }
 
 }

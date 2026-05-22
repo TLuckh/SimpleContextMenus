@@ -40,21 +40,13 @@ public class ExampleTests
 
         Console.WriteLine(contextMenuMock.contextMenuTree);
     }
-
-    public static void
-        ExampleTest3() // TODo: Als selbst-Test in die Tests übertragen (und vervollständigen); Teste, ob Namen mit Akzenten & Multibytes korrekt gelesen werden - im Kontextmenü, im Pfad, und dass Invoken funktioniert.
-    {
-
-
-        var testFolderPath = Path.Combine("CopyToOutputTests", "IntegrationTests", "1FilterBasedOnExtension");
-        List<string> selectedTestItems = ["Héllo_wörld_jap_日本語.txt"];
-
-        var contextMenuMock = new ContextMenuMock(testFolderPath, selectedTestItems);
-
-        Console.WriteLine(contextMenuMock.contextMenuTree);
-    }
+    
 }
 
+
+/// <summary>
+/// See IntegrationTestBaseClass.cs's documentation for its semantic, and the test cases for its uasge.
+/// </summary>
 public class ContextMenuMock
 {
     /// <summary>
@@ -96,7 +88,8 @@ public class ContextMenuMock
 
 
     /// <summary>
-    /// Returns the Node representing the context menu entry with the given name. Returns null if no such entry exists.
+    /// Returns the first Node found representing the context menu entry with the given name. Returns null if no such entry exists.
+    /// Searches all sebmenus in a DFS fashion, i.e. it returns the first matching node in the PreOrder representation of the context menu
     /// </summary>
     /// <param name="name"></param>
     /// <param name="ignoreCase"></param>
