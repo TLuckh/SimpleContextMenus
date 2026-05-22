@@ -3,17 +3,24 @@ Start with a file representing a context menu, or a folder representing a contex
 Let its name be given with extension, but without path to it in its name.
 
 Then the naming convention is as follows:
-- The name is split by each occurence of a dot that's not followed by another dot.
+- The name is split by each occurence of consecutive dots.
 - The first part is the display name.
-- Each following part (except the last for files, i.e. non-folders) is either:
+- Each following part (except the last for files, i.e. non-folders) is, if it was preceded by a single dot either:
     - a MIME type (if it's uppercase)
     - a file extension (if it's lowercase)
+- A part that had two preceeding consecutive dots is a fine type for a MIME type (see chapter MIME Type Schema).
 - The last part (if it is a file extension) is ignored.
+
 
 ## Matching Criteria
 If no type extensions or MIME types were given, the context menu will always be shown.
-Otherwise, the context menu will only be shown if of all the selected files (or, if no selection was made, all files in the folder),
+
+Otherwise, the context menu will only be shown, 
+if of all the selected files 
+(or, if no selection was made, all files in the folder),
 at least one matches any of the given MIME types or file extensions.
+
+In the latter case, the files passed to the script are filtered to only contain those matching at least one of the given MIME types or file extensions.
 
 ## File Extension Schema
 
@@ -29,8 +36,9 @@ rough type, and octet stream the subtype).
 
 ### Examples
 
-A simple example would be "convert_to_mp3.AUDIO.py". This will only show the context menu "convert_to_mp3" if at least one audio
-file is selected (or, if no selection is made, if any file in the folder is an audio files).
+A simple example would be "convert_to_mp3.AUDIO.py".
+This will only show the context menu "convert_to_mp3" if at least one audio
+file is selected (or, if no selection is made, if any file in the folder is an audio file).
 
 Similarly, "convert_to_mp3.AUDIO.VIDEO.py" will only show if at least one audio or video file is selected.
 
