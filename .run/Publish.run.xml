@@ -1,0 +1,13 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" platform="Any CPU" target_folder="$PROJECT_DIR$/bin/Release/net481/publish" target_framework="net481" uuid_high="-3863341520980259929" uuid_low="-4676612215436027411">
+      <runtimes>
+        <item value="win-x64" />
+        <item value="win-x86" />
+        <item value="win-arm" />
+        <item value="win-arm64" />
+      </runtimes>
+    </riderPublish>
+    <method v="2" />
+  </configuration>
+</component>

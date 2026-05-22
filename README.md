@@ -86,9 +86,12 @@ In general, any passed parameter is wrapped in quotes, and separated by a space.
 ## Building
 To build the project, you need NET Framework 4.8.1 or a compatible version. 
 
-Before building, make sure that for compilation, the MSBuild version from VS oder Rider is used, not the one bundled with .NET.
+To build, make sure that for compilation, the MSBuild version from VS oder Rider is used, not the one bundled with .NET.
+(In other words, just running 'dotnet build' or 'dotnet publish' from CLI will not work)
 
 Now, you can simply build SimpleContextMenus.csproj.
+
+
 
 ## Tests
 To run the tests, Python version 3.14 or higher needs installed on the sytem and associated with *.py files.

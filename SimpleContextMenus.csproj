@@ -52,6 +52,27 @@
     </Target>
 
 
+    <Target Name="BuildAndCopyAdditionalOutputProjects"
+            AfterTargets="Publish"
+            Condition="'@(AdditionalOutputProject)' != ''">
+
+        <PropertyGroup>
+            <FlatPublishDir>$(MSBuildProjectDirectory)\bin\publish\</FlatPublishDir>
+        </PropertyGroup>
+
+        <MSBuild Projects="@(AdditionalOutputProject)"
+                 Targets="Build"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
+                 BuildInParallel="true">
+            <Output TaskParameter="TargetOutputs"
+                    ItemName="AdditionalOutputProjectBuiltFiles"/>
+        </MSBuild>
+
+        <Copy SourceFiles="@(AdditionalOutputProjectBuiltFiles)"
+              DestinationFolder="$(FlatPublishDir)"
+              SkipUnchangedFiles="true"/>
+    </Target>
+    
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
