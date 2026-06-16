@@ -15,6 +15,7 @@ namespace SharpShell.Interop
 
         public const uint SEVERITY_SUCCESS = 0;
         public const uint SEVERITY_ERROR = 1;
+        public const int REGDB_E_CLASSNOTREG = -2147221164 ;
 
         /// <summary>
         ///     Create an HRESULT value from component pieces.
