@@ -554,14 +554,15 @@ namespace ServerManager.ShellDebugger
                 IntPtr ppv = IntPtr.Zero;
                 var result = parentFolder.ShellFolderInterface.BindToObject(pidl, IntPtr.Zero, ref Shell32.IID_IShellFolder,
                     out ppv);//out shellFolderInterface);
-                shellFolderInterface = ((IShellFolder) Marshal.GetObjectForIUnknown(ppv));
-                ShellFolderInterface = shellFolderInterface;
 
                 //  Validate the result.
                 if (result != 0)
                 {
                     //  Throw the failure as an exception.
                     Marshal.ThrowExceptionForHR((int)result);
+                    
+                    shellFolderInterface = ((IShellFolder) Marshal.GetObjectForIUnknown(ppv));
+                    ShellFolderInterface = shellFolderInterface;
                 }
             }
         }
@@ -634,6 +635,12 @@ namespace ServerManager.ShellDebugger
                         try
                         {
                             childShellFolder.Initialise(childPidl, this);
+                        }
+                        catch (COMException exception)
+                        {
+                            if (exception.ErrorCode == WinError.REGDB_E_CLASSNOTREG)
+                                continue;
+                            throw new InvalidOperationException("Failed to initialise child.", exception);
                         }
                         catch (Exception exception)
                         {

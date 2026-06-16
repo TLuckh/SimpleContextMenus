@@ -115,9 +115,6 @@
         <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     </PropertyGroup>
     <ItemGroup>
-        <Reference Include="Apex.WinForms">
-            <HintPath>..\Dependencies\Apex.WinForms.dll</HintPath>
-        </Reference>
         <Reference Include="nunit.framework.legacy">
             <HintPath>..\Dependencies\nunit.framework.legacy.dll</HintPath>
         </Reference>
@@ -252,6 +249,10 @@
         <Content Include="SharpShell.ico"/>
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\Apex.WinForms\Apex.WinForms.csproj">
+          <Project>{a479105c-717b-4500-8ffc-b3d12beef13e}</Project>
+          <Name>Apex.WinForms</Name>
+        </ProjectReference>
         <ProjectReference Include="..\SharpShell\SharpShell.csproj">
             <Project>{B5D5F670-BFBA-4D09-91C6-74BB12B7EDD4}</Project>
             <Name>SharpShell</Name>
