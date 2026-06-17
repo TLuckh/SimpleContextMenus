@@ -23,7 +23,12 @@
 
         <AdditionalOutputProject Include="ServerManager\ServerManager.csproj"/>
         <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
+        <AdditionalOutputProject Include="Apex.WinForms\Apex.WinForms.csproj"/>
     </ItemGroup>
+
+    <!--    ToDo: Apex.WinForms inserted as above & below is a makeshift solution. Problem is that transitive dependencies don't get copied, and 
+             AfterTargets that mark all output files either are hallucinated from LLM or don't work because some .csproj are old style.
+             Probably just copy all folder contents to the out-dir...-->
 
     <ItemGroup Condition="'$(Configuration)' == 'Release'">
         <ContentWithTargetPath Include="CopyToOutput\**">
@@ -32,6 +37,8 @@
         </ContentWithTargetPath>
 
         <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
+        <AdditionalOutputProject Include="Apex.WinForms\Apex.WinForms.csproj"/>
+
     </ItemGroup>
 
     <Target Name="BuildAndCopyAdditionalOutputProjects_Build"
@@ -72,7 +79,7 @@
               DestinationFolder="$(FlatPublishDir)"
               SkipUnchangedFiles="true"/>
     </Target>
-    
+
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
@@ -82,6 +89,7 @@
         <EmbeddedResource Remove="ServerRegistrationManager\**"/>
         <EmbeddedResource Remove="ServerManager\**"/>
         <EmbeddedResource Remove="SimpleContextMenus.Tests\**" />
+        <EmbeddedResource Remove="Apex.WinForms\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -94,6 +102,7 @@
         <Compile Remove="ServerRegistrationManager\**"/>
         <Compile Remove="ServerManager\**"/>
         <Compile Remove="SimpleContextMenus.Tests\**" />
+        <Compile Remove="Apex.WinForms\**" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
@@ -105,6 +114,7 @@
         <None Remove="ServerRegistrationManager\**"/>
         <None Remove="ServerManager\**"/>
         <None Remove="SimpleContextMenus.Tests\**" />
+        <None Remove="Apex.WinForms\**" />
     </ItemGroup>
 
     <ItemGroup>
