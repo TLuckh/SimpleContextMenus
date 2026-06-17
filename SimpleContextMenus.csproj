@@ -21,9 +21,16 @@
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
-        <AdditionalOutputProject Include="ServerManager\ServerManager.csproj"/>
-        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
-        <AdditionalOutputProject Include="Apex.WinForms\Apex.WinForms.csproj"/>
+        <AdditionalOutputProject Include="ServerManager">
+            <ProjectFile>ServerManager\ServerManager.csproj</ProjectFile>
+        </AdditionalOutputProject>
+        <AdditionalOutputProject Include="ServerRegistrationManager">
+            <ProjectFile>ServerRegistrationManager\ServerRegistrationManager.csproj</ProjectFile>
+        </AdditionalOutputProject>
+        <AdditionalOutputProject Include="ApexWinForms">
+            <ProjectFile>Apex.WinForms\Apex.WinForms.csproj</ProjectFile>
+        </AdditionalOutputProject>
+
     </ItemGroup>
 
     <!--    ToDo: Apex.WinForms inserted as above & below is a makeshift solution. Problem is that transitive dependencies don't get copied, and 
@@ -35,9 +42,13 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
-
-        <AdditionalOutputProject Include="ServerRegistrationManager\ServerRegistrationManager.csproj"/>
-        <AdditionalOutputProject Include="Apex.WinForms\Apex.WinForms.csproj"/>
+        
+        <AdditionalOutputProject Include="ServerRegistrationManager">
+            <ProjectFile>ServerRegistrationManager\ServerRegistrationManager.csproj</ProjectFile>
+        </AdditionalOutputProject>
+        <AdditionalOutputProject Include="ApexWinForms">
+            <ProjectFile>Apex.WinForms\Apex.WinForms.csproj</ProjectFile>
+        </AdditionalOutputProject>
 
     </ItemGroup>
 
@@ -45,7 +56,8 @@
             AfterTargets="Build"
             Condition="'@(AdditionalOutputProject)' != ''">
 
-        <MSBuild Projects="@(AdditionalOutputProject)"
+        <!-- Projekdatei aus Metadatum lesen statt direkt aus Include -->
+        <MSBuild Projects="@(AdditionalOutputProject->'%(ProjectFile)')"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
@@ -67,7 +79,7 @@
             <FlatPublishDir>$(MSBuildProjectDirectory)\bin\publish\</FlatPublishDir>
         </PropertyGroup>
 
-        <MSBuild Projects="@(AdditionalOutputProject)"
+        <MSBuild Projects="@(AdditionalOutputProject->'%(ProjectFile)')"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
