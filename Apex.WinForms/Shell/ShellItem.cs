@@ -56,18 +56,18 @@ namespace Apex.WinForms.Shell
             var result = Shell32.SHGetDesktopFolder(ref desktopShellFolderInterface);
 
             //  Validate the result.
-            if(result != 0)
+            if (result != 0)
             {
                 //  Throw the failure as an exception.
                 Marshal.ThrowExceptionForHR(result);
             }
-            
+
             //  Get the dekstop PDIL.
             var desktopPIDL = IntPtr.Zero;
             result = Shell32.SHGetSpecialFolderLocation(IntPtr.Zero, CSIDL.CSIDL_DESKTOP, ref desktopPIDL);
-            
+
             //  Validate the result.
-            if(result != 0)
+            if (result != 0)
             {
                 //  Throw the failure as an exception.
                 Marshal.ThrowExceptionForHR(result);
@@ -75,17 +75,17 @@ namespace Apex.WinForms.Shell
 
             //  Get the file info.
             var fileInfo = new SHFILEINFO();
-            Shell32.SHGetFileInfo(desktopPIDL, 0, out fileInfo, (uint) Marshal.SizeOf(fileInfo), 
+            Shell32.SHGetFileInfo(desktopPIDL, 0, out fileInfo, (uint)Marshal.SizeOf(fileInfo),
                 SHGFI.SHGFI_DISPLAYNAME | SHGFI.SHGFI_PIDL | SHGFI.SHGFI_SMALLICON | SHGFI.SHGFI_SYSICONINDEX);
 
             //  Return the Shell Folder.
             return new ShellItem
-                       {
-                           DisplayName = fileInfo.szDisplayName,
-                           IconIndex = fileInfo.iIcon,
-                           HasSubFolders = true,
-                           ShellFolderInterface = desktopShellFolderInterface
-                       };
+            {
+                DisplayName = fileInfo.szDisplayName,
+                IconIndex = fileInfo.iIcon,
+                HasSubFolders = true,
+                ShellFolderInterface = desktopShellFolderInterface
+            };
         }
 
         /// <summary>
@@ -109,33 +109,45 @@ namespace Apex.WinForms.Shell
             HasSubFolders = (flags & SFGAO.SFGAO_HASSUBFOLDER) != 0;
 
             //  Get the file info.
-            var fileInfo= new SHFILEINFO();
-            Shell32.SHGetFileInfo(PIDL, 0, out fileInfo, (uint) Marshal.SizeOf(fileInfo),  
-                SHGFI.SHGFI_SMALLICON | SHGFI.SHGFI_SYSICONINDEX | SHGFI.SHGFI_PIDL | SHGFI.SHGFI_DISPLAYNAME | SHGFI.SHGFI_ATTRIBUTES);
+            var fileInfo = new SHFILEINFO();
+            Shell32.SHGetFileInfo(PIDL, 0, out fileInfo, (uint)Marshal.SizeOf(fileInfo),
+                SHGFI.SHGFI_SMALLICON | SHGFI.SHGFI_SYSICONINDEX | SHGFI.SHGFI_PIDL | SHGFI.SHGFI_DISPLAYNAME |
+                SHGFI.SHGFI_ATTRIBUTES);
 
             //  Set extended attributes.
             DisplayName = fileInfo.szDisplayName;
             Attributes = (SFGAO)fileInfo.dwAttributes;
             TypeName = fileInfo.szTypeName;
             IconIndex = fileInfo.iIcon;
-            
+
             //  Are we a folder?
             if (IsFolder)
             {
                 //  Bind the shell folder interface.
                 IShellFolder shellFolderInterface;
-                var result = parentFolder.ShellFolderInterface.BindToObject(pidl, IntPtr.Zero, ref Shell32.IID_IShellFolder, out shellFolderInterface);
+                var result = parentFolder.ShellFolderInterface.BindToObject(pidl, IntPtr.Zero,
+                    ref Shell32.IID_IShellFolder, out shellFolderInterface);
+                // ServerManager and Apex.WinForms have two slightly different definitions for parentFolder.ShellFolderInterface.BindToObject
+                // This variant writes the result into a type IShellFolder, which might be null on error.
+                // The other variant returns the value as IntPtr 'ppv', which needs to be deferenced using Marshal.GetObjectForIUnknown,
+                // where instead, since the Pointer on error might be zero (i.e. if result !=0) dereferencing must be avoided.
+                // This variant therefore is the more modern one
                 ShellFolderInterface = shellFolderInterface;
 
                 //  Validate the result.
-                if(result != 0)
+                if (result != 0)
                 {
+                    if ((int)result ==  -2147221164) // REGDB_E_CLASSNOTREG; In SharpShell also an enum named WinError.REGDB_E_CLASSNOTREG; But not worth the effort to refactor
+                    { // More robust would be to simply check for shellFolderInterface == null, TODO for after I setup logging. 
+                        throw new COMException("Failed to bind to shell folder interface.", (int)result);
+                    }
+
                     //  Throw the failure as an exception.
                     Marshal.ThrowExceptionForHR((int)result);
                 }
             }
         }
-        
+
         /// <summary>
         /// Gets the system path for this shell item.
         /// </summary>
@@ -158,10 +170,10 @@ namespace Apex.WinForms.Shell
         {
             //  We'll return a list of children.
             var children = new List<ShellItem>();
-            
+
             //  Create the enum flags from the childtypes.
             SHCONTF enumFlags = SHCONTF.None;
-            if(childTypes.HasFlag(ChildTypes.Folders))
+            if (childTypes.HasFlag(ChildTypes.Folders))
                 enumFlags |= SHCONTF.SHCONTF_FOLDERS;
             if (childTypes.HasFlag(ChildTypes.Files))
                 enumFlags |= SHCONTF.SHCONTF_NONFOLDERS;
@@ -199,16 +211,18 @@ namespace Apex.WinForms.Shell
                     }
                     catch (COMException exception)
                     {
-                        if (exception.ErrorCode == -2147221164) // REGDB_E_CLASSNOTREG; In SharpShell also an enum named WinError.REGDB_E_CLASSNOTREG; But not worth the effort to refactor
+                        if (exception.ErrorCode ==
+                            -2147221164) // REGDB_E_CLASSNOTREG; In SharpShell also an enum named WinError.REGDB_E_CLASSNOTREG; But not worth the effort to refactor
                         {
                             //  Free the PIDL, reset the result.
                             Marshal.FreeCoTaskMem(childPIDL);
 
                             //  Move onwards.
                             pEnum.Next(1, out childPIDL, out enumResult);
-                            
+
                             continue;
                         }
+
                         throw new InvalidOperationException("Failed to initialise child.", exception);
                     }
                     catch (Exception exception)
@@ -231,7 +245,7 @@ namespace Apex.WinForms.Shell
             }
             catch (Exception exception)
             {
-                throw new InvalidOperationException("Failed to enumerate children." , exception);
+                throw new InvalidOperationException("Failed to enumerate children.", exception);
             }
 
             //  Sort the children.
@@ -283,7 +297,7 @@ namespace Apex.WinForms.Shell
         /// <summary>
         /// The overlay icon.
         /// </summary>
-        private readonly Lazy<Icon> overlayIcon; 
+        private readonly Lazy<Icon> overlayIcon;
 
         /// <summary>
         /// Gets the parent item.
@@ -327,7 +341,10 @@ namespace Apex.WinForms.Shell
         /// <summary>
         /// Gets the ShellFolder of the Desktop.
         /// </summary>
-        public static ShellItem DesktopShellFolder { get { return desktopShellFolder.Value; } }
+        public static ShellItem DesktopShellFolder
+        {
+            get { return desktopShellFolder.Value; }
+        }
 
         /// <summary>
         /// Gets the shell folder interface.
@@ -343,7 +360,7 @@ namespace Apex.WinForms.Shell
         /// Gets the relative PIDL.
         /// </summary>
         public IntPtr RelativePIDL { get; private set; }
-        
+
         /// <summary>
         /// Gets a value indicating whether this instance has children.
         /// </summary>
@@ -355,7 +372,10 @@ namespace Apex.WinForms.Shell
         /// <summary>
         /// Gets the path.
         /// </summary>
-        public string Path { get { return path.Value; } }
+        public string Path
+        {
+            get { return path.Value; }
+        }
 
         /// <summary>
         /// Gets the overlay icon.
@@ -363,6 +383,9 @@ namespace Apex.WinForms.Shell
         /// <value>
         /// The overlay icon.
         /// </value>
-        public Icon OverlayIcon { get { return overlayIcon.Value; } }
+        public Icon OverlayIcon
+        {
+            get { return overlayIcon.Value; }
+        }
     }
 }

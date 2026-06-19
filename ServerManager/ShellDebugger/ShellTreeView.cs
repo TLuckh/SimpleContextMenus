@@ -554,6 +554,11 @@ namespace ServerManager.ShellDebugger
                 IntPtr ppv = IntPtr.Zero;
                 var result = parentFolder.ShellFolderInterface.BindToObject(pidl, IntPtr.Zero, ref Shell32.IID_IShellFolder,
                     out ppv);//out shellFolderInterface);
+                // ServerManager and Apex.WinForms have two slightly different definitions for parentFolder.ShellFolderInterface.BindToObject
+                // This variant writes the result into an IntPtr, which might be zero on error (i.e. if result !=0) and dereferencing must be avoided.
+                // The other variant uses .NET-Marshalling to return an IShellFolder instance instead (which might be null on error)
+                // Modernizing this is probably not worth it though
+                
 
                 //  Validate the result.
                 if (result != 0)
@@ -561,9 +566,10 @@ namespace ServerManager.ShellDebugger
                     //  Throw the failure as an exception.
                     Marshal.ThrowExceptionForHR((int)result);
                     
-                    shellFolderInterface = ((IShellFolder) Marshal.GetObjectForIUnknown(ppv));
-                    ShellFolderInterface = shellFolderInterface;
                 }
+                shellFolderInterface = ((IShellFolder) Marshal.GetObjectForIUnknown(ppv));
+                ShellFolderInterface = shellFolderInterface;
+
             }
         }
 
