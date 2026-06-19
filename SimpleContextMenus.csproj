@@ -20,18 +20,14 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
-
-        <AdditionalOutputProject Include="ServerManager">
-            <ProjectFile>ServerManager\ServerManager.csproj</ProjectFile>
-        </AdditionalOutputProject>
-        <AdditionalOutputProject Include="ServerRegistrationManager">
-            <ProjectFile>ServerRegistrationManager\ServerRegistrationManager.csproj</ProjectFile>
-        </AdditionalOutputProject>
-        <AdditionalOutputProject Include="ApexWinForms">
-            <ProjectFile>Apex.WinForms\Apex.WinForms.csproj</ProjectFile>
-        </AdditionalOutputProject>
-
     </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <AdditionalOutputProject>
+            ServerManager\ServerManager.csproj;
+            Apex.WinForms\Apex.WinForms.csproj;
+        </AdditionalOutputProject>
+    </PropertyGroup>
+
 
     <!--    ToDo: Apex.WinForms inserted as above & below is a makeshift solution. Problem is that transitive dependencies don't get copied, and 
              AfterTargets that mark all output files either are hallucinated from LLM or don't work because some .csproj are old style.
@@ -42,15 +38,13 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <TargetPath>%(RecursiveDir)\%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
-        
-        <AdditionalOutputProject Include="ServerRegistrationManager">
-            <ProjectFile>ServerRegistrationManager\ServerRegistrationManager.csproj</ProjectFile>
-        </AdditionalOutputProject>
-        <AdditionalOutputProject Include="ApexWinForms">
-            <ProjectFile>Apex.WinForms\Apex.WinForms.csproj</ProjectFile>
-        </AdditionalOutputProject>
-
     </ItemGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <AdditionalOutputProject>
+            ServerRegistrationManager\ServerRegistrationManager.csproj;
+            Apex.WinForms\Apex.WinForms.csproj;
+        </AdditionalOutputProject>
+    </PropertyGroup>
 
     <Target Name="BuildAndCopyAdditionalOutputProjects_Build"
             AfterTargets="Build"
