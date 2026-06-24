@@ -25,6 +25,7 @@
         <AdditionalOutputProject>
             ServerManager\ServerManager.csproj;
             Apex.WinForms\Apex.WinForms.csproj;
+            ServerRegistrationManager\ServerRegistrationManager.csproj;
         </AdditionalOutputProject>
     </PropertyGroup>
 
@@ -45,13 +46,15 @@
             Apex.WinForms\Apex.WinForms.csproj;
         </AdditionalOutputProject>
     </PropertyGroup>
-
     <Target Name="BuildAndCopyAdditionalOutputProjects_Build"
             AfterTargets="Build"
-            Condition="'@(AdditionalOutputProject)' != ''">
+            Condition="'$(AdditionalOutputProject)' != ''">
 
-        <!-- Projekdatei aus Metadatum lesen statt direkt aus Include -->
-        <MSBuild Projects="@(AdditionalOutputProject->'%(ProjectFile)')"
+        <ItemGroup>
+            <_ProjectsToBuild Include="$(AdditionalOutputProject)" />
+        </ItemGroup>
+
+        <MSBuild Projects="@(_ProjectsToBuild)"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
@@ -67,13 +70,17 @@
 
     <Target Name="BuildAndCopyAdditionalOutputProjects_Publish"
             AfterTargets="Publish"
-            Condition="'@(AdditionalOutputProject)' != ''">
+            Condition="'$(AdditionalOutputProject)' != ''">
 
         <PropertyGroup>
             <FlatPublishDir>$(MSBuildProjectDirectory)\bin\publish\</FlatPublishDir>
         </PropertyGroup>
 
-        <MSBuild Projects="@(AdditionalOutputProject->'%(ProjectFile)')"
+        <ItemGroup>
+            <_ProjectsToBuild Include="$(AdditionalOutputProject)" />
+        </ItemGroup>
+
+        <MSBuild Projects="@(_ProjectsToBuild)"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
@@ -85,7 +92,6 @@
               DestinationFolder="$(FlatPublishDir)"
               SkipUnchangedFiles="true"/>
     </Target>
-
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>
