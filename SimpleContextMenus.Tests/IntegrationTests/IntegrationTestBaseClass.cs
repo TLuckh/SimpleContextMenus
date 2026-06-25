@@ -107,5 +107,9 @@ public abstract class IntegrationTestBaseClass : IDisposable
 
         topLevelItemsFolder.GetFiles().ToList().ForEach(file => file.Delete());
         extensionsFolder.GetFiles().ToList().ForEach(file => file.Delete());
+        
+        Thread.Sleep(3500);
+        // This is a band-aid-fix since each test starts a python script which needs to terminate before the next test starts.
+        // TODO: Track the Process ID of the started python process? Not sure if that works. Otherwise, synchronously lock each file at test start and unlock, to make sure python script is finished
     }
 }
