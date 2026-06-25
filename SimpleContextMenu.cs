@@ -287,7 +287,8 @@ public class SimpleContextMenu : SharpContextMenu
                 WindowStyle = ProcessWindowStyle.Normal,
                 FileName = fileAttributes.FilePathFull,
                 WorkingDirectory = GetFolderPath(),
-                Arguments = argumentsToPass.ToString()
+                Arguments = argumentsToPass.ToString(),
+                UseShellExecute = true
             };
             process.StartInfo = startInfo;
             process.Start();
