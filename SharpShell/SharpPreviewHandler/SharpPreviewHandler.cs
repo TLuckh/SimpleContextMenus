@@ -269,7 +269,7 @@ namespace SharpShell.SharpPreviewHandler
 
             //  Get the IUnknown, query for the interface and return the result.
             IntPtr pUnknown = Marshal.GetIUnknownForObject(site);
-            int result = Marshal.QueryInterface(pUnknown, ref riid, out ppvSite);
+            int result = Marshal.QueryInterface(pUnknown, in riid, out ppvSite);
             Marshal.Release(pUnknown);
 
             return result;

@@ -1,9 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
-        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-        <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>12</LangVersion>
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
         <ProductVersion>8.0.30703</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <ProjectGuid>{07601D35-F06E-4EF1-8B77-D7E47EAF48E5}</ProjectGuid>
@@ -118,17 +119,6 @@
         <Reference Include="nunit.framework.legacy">
             <HintPath>..\Dependencies\nunit.framework.legacy.dll</HintPath>
         </Reference>
-        <Reference Include="System"/>
-        <Reference Include="System.ComponentModel.Composition"/>
-        <Reference Include="System.Core"/>
-        <Reference Include="System.Xml.Linq"/>
-        <Reference Include="System.Data.DataSetExtensions"/>
-        <Reference Include="Microsoft.CSharp"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System.Deployment"/>
-        <Reference Include="System.Drawing"/>
-        <Reference Include="System.Windows.Forms"/>
-        <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="About\AboutForm.cs">
@@ -250,8 +240,8 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Apex.WinForms\Apex.WinForms.csproj">
-          <Project>{a479105c-717b-4500-8ffc-b3d12beef13e}</Project>
-          <Name>Apex.WinForms</Name>
+            <Project>{a479105c-717b-4500-8ffc-b3d12beef13e}</Project>
+            <Name>Apex.WinForms</Name>
         </ProjectReference>
         <ProjectReference Include="..\SharpShell\SharpShell.csproj">
             <Project>{B5D5F670-BFBA-4D09-91C6-74BB12B7EDD4}</Project>
@@ -259,7 +249,6 @@
         </ProjectReference>
 
     </ItemGroup>
-    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 
     <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
         <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>

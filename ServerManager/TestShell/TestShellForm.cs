@@ -26,6 +26,7 @@ using SharpShell.SharpInfoTipHandler;
 using SharpShell.SharpPreviewHandler;
 using SharpShell.SharpThumbnailHandler;
 using SFGAO = Apex.WinForms.Interop.SFGAO;
+using System.ComponentModel;
 
 namespace ServerManager.TestShell
 {
@@ -517,6 +518,13 @@ namespace ServerManager.TestShell
         [DllImport("User32.dll")]
         internal static extern int GetMenuItemCount(IntPtr hMenu);
 
+        /// <summary>
+        /// Gets or sets the test server.
+        /// </summary>
+        /// <value>
+        /// The test server.
+        /// </value>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         /// <summary>
         /// Gets or sets the test server.
         /// </summary>

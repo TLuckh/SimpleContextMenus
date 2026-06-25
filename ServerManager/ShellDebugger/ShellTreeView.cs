@@ -182,6 +182,7 @@ namespace ServerManager.ShellDebugger
         /// </value>
         [Category("Shell Tree View")]
         [Description("If set to true, hidden files and folders will be shown.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowHiddenFilesAndFolders { get; set; }
 
         /// <summary>
@@ -192,6 +193,7 @@ namespace ServerManager.ShellDebugger
         /// </value>
         [Category("Shell Tree View")]
         [Description("If set to true, files will be shown as well as folders.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowFiles { get; set; }
 
         /// <summary>
@@ -266,7 +268,7 @@ namespace ServerManager.ShellDebugger
             {
                 IContextMenu contextMenu = (IContextMenu)Marshal.GetObjectForIUnknown(ppv);
 
-                var popupMenu = new ContextMenu();
+                var popupMenu = new ContextMenuStrip();
                 contextMenu.QueryContextMenu(popupMenu.Handle, 0, 0, 65525, CMF.CMF_EXPLORE);
                 popupMenu.Show(this, new Point(x, y));
             }
@@ -428,7 +430,7 @@ namespace ServerManager.ShellDebugger
     /// <summary>
     /// Represents a ShellItem object.
     /// </summary>
-    public class ShellItem : IDisposable
+    public sealed class ShellItem : IDisposable
     {
         /// <summary>
         /// Initializes the <see cref="ShellItem"/> class.

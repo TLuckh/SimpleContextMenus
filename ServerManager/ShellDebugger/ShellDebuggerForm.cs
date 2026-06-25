@@ -18,7 +18,7 @@ namespace ServerManager.ShellDebugger
 {
     [ComVisible(true)]
     [ClassInterface(ClassInterfaceType.None)]
-    public partial class ShellDebuggerForm : Form, IShellBrowser, IServiceProvider, ICommDlgBrowser
+    public sealed partial class ShellDebuggerForm : Form, IShellBrowser, IServiceProvider, ICommDlgBrowser
     {
         public ShellDebuggerForm()
         {
