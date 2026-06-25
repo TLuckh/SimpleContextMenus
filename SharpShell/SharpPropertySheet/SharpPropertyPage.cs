@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using SharpShell.Diagnostics;
+using System.ComponentModel;
 
 namespace SharpShell.SharpPropertySheet
 {
@@ -17,13 +18,31 @@ namespace SharpShell.SharpPropertySheet
         /// <value>
         ///     The page title.
         /// </value>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        /// <summary>
+        ///     Gets or sets the page title.
+        /// </summary>
+        /// <value>
+        ///     The page title.
+        /// </value>
         public string PageTitle { get; set; }
 
         /// <summary>
         ///     Gets the page icon.
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        /// <summary>
+        ///     Gets the page icon.
+        /// </summary>
         public Icon PageIcon { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the proxy.
+        /// </summary>
+        /// <value>
+        ///     The proxy.
+        /// </value>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         /// <summary>
         ///     Gets or sets the proxy.
         /// </summary>

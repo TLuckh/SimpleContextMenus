@@ -7,7 +7,7 @@
         <Version>0.0.3</Version>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
-        <TargetFramework>net481</TargetFramework>
+        <TargetFramework>net9.0-windows</TargetFramework>
         <SignAssembly>false</SignAssembly>
     </PropertyGroup>
 
@@ -117,10 +117,6 @@
         <Compile Remove="Apex.WinForms\**" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
-        <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17"/>
-    </ItemGroup>
-
     <ItemGroup>
         <None Remove="SharpShell\**"/>
         <None Remove="ServerRegistrationManager\**"/>
@@ -131,6 +127,10 @@
 
     <ItemGroup>
         <ProjectReference Include="SharpShell\SharpShell.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
     </ItemGroup>
     <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
         <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>
