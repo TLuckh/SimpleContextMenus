@@ -4,6 +4,7 @@
         <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <Version>0.0.3</Version>
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
@@ -46,6 +47,8 @@
             Apex.WinForms\Apex.WinForms.csproj;
         </AdditionalOutputProject>
     </PropertyGroup>
+
+
     <Target Name="BuildAndCopyAdditionalOutputProjects_Build"
             AfterTargets="Build"
             Condition="'$(AdditionalOutputProject)' != ''">
@@ -54,15 +57,32 @@
             <_ProjectsToBuild Include="$(AdditionalOutputProject)" />
         </ItemGroup>
 
+        <!-- 1. Projekte bauen -->
         <MSBuild Projects="@(_ProjectsToBuild)"
                  Targets="Build"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
             <Output TaskParameter="TargetOutputs"
-                    ItemName="AdditionalOutputProjectBuiltFiles"/>
+                    ItemName="_PrimaryOutputs"/>
         </MSBuild>
 
-        <Copy SourceFiles="@(AdditionalOutputProjectBuiltFiles)"
+        <!-- 2. Verzeichnisse als Metadaten speichern -->
+        <ItemGroup>
+            <_OutputDirs Include="@(_PrimaryOutputs)">
+                <OutputDir>%(RootDir)%(Directory)</OutputDir>
+            </_OutputDirs>
+        </ItemGroup>
+
+        <!-- 3. Glob NACH der Verzeichnis-Extraktion - in separatem ItemGroup-Aufruf -->
+        <ItemGroup>
+            <_AllOutputFiles Include="%(_OutputDirs.OutputDir)**\*.*" />
+        </ItemGroup>
+
+        <!-- 4. Debug -->
+        <Message Importance="high" Text="Copying: %(_AllOutputFiles.Identity)" />
+
+        <!-- 5. Flach kopieren -->
+        <Copy SourceFiles="@(_AllOutputFiles)"
               DestinationFolder="$(OutDir)"
               SkipUnchangedFiles="true"/>
     </Target>
@@ -85,13 +105,20 @@
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  BuildInParallel="true">
             <Output TaskParameter="TargetOutputs"
-                    ItemName="AdditionalOutputProjectBuiltFiles"/>
+                    ItemName="_PrimaryOutputs"/>
         </MSBuild>
 
-        <Copy SourceFiles="@(AdditionalOutputProjectBuiltFiles)"
+        <ItemGroup>
+            <_AllOutputFiles Include="@(_PrimaryOutputs->'%(RootDir)%(Directory)**\*.*')" />
+        </ItemGroup>
+
+        <Message Importance="high" Text="Publishing: %(_AllOutputFiles.Identity)" />
+
+        <Copy SourceFiles="@(_AllOutputFiles)"
               DestinationFolder="$(FlatPublishDir)"
               SkipUnchangedFiles="true"/>
     </Target>
+
     <ItemGroup>
         <EmbeddedResource Update="Properties\Resources.resx">
             <Generator>ResXFileCodeGenerator</Generator>

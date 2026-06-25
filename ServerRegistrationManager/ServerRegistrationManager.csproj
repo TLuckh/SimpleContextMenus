@@ -18,6 +18,7 @@
         <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+        <DelaySign>false</DelaySign>
         <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <SccProjectName></SccProjectName>

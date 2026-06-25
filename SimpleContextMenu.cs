@@ -16,7 +16,6 @@ namespace SimpleContextMenus;
 [COMServerAssociation(AssociationType.AllFilesAndFolders)]
 public class SimpleContextMenu : SharpContextMenu
 {
-    private List<string>? _selectedItemPaths;
 
     public new string FolderPath
     {
@@ -63,15 +62,7 @@ public class SimpleContextMenu : SharpContextMenu
 
     public List<string> GetSelectedItemPaths()
     {
-        if (_selectedItemPaths == null)
-        {
-            if (SelectedItemPaths == null)
-                _selectedItemPaths = new List<string>();
-            else
-                _selectedItemPaths = SelectedItemPaths.ToList();
-        }
-
-        return _selectedItemPaths;
+        return SelectedItemPaths.ToList();
     }
 
 
