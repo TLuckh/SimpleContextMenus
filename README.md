@@ -18,13 +18,13 @@ To install the server, take the build output of this project and
 place it into a directory of your choosing. Then, run the '#Install.bat'.
 
 If the installation was successful, you should see a
-new context menu called "Extensions" when right clicking in Windows Explorer.
+new context menu called "Extensions" when right-clicking in Windows Explorer.
 
-Possibly you need to restart your explorer.exe process.
+Possibly, you need to restart your explorer.exe process.
 
 ## Deinstallation
 
-To uninstall the server, run the '#Uninstall.bat' which is located in
+To uninstall the server, run the '#Uninstall.bat', which is located in
 the directory where you installed the server.
 To be able to delete the files, one has to additionally restart explorer.exe once.
 
@@ -36,7 +36,7 @@ Here, you can add any number of files and folders.
 (Elements in 'TopLevelItems' each get an item in the context menu, while elements in
 'Extensions' get an item in the submenu named 'Extensions')
 
-For each folder, a drop down menu in the context menu will be created.
+For each folder, a drop-down menu in the context menu will be created.
 For each file, a simple context menu entry will be created.
 
 
@@ -56,7 +56,7 @@ Furthermore, if a folder has many files (&ge; 50), the context menus will always
 Clicking on an entry in the context menu will:
 1. Open the corresponding file in the local file structure
 (using the standard association for the program)
-2. Pass it each of the matching files, if any as, arguments (each wrapped in quotes).
+2. Pass it each of the matching files, if any, as arguments (each wrapped in quotes).
     - Note that the file extension restrictions you encoded into the file-name affect the passed selection:<br>
 Only those of the selected items
 which match at least one of the given file extensions or MIME types
@@ -69,12 +69,12 @@ For examples see [NamingConvention.md](NamingConvention.md)
 
 ## Odd Behavior
 
-Note that if you select items and right click, the items are passed in the order in which they are
+Note that if you select items and right-click, the items are passed in the order in which they are
 shown in Windows Explorer, but starting
-from the item you right clicked on, and wrapping around.
+from the item you right-clicked on, and wrapping around.
 
 That is, if in the explorer you select items 1, 2, 3, 4, 5, which are shown in this order,
-and you right click on item 3, then order in which the elements are passed is 3,4,5,1,2,
+and you right-click on item 3, then order in which the elements are passed is 3,4,5,1,2,
 and the passed string is
 
 `"1" "2" "3" "4" "5" `
@@ -94,7 +94,7 @@ Now, you can simply build SimpleContextMenus.csproj.
 
 
 ## Tests
-To run the tests, Python version 3.14 or higher needs installed on the sytem and associated with *.py files.
+To run the tests, Python version 3.14 or higher needs installed on the system and associated with *.py files.
 
 Tests are located in the SimpleContextMenus.Tests project in the folder IntegrationTests.
 
@@ -129,9 +129,11 @@ To get a debugger into the deployed COM server such that the breakpoints work:
 - Select it in the Server Manager, so that it is marked. 
 - Click “Test Server in Test Shell”
 - (Navigate into a folder; Not sure if it’s necessary or if you can just stay on Desktop)
-- Right Click
+- Right-Click
 
-Note that the Debugging Breakpoints might only work for the first click after you started the Server Manager!
+Note that the Server Manager has a few bugs. The most important one is that only the first time you select and right click,
+the context menu is actually built. Afterwards, it incorrectly uses a cached version of the already built context menu...
+
 
 (Untested: Manually attaching might not be necessary anymore)
 
