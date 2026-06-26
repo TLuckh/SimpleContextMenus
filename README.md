@@ -1,4 +1,23 @@
-﻿# SimpleContextMenus
+﻿# State (NET Modernization)
+While it builds, and runs happily on the ServerManager, the output isn't
+a COM Server at all at this point.
+
+Everything listed in https://learn.microsoft.com/en-us/dotnet/core/native-interop/expose-components-to-com
+is still missing.
+
+The biggest blocker is probably having to implement the type library (TLB).
+See for the probably most promising approach:  
+https://github.com/dspace-group/dscom
+
+The main benefit would be unlocking AOT, which would also mean rewriting all \[DllImport]
+decorators to \[LibraryImport].
+
+Also nice would be to get away from IntPtr and use ref structure as much as possible
+
+
+
+
+# SimpleContextMenus
 
 Delivers a COM Server which is associated with files, folders, and the folder background.
 
