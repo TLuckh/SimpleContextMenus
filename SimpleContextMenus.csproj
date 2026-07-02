@@ -8,7 +8,9 @@
         <AssemblyOriginatorKeyFile>SimpleContextMenuKey.snk</AssemblyOriginatorKeyFile>
         <LangVersion>12</LangVersion>
         <TargetFramework>net481</TargetFramework>
-        <SignAssembly>false</SignAssembly>
+        <!-- Necessary for correct resolution of the app path 
+        (e.g. for finding .dll's the app is dependent on if it contains symbols like #  -->
+        <SignAssembly>true</SignAssembly>           
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
