@@ -47,11 +47,12 @@ public class MarshallingStructures
 
     /// <summary>
     /// Specialization of SimpleContextMenus.Tests::...::ReadMenu(IntPtr) for the case that we just want to check if we've already added our stuff to the context menu.
-    /// Works by checking for TopLevelItems and Extensions
+    /// Works by checking for a menuItem named "Extensions" which has the bitmap from "Resources/Extensions Menu.png"
     /// </summary>
     /// <param name="hMenu">The <see cref="IntPtr"/> Handle for the windows context menu. Get it from SharpContextMenu.handleWindowsContextMenu</param>
+    /// <param name="instance">The instance of SimpleContextMenus which generates the menu entries.</param>
     /// <returns>True, if SimpleContextMenu already added stuff to the context menu, false otherwise.</returns>
-    public static bool CheckIfSCMAlreadyCalled(IntPtr hMenu)
+    public static bool CheckIfSCMAlreadyCalled(IntPtr hMenu, SimpleContextMenu instance)
     {
         for (int i = 0; i < GetMenuItemCount(hMenu); i++)
         {
@@ -60,6 +61,7 @@ public class MarshallingStructures
                 cbSize = (uint)Marshal.SizeOf<MENUITEMINFO>(),
                 fMask = 64 // MIIM_STRING
                         | 256 // MIIM_FTYPE
+                        | 32 // MIIM_DAT 
                         | 4 // MIIM_SUBMENU
                         | 2, // MIIM_ID  ; Sagt GetMenuItemInfo, dass es die ID des Menuitems zurückliefern soll. Später für InvokeCommand notwendig, zum Ausführen des Kontextmenüeintrags
                 dwTypeData = new string('\0', 256),
@@ -73,8 +75,13 @@ public class MarshallingStructures
 
             bool isSeparator = (info.fType & 0x00000800) != 0;
             if (info.hSubMenu != IntPtr.Zero) // case submenu
-                if (info.dwTypeData == "Extensions") // Since Extensions isn't really unique enough, I technically should also check for hbmpChecked & hbmpUnchecked to be the handle to the correct bitmap. ToDo
+            {
+                if (info.dwTypeData == "Extensions" && (ulong) info.dwItemData == instance.ApplicationGUID) // We pass, when constructing the menu items, 
                     return true;
+                
+                if (CheckIfSCMAlreadyCalled(info.hSubMenu,instance)) // recursive call
+                    return true;
+            }
         }
 
         return false;

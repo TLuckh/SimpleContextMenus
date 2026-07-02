@@ -18,6 +18,12 @@ public class SimpleContextMenu : SharpContextMenu
 {
     private List<string>? _selectedItemPaths;
 
+    /// <summary>
+    /// 64-Bit-GUID-like number which we pass as MenuItemInfo.dwItemData to identify context menu items spawned by us.
+    /// </summary>
+    public ulong ApplicationGUID = 17410959896593131457; 
+    
+
 
     /// <summary>
     ///
@@ -113,7 +119,7 @@ public class SimpleContextMenu : SharpContextMenu
         // Similar to virtual folders (see FolderPath) we disable the shell handler for this scenario
         // since this is a behavior the user probably wouldn't expect
         // [i.e. the user can correctly assume that the apps started from the context menu only get (some) of the files & folders in the current folder as arguments passed]
-        if (MarshallingStructures.CheckIfSCMAlreadyCalled(this.handleWindowsContextMenu))
+        if (MarshallingStructures.CheckIfSCMAlreadyCalled(this.handleWindowsContextMenu,this))
             return false;
         
         // Similar special case as above, for virtual folders which may contain files from different folders.
@@ -137,7 +143,8 @@ public class SimpleContextMenu : SharpContextMenu
         ToolStripMenuItem extensionBaseItem = new()
         {
             Text = Resources.SimpleContextMenu_CreateMenu_Extensions,
-            Image = Resources.Extension_Menu
+            Image = Resources.Extension_Menu,
+            Tag = ApplicationGUID               // This Tag is, if necessary, used to check whether we have already populated a context menu. [By testing for the context menu submenu "Extensions" whether its Tag matches]
         };
 
         try         // ToDo: Add actual error handling with a log, so this ugly try-catch that I deactivate in no-debug anyway can go away
@@ -201,7 +208,7 @@ public class SimpleContextMenu : SharpContextMenu
             
             ToolStripMenuItem menuItem = new()
             {
-                Text = menuItemAttributes.DisplayName
+                Text = menuItemAttributes.DisplayName,
             };
 
             #region Error handling

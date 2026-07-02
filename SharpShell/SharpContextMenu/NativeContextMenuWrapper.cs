@@ -119,7 +119,7 @@ namespace SharpShell.SharpContextMenu
         private static void BuildMenuItemInfo(ref MENUITEMINFO menuItemInfo, ToolStripMenuItem menuItem)
         {
             //  Set the mask - we're interested in essentially everything.
-            menuItemInfo.fMask = (uint)(MIIM.MIIM_BITMAP | MIIM.MIIM_STRING | MIIM.MIIM_FTYPE |
+            menuItemInfo.fMask = (uint)(MIIM.MIIM_BITMAP | MIIM.MIIM_STRING | MIIM.MIIM_FTYPE | MIIM.MIIM_DATA |
                                         MIIM.MIIM_ID | MIIM.MIIM_STATE);
 
             //  If the menu item has children, we'll also create the submenu.
@@ -131,6 +131,19 @@ namespace SharpShell.SharpContextMenu
 
             //  The type is the string.
             menuItemInfo.fType = (uint)MFT.MFT_STRING;
+
+            
+            // Windows Forms allows the user to add whatever data they want in the .Tag field.
+            // We pass through some simple types
+            if (menuItem.Tag is ulong ulongTag)
+            {
+                menuItemInfo.dwItemData = (IntPtr) ulongTag;
+            };
+            if (menuItem.Tag is int intTag)
+            {
+                menuItemInfo.dwItemData = (IntPtr) intTag;
+            };
+            
 
             //  The type data is the text of the menu item.
             menuItemInfo.dwTypeData = menuItem.Text;
