@@ -27,6 +27,7 @@
         </SccProvider>
         <Company>SimpleContextMenus</Company>
         <Product>SimpleContextMenus</Product>
+        <LangVersion>12</LangVersion>
 
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

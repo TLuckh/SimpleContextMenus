@@ -27,6 +27,8 @@ namespace SharpShell.SharpContextMenu
         /// </summary>
         private readonly NativeContextMenuWrapper nativeContextMenuWrapper = new NativeContextMenuWrapper();
 
+        protected IntPtr handleWindowsContextMenu;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="SharpContextMenu" /> class.
         /// </summary>
@@ -137,6 +139,7 @@ namespace SharpShell.SharpContextMenu
         /// <returns>An HRESULT indicating success.</returns>
         int IContextMenu.QueryContextMenu(IntPtr hMenu, uint indexMenu, int idCmdFirst, int idCmdLast, CMF uFlags)
         {
+            handleWindowsContextMenu = hMenu;
             //  Log this key event.
             Log(string.Format("Query Context Menu for items: {0}{1}", Environment.NewLine,
                 string.Join(Environment.NewLine, SelectedItemPaths)));

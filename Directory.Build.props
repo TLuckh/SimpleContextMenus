@@ -1,0 +1,22 @@
+﻿<Project>
+    <!-- Clean bin & obj -->
+    <Target Name="PostClean" AfterTargets="Clean">
+        <!-- Remove /bin -->
+        <RemoveDir Directories="$(BaseOutputPath)" />
+        <!-- Remove /obj -->
+        <RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+    </Target>
+
+    <!-- Get most of the obj folders back online again -->
+    <Target Name="RestoreAfterClean" AfterTargets="PostClean">
+        <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Restore" />
+    </Target>
+    <!-- Stuff like global.usings.g and other compiler-generated files only get created by building the project, at least its core. -->
+    <Target Name="RebuildAfterClean" AfterTargets="RestoreAfterClean">
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="PrepareForBuild;ResolveReferences;GenerateSatelliteAssemblies"
+                 Properties="Configuration=$(Configuration)" />
+    </Target>
+    <!-- Still red lines? Try nuget restore -->
+</Project>
+

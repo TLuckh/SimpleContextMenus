@@ -25,12 +25,12 @@ namespace SharpShell
         public IEnumerable<string> SelectedItemPaths => selectedItemPaths;
 
         /// <summary>
-        ///     Gets the folder path.
+        ///     Gets the folder path, if passed by us from the explorer. This is exactly the case if there are no selected items when the context menu is built.
         /// </summary>
         /// <value>
         ///     The folder path.
         /// </value>
-        public string FolderPath { get; private set; }
+        public string? FolderPath { get; private set; }
 
         #region Implementation of IShellExtInit
 
@@ -44,7 +44,7 @@ namespace SharpShell
         {
             Log("Initializing shell extension...");
 
-            //  If we have the folder PIDL, we can get the parent folder.
+            //  If we have the folder PIDL, we can get the parent folder. Which is only the case if there was no selection at the time the context menu was built.
             if (pidlFolder != IntPtr.Zero)
             {
                 StringBuilder stringBuilder = new StringBuilder(260);

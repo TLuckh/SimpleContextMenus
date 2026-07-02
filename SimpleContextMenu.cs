@@ -18,14 +18,30 @@ public class SimpleContextMenu : SharpContextMenu
 {
     private List<string>? _selectedItemPaths;
 
-    public new string FolderPath
+
+    /// <summary>
+    ///
+    /// For functions which assume ShowMenu() is true, this returns the full path to the folder in which the explorer is currently looking at.
+    /// Otherwise, there is a special logic to determine the folder path, and pass back null if we're in a state where creating the context menu isn't sensible,
+    /// which is used for ShowMenu().
+    ///
+    /// 
+    /// Returns null in edge cases:
+    /// First case, explorer calls the COM Servers the first time without passing over the folder path. No clue why.
+    /// Second case, explorer calls the COM Servers for virtual folders (e.g. 'Recently Used') without passing over the folder path.
+    /// Third case, explorer calls the COM Servers for a resolved file, i.e. if the first file selected when RMB'ing is a .lnk, the explorer
+    /// once builds the context menu for the selection, and once for a single selection, which is the .lnk's resolved path.
+    ///
+    /// 
+    /// </summary>
+    public new string? FolderPath
     {
         get
         {
             List<string> selectedItems = GetSelectedItemPaths();
             if (selectedItems.Count == 0) // Case: No selection. Here FolderPath works as intended in the base-class
                 return base.FolderPath;
-            // Case: Selection. Here, FolderPath from base-class is bugged and returns the path of system32.
+            // Case: Selection. Here, FolderPath from base-class is bugged and returns null or the path of system32.
             //If all the files are in the same folder, we return its path.
             //Otherwise, nothing is returned as we might not be in a folder at all (e.g. 'Recently Used', or 'My Computer'),
             //which is detected in CanShowMenu(). 
@@ -85,7 +101,23 @@ public class SimpleContextMenu : SharpContextMenu
     /// </returns>
     protected override bool CanShowMenu()
     {
-        return FolderPath.Length > 0; // See FolderPath for explanation.
+        List<string> itemPaths = GetSelectedItemPaths();
+        // Not sure if it's a bug, but some calls from the explorer don't set FolderPath; Without this line, this passes a HR to the explorer
+        // (even with the HR set, everything seems to be working fine... but safe is safe)
+        if (FolderPath == null)
+            return false;
+        
+        // If there's a selection, and the first item selected (i.e. whatever item the mouse hovers over when RMB'ing)
+        // is a link-file (.lnk), the context menu is built twice:
+        // Once for the selection, and once for the single resolved .lnk path.
+        // Similar to virtual folders (see FolderPath) we disable the shell handler for this scenario
+        // since this is a behavior the user probably wouldn't expect
+        // [i.e. the user can correctly assume that the apps started from the context menu only get (some) of the files & folders in the current folder as arguments passed]
+        if (MarshallingStructures.CheckIfSCMAlreadyCalled(this.handleWindowsContextMenu))
+            return false;
+        
+        // Similar special case as above, for virtual folders which may contain files from different folders.
+        return FolderPath.Length > 0; 
     }
 
     /// <summary>

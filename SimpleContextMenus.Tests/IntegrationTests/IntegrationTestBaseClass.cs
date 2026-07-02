@@ -48,7 +48,7 @@ public abstract class IntegrationTestBaseClass : IDisposable
     /// Copies the files from  CopyToOutputTests/<see cref="FromFolder"/>, which are named in <paramref name="filesToCopy"/>,
     /// into a new subfolder in the folder in which the assembly SimpleContextMenus.Tests.dll is located.
     /// </summary>
-    /// <param name="newFolderToCopyInto">The name of a new folder in the folder in which the .dll is located.</param>
+    /// <param name="newFolderToCopyInto">The name of a new folder within the folder in which the .dll is located.</param>
     /// <param name="filesToCopy">The files to copy into the new folder.</param>
     protected void CopyFilesFromIntegrationTestsToAssemblyFolder(string newFolderToCopyInto = "", params string[] filesToCopy)
     {

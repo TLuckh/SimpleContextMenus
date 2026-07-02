@@ -66,6 +66,18 @@ public class Node
             return null;
         }
     }
+    
+    public List<Node> GetChildrenByName(string childName)
+    {
+        try
+        {
+            return Children.Where(node => node.ContextMenuEntryName.Trim() == childName.Trim()).ToList();
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
+    }
 
     public Node(string contextMenuEntryName)
     {
