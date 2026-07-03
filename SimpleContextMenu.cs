@@ -5,6 +5,7 @@ using System.Text;
 using MimeTypes;
 using SharpShell.Attributes;
 using SharpShell.SharpContextMenu;
+using SimpleContextMenus.Interop;
 using SimpleContextMenus.Properties;
 
 namespace SimpleContextMenus;

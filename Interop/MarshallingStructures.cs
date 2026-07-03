@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using SharpShell.Interop;
 
-namespace SimpleContextMenus;
+namespace SimpleContextMenus.Interop;
 
-public class MarshallingStructures
+public static class MarshallingStructures
 {
     
 

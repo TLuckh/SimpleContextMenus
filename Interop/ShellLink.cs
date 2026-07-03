@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
-namespace SimpleContextMenus;
+namespace SimpleContextMenus.Interop;
 
 public abstract class ShellLink
 {

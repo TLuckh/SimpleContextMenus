@@ -134,6 +134,10 @@
     <ItemGroup>
         <ProjectReference Include="SharpShell\SharpShell.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StrongNamer" Version="0.2.5" />
+    </ItemGroup>
     <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
         <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>
         <Message Importance="high" Text="MSBuildToolsPath=$(MSBuildToolsPath)"/>
