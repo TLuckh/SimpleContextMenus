@@ -136,7 +136,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="StrongNamer" Version="0.2.5" />
+      <PackageReference Include="StrongNamer" Version="0.2.5" /> <!-- See git log id 156458d6 as for why StrongNamer is necessary -->
     </ItemGroup>
     <Target Name="EnsureClassicMSBuild" BeforeTargets="PrepareForBuild">
         <Message Importance="high" Text="MSBuildRuntimeType=$(MSBuildRuntimeType)"/>

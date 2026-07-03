@@ -59,11 +59,6 @@ public class SimpleContextMenu : SharpContextMenu
         }
     }
 
-    public string GetFolderPath()
-    {
-        return FolderPath;
-    }
-
     /// <summary>
     ///     Returns the full path to the subfolder "Extensions", which lies in the same folder as the executing assembly.
     /// </summary>
@@ -301,7 +296,7 @@ public class SimpleContextMenu : SharpContextMenu
     {
         return (sender, args) =>
         {
-            Directory.SetCurrentDirectory(GetFolderPath());
+            Directory.SetCurrentDirectory(FolderPath!);
 
             StringBuilder argumentsToPass = new();
             // Add all selected items which match at least one of the given mime types or file extensions to the argument list
@@ -326,7 +321,7 @@ public class SimpleContextMenu : SharpContextMenu
             {
                 WindowStyle = ProcessWindowStyle.Normal,
                 FileName = fileAttributes.FilePathFull,
-                WorkingDirectory = GetFolderPath(),
+                WorkingDirectory = FolderPath!,
                 Arguments = argumentsToPass.ToString()
             };
             process.StartInfo = startInfo;
@@ -363,7 +358,7 @@ public class SimpleContextMenu : SharpContextMenu
         List<string> itemPathsToMatch = GetSelectedItemPaths();
         if (itemPathsToMatch.Count == 0)
         {
-            itemPathsToMatch = Directory.GetFileSystemEntries(GetFolderPath()).ToList();
+            itemPathsToMatch = Directory.GetFileSystemEntries(FolderPath!).ToList();
 
             // To not slow down the explorer or get timeout issues, we simply show everything if the selection is too big.
             // If the selection was given by the user, then timeout issues hopefully aren't a concern.

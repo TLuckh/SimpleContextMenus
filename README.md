@@ -81,6 +81,19 @@ and the passed string is
 
 In general, any passed parameter is wrapped in quotes, and separated by a space.
 
+## Limitations
+### Long paths
+
+Given that the context menu is built with Windows explorer, 
+whether the COM Server is even loaded depends on whether Windows explorer can work with
+the path you're currently in (or the selected items' paths).
+
+For example, for long paths you need to set the corresponding 
+<a href="https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry#registry-setting-to-enable-long-paths">registry key</a>.  
+Even with it set however, there are still exceptions where Windows Explorer trips up.
+
+
+
 
 # Development
 ## Building
